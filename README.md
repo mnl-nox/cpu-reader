@@ -41,7 +41,8 @@ Installation:
 
 ```bash
 make install PREFIX=/usr/local
-
+---
+```
 
 ```
 cpu-reader/
@@ -64,6 +65,7 @@ cpu-reader/
 └── include/
     └── cpu.h
 ```
+---
 
 ## Documentation
 
