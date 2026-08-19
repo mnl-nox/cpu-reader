@@ -1,114 +1,42 @@
 # Arquitetura do CPU Reader
 
-## Visão Geral
+## Visão geral
 
-O CPU Reader é uma biblioteca C que segue uma arquitetura modular e em camadas, permitindo fácil manutenção e extensão.
+O projeto é uma biblioteca C pequena, compilada como `libcpu.a`, e uma aplicação de exemplo separada. A biblioteca depende apenas da libc e do pseudo-sistema de arquivos `/proc` do Linux. O monitor depende adicionalmente de ncurses.
 
-## Camadas da Arquitetura
+## Componentes
 
-### 1. Camada de Interface Pública (API)
+### API pública: `include/cpu.h`
 
-- Localização: `include/cpu.h`
-- Responsabilidade: Expor as funções públicas da biblioteca
-- Exemplo de funções:
-  - `cpu_info_t* cpu_get_info()`: Obtém informações gerais da CPU
-  - `float cpu_get_usage()`: Retorna o uso atual da CPU
-  - `float cpu_get_temperature()`: Retorna a temperatura da CPU
+Declara `cpu_info_t` e as seis funções públicas:
 
-### 2. Camada de Implementação
+- `cpu_init()` e `cpu_cleanup()` reinicializam o estado usado pelo cálculo de uso.
+- `cpu_get_info()` retorna informações lidas de `/proc/cpuinfo`.
+- `cpu_get_usage()` calcula o uso agregado a partir de `/proc/stat`.
+- `cpu_get_temperature()` retorna `-1.0f`; leitura de sensores ainda não foi implementada.
+- `cpu_free_info()` libera a estrutura retornada por `cpu_get_info()`.
 
-- Localização: `src/cpu.c`
-- Responsabilidade: Implementar a lógica de leitura e processamento de dados
-- Componentes:
-  - Leitura do sistema de arquivos `/proc/cpuinfo`
-  - Leitura de dados de desempenho
-  - Parsing e processamento de informações
-  - Cálculo de métricas
+### Implementação: `src/cpu.c`
 
-### 3. Camada de Sistema Operacional
+`cpu_get_info()` abre `/proc/cpuinfo`, aloca uma estrutura com `calloc()` e processa as chaves `processor`, `model name`, `cpu MHz` e `flags`. O campo `cores` conta entradas `processor`; na prática, representa processadores lógicos. `threads` vem de `_SC_NPROCESSORS_ONLN`.
 
-- Responsabilidade: Interagir com o sistema operacional
-- Interface com `/proc` no Linux
-- Chamadas de sistema (syscalls)
-- Gerenciamento de recursos
+`cpu_get_usage()` lê os oito primeiros contadores da linha `cpu` em `/proc/stat`. A diferença entre a leitura atual e a anterior produz a porcentagem de tempo não ocioso. A primeira chamada usa os contadores desde a inicialização do sistema como referência anterior.
 
-## Estrutura de Dados
+### Aplicação: `examples/monitor.c`
 
-### Estrutura Principal: `cpu_info_t`
+Inicializa ncurses, atualiza as informações a cada segundo e encerra quando recebe `q`. A aplicação libera cada `cpu_info_t` depois de exibi-la.
 
-```c
-typedef struct {
-    int cores;              // Número de cores
-    int threads;            // Número de threads
-    float frequency_mhz;    // Frequência em MHz
-    float usage_percent;    // Uso em porcentagem
-    float temperature_c;    // Temperatura em graus Celsius
-    char model[256];        // Modelo da CPU
-    char flags[512];        // Flags de suporte
-} cpu_info_t;
+## Estado e limitações
+
+Os contadores anteriores de `/proc/stat` são variáveis estáticas globais. Portanto, a API de uso não oferece isolamento entre instâncias nem garantia de segurança para chamadas concorrentes. A biblioteca não implementa cache de informações, logging, leitura de temperatura ou métricas por núcleo.
+
+## Fluxo de dados
+
+```text
+Aplicação
+    |
+    v
+include/cpu.h -> src/cpu.c
+                    |-- /proc/cpuinfo -> cpu_info_t
+                    `-- /proc/stat    -> uso agregado (%)
 ```
-
-## Fluxo de Dados
-
-```
-┌─────────────────────┐
-│  Aplicação do       │
-│  Usuário            │
-└──────────┬──────────┘
-           │
-           ↓
-┌─────────────────────────┐
-│  API Pública            │
-│  (cpu.h)                │
-└──────────┬──────────────┘
-           │
-           ↓
-┌──────────────────────────┐
-│  Implementação           │
-│  (cpu.c)                 │
-│  - Parsing               │
-│  - Processamento         │
-│  - Cálculos              │
-└──────────┬───────────────┘
-           │
-           ↓
-┌──────────────────────────┐
-│  Sistema de Arquivos     │
-│  /proc/cpuinfo           │
-│  /proc/stat              │
-└──────────────────────────┘
-```
-
-## Padrões de Design
-
-### Padrão Factory
-
-- `cpu_get_info()`: Cria e retorna uma instância de `cpu_info_t`
-
-### Padrão Singleton
-
-- Gerenciador de cache de informações da CPU para evitar leituras desnecessárias
-
-### Padrão Strategy
-
-- Diferentes estratégias de leitura para diferentes versões do Linux
-
-## Dependências
-
-- **libc**: Biblioteca C padrão
-- **stdlib.h**: Funções de utilidade
-- **stdio.h**: I/O de arquivos
-- **string.h**: Manipulação de strings
-
-## Ciclo de Vida de Objetos
-
-1. **Alocação**: `malloc()` para dados dinâmicos
-2. **Inicialização**: Preenchimento com dados do sistema
-3. **Uso**: Acesso pelas funções de API
-4. **Limpeza**: `free()` para liberar memória
-
-## Tratamento de Erros
-
-- Retorno de NULL ou valores inválidos (-1) em caso de erro
-- Mensagens de erro padronizadas
-- Logging de erros para debug

@@ -1,45 +1,34 @@
 # CPU Reader
 
-Biblioteca leve e eficiente em C para leitura e monitoramento de dados da CPU em tempo real.
+Biblioteca C99 para consultar informações básicas do processador e calcular o uso agregado da CPU em sistemas Linux. O projeto também fornece um monitor de terminal baseado em ncurses.
 
-<div align="center">
+## Estado atual
 
-[![C Language](https://img.shields.io/badge/C-A8B9CC?style=for-the-badge&logo=c&logoColor=white)](<https://en.wikipedia.org/wiki/C_(programming_language)>)
-[![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.linux.org/)
-[![Git](https://img.shields.io/badge/Git-F05033?style=for-the-badge&logo=git&logoColor=white)](https://git-scm.com/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
-[![Make](https://img.shields.io/badge/Make-004B87?style=for-the-badge&logo=gnu&logoColor=white)](https://www.gnu.org/software/make/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+- `cpu_get_info()` lê modelo, frequência, flags, processadores lógicos e threads online.
+- `cpu_get_usage()` calcula o uso agregado a partir de duas leituras de `/proc/stat`.
+- `cpu_get_temperature()` ainda retorna `-1.0f` e não lê sensores.
+- A biblioteca não mantém arquivos abertos; os dados são lidos a cada chamada.
+- O estado usado pelo cálculo de uso é global e não é thread-safe.
 
-</div>
+## Requisitos
 
----
-
-CPU Reader fornece interface C simples para acessar informações da CPU:
-
-- Leitura de núcleos, threads, modelo e frequência
-- Monitoramento em tempo real de uso de CPU
-- Leitura de temperatura (quando disponível)
-- Zero dependências externas
-- Compatível com x86, ARM e RISC-V
-
-## Requirements
-
-- Linux kernel 4.4+
-- GCC 5.0+ ou Clang 3.5+
+- Linux com `/proc/cpuinfo` e `/proc/stat` disponíveis
+- GCC ou Clang com suporte a C99
 - GNU Make
+- Desenvolvimento ncurses para compilar o monitor (`libncurses-dev` em Debian/Ubuntu)
 
-## Build
+## Compilação e execução
 
 ```bash
-make              # Compilar biblioteca
-make install      # Instalar
-make clean        # Limpar
+make          # biblioteca e monitor
+make test     # compila e executa os testes
+make clean    # remove build/ e libcpu.a
 ```
 
-Installation:
+O monitor é executado com:
 
 ```bash
+<<<<<<< Updated upstream
 make install PREFIX=/usr/local
 ---
 ```
@@ -64,37 +53,72 @@ cpu-reader/
 │   └── main.c
 └── include/
     └── cpu.h
+||||||| Stash base
+make install PREFIX=/usr/local
+
+
+```
+cpu-reader/
+├── Makefile
+├── README.md
+├── LICENSE
+├── doc/
+│   ├── requerimentos.md
+│   ├── decisao-design.md
+│   ├── prioridades-sdlc.md
+│   ├── arquitetura.md
+│   ├── casosdeuso.md
+│   ├── criterios.md
+│   └── diagramas.md
+├── src/
+│   ├── cpu.c
+│   └── cpu.h
+├── examples/
+│   └── main.c
+└── include/
+    └── cpu.h
+=======
+./build/cpu-monitor
+>>>>>>> Stashed changes
 ```
 ---
 
-## Documentation
+Pressione `q` para sair. A biblioteca é gerada como `libcpu.a` e o monitor como `build/cpu-monitor`.
 
-- [Requerimentos](doc/requerimentos.md) - Functional and non-functional requirements
-- [Decisao Design](doc/decisao-design.md) - Architectural decisions
-- [Prioridades SDLC](doc/prioridades-sdlc.md) - Development roadmap
-- [Arquitetura](doc/arquitetura.md) - Internal design
-- [Casos de Uso](doc/casosdeuso.md) - Use cases
-- [Criterios](doc/criterios.md) - Acceptance criteria
-- [Diagramas](doc/diagramas.md) - Architecture diagrams
+## Estrutura
 
-## Contributing
+```text
+include/cpu.h       API pública
+src/cpu.c           implementação da biblioteca
+examples/monitor.c  aplicação ncurses
+tests/test_cpu.c    teste básico da API
+Makefile            build da biblioteca, monitor e testes
+build/              objetos e executáveis gerados
+```
 
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/Feature`)
-3. Commit changes (`git commit -am 'Add Feature'`)
-4. Push to branch (`git push origin feature/Feature`)
-5. Open a Pull Request
+## API
 
-Guidelines:
+```c
+int cpu_init(void);
+void cpu_cleanup(void);
+cpu_info_t *cpu_get_info(void);
+float cpu_get_usage(void);
+float cpu_get_temperature(void);
+void cpu_free_info(cpu_info_t *info);
+```
 
-- C99+ compliance
-- Test coverage >= 80%
-- Update documentation
-- No external dependencies
+`cpu_get_info()` retorna uma estrutura alocada dinamicamente. A aplicação deve liberar o resultado com `cpu_free_info()`. Em caso de falha, a função retorna `NULL`. `cpu_get_usage()` retorna um valor entre `0` e `100` em condições normais e `-1.0f` se não conseguir ler `/proc/stat`.
 
-## License
+## Documentação
 
-MIT License - See [LICENSE](LICENSE) file
+- [Arquitetura](doc/arquitetura.md)
+- [Requerimentos](doc/requerimentos.md)
+- [Casos de uso](doc/casosdeuso.md)
+- [Critérios de aceitação](doc/criterios.md)
+- [Decisões de design](doc/decisao-design.md)
+- [Prioridades](doc/prioridades-sdlc.md)
+- [Diagramas](doc/diagramas.md)
 
-You are free to use, modify, and distribute this software.
-Please include the license file when redistributing.
+## Licença
+
+MIT. Consulte [LICENSE](LICENSE).
