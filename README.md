@@ -25,13 +25,7 @@ make test     # compila e executa os testes
 make clean    # remove build/ e libcpu.a
 ```
 
-O monitor é executado com:
-
-```bash
-<<<<<<< Updated upstream
-make install PREFIX=/usr/local
 ---
-```
 
 ```
 cpu-reader/
@@ -53,35 +47,8 @@ cpu-reader/
 │   └── main.c
 └── include/
     └── cpu.h
-||||||| Stash base
-make install PREFIX=/usr/local
-
 
 ```
-cpu-reader/
-├── Makefile
-├── README.md
-├── LICENSE
-├── doc/
-│   ├── requerimentos.md
-│   ├── decisao-design.md
-│   ├── prioridades-sdlc.md
-│   ├── arquitetura.md
-│   ├── casosdeuso.md
-│   ├── criterios.md
-│   └── diagramas.md
-├── src/
-│   ├── cpu.c
-│   └── cpu.h
-├── examples/
-│   └── main.c
-└── include/
-    └── cpu.h
-=======
-./build/cpu-monitor
->>>>>>> Stashed changes
-```
----
 
 Pressione `q` para sair. A biblioteca é gerada como `libcpu.a` e o monitor como `build/cpu-monitor`.
 
@@ -95,19 +62,6 @@ tests/test_cpu.c    teste básico da API
 Makefile            build da biblioteca, monitor e testes
 build/              objetos e executáveis gerados
 ```
-
-## API
-
-```c
-int cpu_init(void);
-void cpu_cleanup(void);
-cpu_info_t *cpu_get_info(void);
-float cpu_get_usage(void);
-float cpu_get_temperature(void);
-void cpu_free_info(cpu_info_t *info);
-```
-
-`cpu_get_info()` retorna uma estrutura alocada dinamicamente. A aplicação deve liberar o resultado com `cpu_free_info()`. Em caso de falha, a função retorna `NULL`. `cpu_get_usage()` retorna um valor entre `0` e `100` em condições normais e `-1.0f` se não conseguir ler `/proc/stat`.
 
 ## Documentação
 
