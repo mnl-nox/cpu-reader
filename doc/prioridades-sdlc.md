@@ -11,13 +11,14 @@ Este roadmap parte do estado atual do repositório, que já possui biblioteca, m
 - [x] Monitor de terminal com ncurses.
 - [x] Teste básico executável com `make test`.
 - [x] Build reprodutível com `make all` e limpeza com `make clean`.
+- [x] Núcleo separado em módulos de informações, uso e fachada da API.
+- [x] Testes de campos completos de `cpu_info_t`, contextos nulos e reinicialização.
 
 ## Próxima prioridade: robustez da biblioteca
 
-1. Separar o estado do cálculo de uso em um contexto por instância ou documentar uma API thread-safe.
-2. Adicionar testes para falha de arquivos, parsing e primeira leitura de uso.
-3. Verificar o comportamento em arquiteturas e formatos de `/proc` diferentes.
-4. Executar testes com AddressSanitizer e verificar vazamentos.
+1. Adicionar testes para falha de arquivos e parsing com fontes de dados injetáveis.
+2. Verificar o comportamento em arquiteturas e formatos de `/proc` diferentes.
+3. Executar testes com AddressSanitizer e verificar vazamentos em CI.
 
 ## Próxima prioridade: recursos de CPU
 

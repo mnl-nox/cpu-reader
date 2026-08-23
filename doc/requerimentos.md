@@ -26,13 +26,13 @@ Cada estrutura retornada por `cpu_get_info()` deve ser liberada com `cpu_free_in
 
 ### RF-004: Inicialização e limpeza
 
-`cpu_init()` e `cpu_cleanup()` devem zerar os contadores internos do cálculo de uso. Não há outros recursos persistentes para inicializar ou liberar.
+`cpu_init()` e `cpu_cleanup()` devem zerar os contadores internos do contexto padrão de uso. `cpu_usage_context_t` permite manter contadores independentes por instância; a primeira leitura de cada contexto retorna `0.0f` e estabelece a referência.
 
 ## Recursos planejados
 
 - leitura de temperatura por `sysfs` ou sensores compatíveis;
 - métricas individuais por núcleo;
-- contexto de estado por instância e thread-safety;
+- sincronização automática para chamadas concorrentes no mesmo contexto;
 - mensagens de erro detalhadas;
 - instalação da biblioteca e documentação de API mais extensa.
 
