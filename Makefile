@@ -4,6 +4,7 @@ LDFLAGS ?=
 
 LIBRARY = libcpu.a
 CORE_OBJECT = build/cpu.o
+CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_usage.o
 MONITOR = build/cpu-monitor
 
 .PHONY: all core monitor test clean
@@ -12,7 +13,7 @@ all: core monitor
 
 core: $(LIBRARY)
 
-$(LIBRARY): $(CORE_OBJECT)
+$(LIBRARY): $(CORE_OBJECTS)
 	ar rcs $@ $^
 
 monitor: $(MONITOR)
@@ -29,6 +30,14 @@ build/test_cpu: tests/test_cpu.c $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu $(LDFLAGS)
 
 build/cpu.o: src/cpu.c include/cpu.h
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/cpu_info.o: src/cpu_info.c include/cpu.h
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/cpu_usage.o: src/cpu_usage.c include/cpu.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 
