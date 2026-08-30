@@ -10,10 +10,14 @@
 
 - [x] `cpu_get_info()` retorna uma estrutura válida em um Linux com `/proc/cpuinfo`.
 - [x] A estrutura contém processadores, threads online, modelo, frequência e flags quando as chaves existem no arquivo.
+- [x] A estrutura inclui processos ativos e temperatura quando as fontes Linux correspondentes estão disponíveis.
 - [x] `cpu_free_info()` libera a estrutura retornada.
 - [x] `cpu_get_usage()` retorna valor entre `0` e `100` para leituras válidas.
 - [x] Falhas de leitura de informações retornam `NULL`.
 - [x] Falhas de leitura de uso retornam `-1.0f`.
+- [x] Falhas expõem código e mensagem por `cpu_get_last_error_code()` e `cpu_get_last_error()`.
+- [x] Variáveis `CPU_READER_CPUINFO_PATH`, `CPU_READER_PROC_STAT_PATH`, `CPU_READER_CPU_TEMP_PATH`, `CPU_READER_CPU_FREQ_PATH` e `CPU_READER_LOADAVG_PATH` permitem redirecionar as leituras para fixtures de teste.
+- [x] A soma de contadores usa assembly inline em `x86_64` com fallback C nas demais plataformas.
 
 ## Monitor
 
@@ -23,7 +27,7 @@
 
 ## Limitações conhecidas
 
-- [ ] `cpu_get_temperature()` ainda não lê sensores e retorna `-1.0f`.
-- [ ] Não existem testes por núcleo, de temperatura, de portabilidade ou de performance.
+- [ ] A temperatura depende de sensores expostos por `sysfs`; em máquinas sem sensor compatível, `cpu_get_temperature()` retorna `-1.0f`.
+- [ ] Não existem testes por núcleo, de portabilidade ampla ou de performance.
 - [ ] Não há medição formal de cobertura, execução com sanitizers ou integração contínua.
 - [ ] A API de uso não é thread-safe.

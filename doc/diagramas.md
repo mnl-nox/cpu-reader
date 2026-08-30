@@ -13,11 +13,11 @@
 | API publica         |       | src/cpu.c      |
 +---------------------+       +-------+--------+
                                       |
-                         +------------+------------+
-                         |                         |
-                         v                         v
-                  /proc/cpuinfo              /proc/stat
-                  informacoes                contadores CPU
+              +----------+----------+----------+----------+
+              |          |          |          |
+              v          v          v          v
+       /proc/cpuinfo /proc/stat /proc/loadavg  sysfs
+       informacoes   uso CPU   processos      temperatura e clock
 ```
 
 O monitor (`examples/monitor.c`) usa a mesma biblioteca e acrescenta ncurses apenas no executável.
@@ -37,6 +37,10 @@ calloc(cpu_info_t)
 processa processor, model name,
 cpu MHz e flags
       |
+      +--> lê /proc/loadavg para processos ativos
+      |
+      +--> tenta ler sysfs para temperatura
+      |
       +--> retorna cpu_info_t*
       |
       `--> em falha: fecha arquivo e retorna NULL
@@ -52,6 +56,8 @@ lê a linha "cpu" de /proc/stat
       |
       v
 soma contadores atuais
+(`x86_64`: assembly inline;
+demais plataformas: C)
       |
       v
 calcula delta contra a leitura anterior
@@ -60,6 +66,8 @@ calcula delta contra a leitura anterior
 uso = (delta_total - delta_idle) / delta_total * 100
       |
       `--> retorna 0..100 ou -1.0f em erro
+                         |
+                         `--> codigo e mensagem do ultimo erro
 ```
 
 Os contadores anteriores são estáticos e compartilhados pela biblioteca. `cpu_init()` e `cpu_cleanup()` zeram esse estado.

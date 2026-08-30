@@ -24,6 +24,20 @@ A implementação usa `/proc/cpuinfo` para informações descritivas e `/proc/st
 
 O núcleo não depende de ncurses. `examples/monitor.c` é um consumidor da API e é vinculado com `-lncurses` pelo alvo `monitor` do `Makefile`.
 
-## D-007: Recursos ainda não implementados
+## D-007: Assembly limitado ao trecho aritmético
 
-Temperatura, uso por núcleo, logging, instalação, cache de dados, thread-safety e códigos de erro detalhados foram mantidos fora da implementação atual. Esses itens devem ser tratados como evolução futura, não como comportamento garantido pela API.
+O acesso a `/proc` e o parsing permanecem em C, pois são a maior parte do trabalho e dependem de E/S. A soma fixa dos oito contadores de uso usa assembly inline somente em `x86_64` com GCC ou Clang. O código preserva um fallback C idêntico para manter portabilidade e facilitar validação.
+
+## D-008: Relatório global de falhas
+
+A API mantém os valores de retorno existentes para compatibilidade e acrescenta `cpu_get_last_error_code()` e `cpu_get_last_error()` para diagnóstico. O estado é global e sobrescrito por cada chamada, portanto a aplicação deve consultá-lo imediatamente e não usá-lo de forma concorrente.
+
+## D-009: Métricas dependentes do Linux
+
+Temperatura, clock atual e processos ativos são obtidos nas interfaces Linux `sysfs`, `/proc/cpuinfo` e `/proc/loadavg`. A temperatura pode não estar disponível quando a máquina não expõe um sensor compatível; a API representa esse caso com `-1.0f` e `CPU_ERROR_UNSUPPORTED`.
+
+Uso por núcleo, logging, instalação, cache de dados e thread-safety continuam fora da implementação atual.
+
+## D-010: Versionamento por commits convencionais
+
+O workflow de release interpreta os prefixos dos commits enviados para `main`. Commits `feat` criam uma versão minor, enquanto `refactor`, `fix` e `bugfix` criam uma versão patch. Assim, a automação gera tags previsíveis sem exigir edição manual de arquivos de versão.
