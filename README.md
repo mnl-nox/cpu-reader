@@ -139,7 +139,7 @@ Quando mais de um commit elegível chega no mesmo push, é criada uma única tag
 - [x] Commit realizado com `docs: consolidate requirements...`
 
 ### Próximas Fases
-
+// Semana 2 em Atraso 
 **Semana 2 (2026-09-11)** - Validação e Testes
 - [ ] Sanitizers (AddressSanitizer, UBSan)
 - [ ] Multi-distribuição (RHEL, Alpine)
