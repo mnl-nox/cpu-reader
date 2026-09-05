@@ -88,13 +88,81 @@ Quando mais de um commit elegível chega no mesmo push, é criada uma única tag
 
 ## Documentação
 
-- [Arquitetura](doc/arquitetura.md)
-- [Requerimentos](doc/requerimentos.md)
-- [Casos de uso](doc/casosdeuso.md)
-- [Critérios de aceitação](doc/criterios.md)
-- [Decisões de design](doc/decisao-design.md)
-- [Prioridades](doc/prioridades-sdlc.md)
-- [Diagramas](doc/diagramas.md)
+### 📖 Iniciar aqui
+
+- **[doc/README.md](doc/README.md)** - Índice navegável de toda a documentação
+- **[BUILD.md](BUILD.md)** - Instruções completas de compilação
+- **[VALIDATION.md](VALIDATION.md)** - Relatório de validação de requisitos
+
+### 📋 Especificação
+
+- **[doc/requisitos-funcionais.md](doc/requisitos-funcionais.md)** - RF-001 a RF-012 implementadas + RF-013 a RF-015 futuras
+- **[doc/requisitos-nao-funcionais.md](doc/requisitos-nao-funcionais.md)** - RNF-001 a RNF-012 (compatibilidade, performance, segurança)
+- **[doc/software-requirements-specification.md](doc/software-requirements-specification.md)** - SRS formal com matriz de rastreabilidade
+
+### 🏗️ Arquitetura e Design
+
+- **[doc/design.md](doc/design.md)** - Design Document v2.0 com componentes, padrões e trade-offs
+- **[doc/architecture-decision-records.md](doc/architecture-decision-records.md)** - ADR-0001 a ADR-0013 (decisões formalizadas)
+- **[doc/uml-diagrams.md](doc/uml-diagrams.md)** - 14 Diagramas UML em Mermaid
+
+### 📅 Planejamento
+
+- **[doc/roadmap-evolucao-semana.md](doc/roadmap-evolucao-semana.md)** - Roadmap 8 semanas com tarefas diárias
+- **[doc/prioridades-sdlc.md](doc/prioridades-sdlc.md)** - Prioridades P1-P4 com timeline
+
+### 📚 Documentação Original
+
+- [Arquitetura](doc/arquitetura.md) - Visão geral (v1.0)
+- [Requerimentos](doc/requerimentos.md) - Requisitos iniciais (v1.0)
+- [Casos de uso](doc/casosdeuso.md) - Cenários de uso
+- [Critérios de aceitação](doc/criterios.md) - Acceptance criteria
+- [Decisões de design](doc/decisao-design.md) - Design decisions (v1.0)
+- [Diagramas](doc/diagramas.md) - Diagramas iniciais
+
+### 📊 Consolidação
+
+- **[doc/CONSOLIDACAO-VALIDACAO.md](doc/CONSOLIDACAO-VALIDACAO.md)** - Sumário completo da consolidação
+- **[doc/SUMMARY.sh](doc/SUMMARY.sh)** - Script para gerar relatório visual
+
+## Status do Projeto
+
+### ✅ Semana 1 (2026-09-04) - Documentação Consolidada
+
+- [x] 7 novos documentos criados
+- [x] 24 requisitos documentados (12 RF + 12 RNF)
+- [x] 13 ADRs formalizadas
+- [x] 14 Diagramas UML
+- [x] Roadmap 8 semanas definido
+- [x] Documentação de build (BUILD.md)
+- [x] Relatório de validação (VALIDATION.md)
+- [x] Commit realizado com `docs: consolidate requirements...`
+
+### 🔄 Próximas Fases
+
+**Semana 2 (2026-09-11)** - Validação e Testes
+- [ ] Sanitizers (AddressSanitizer, UBSan)
+- [ ] Multi-distribuição (RHEL, Alpine)
+- [ ] Benchmarks básicos
+
+**Semana 3 (2026-09-16)** - CI/CD Setup
+- [ ] GitHub Actions workflow
+- [ ] Lint estático (clang-tidy)
+- [ ] Multi-plataforma CI
+
+**Semana 4+ (2026-09-23)** - Features e Release
+- [ ] RF-013: Métricas por núcleo
+- [ ] v0.2.0 Release
+- [ ] Suporte multi-plataforma
+
+## Versão Atual
+
+- **Versão:** v0.1.0 (tag automatizada)
+- **Status:** Beta (Semana 1)
+- **Requisitos:** 12/12 RF implementadas ✅
+- **RNF Validadas:** 10/12 ✅
+- **Testes:** Todos passando ✅
+- **Documentação:** Consolidada ✅
 
 ## Licença
 
