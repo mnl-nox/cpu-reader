@@ -10,7 +10,7 @@
 - Compilação sem erros com `clang -std=c99 -Wall -Wextra -Wpedantic`
 - Sem uso de extensões C11, C17 ou propriedades de compilador específicas (exceto inline assembly controlado)
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -26,7 +26,7 @@
 - Disponibilidade de `/proc/cpuinfo` e `/proc/stat` é obrigatória
 - Graciosidade em máquinas sem sensores de temperatura (retorna `-1.0f`)
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -40,7 +40,7 @@
 - Todas as funções de leitura usam apenas chamadas POSIX
 - O monitor é um consumidor separado da API
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -54,7 +54,7 @@
 - Testes passando em pelo menos x86_64 e arm64
 - Sem suposições sobre endianness ou tamanho de tipos
 
-**Prioridade:** MÉDIA | **Status:** ⚠️ Parcialmente implementado (x86_64 otimizado, fallback em outras)
+**Prioridade:** MÉDIA | **Status:** ️ Parcialmente implementado (x86_64 otimizado, fallback em outras)
 
 ---
 
@@ -69,7 +69,7 @@
 - Monitor atualiza com latência < 100ms
 - Sem alocações desnecessárias por chamada
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado (sem benchmarks formais)
+**Prioridade:** MÉDIA | **Status:** Implementado (sem benchmarks formais)
 
 ---
 
@@ -84,7 +84,7 @@
 - Buffers de tamanho fixo (`model[256]`, `flags[512]`) com parsing defensivo
 - Testes com `-fsanitize=address -fsanitize=undefined`
 
-**Prioridade:** ALTA | **Status:** ⚠️ Implementado, sem CI formalmente configurada
+**Prioridade:** ALTA | **Status:** ️ Implementado, sem CI formalmente configurada
 
 ---
 
@@ -98,7 +98,7 @@
 - Sistema de erro global (`cpu_get_last_error_code()` e `cpu_get_last_error()`)
 - Mensagens de erro descritivas em inglês
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -112,7 +112,7 @@
 - Nenhum arquivo `/proc` mantido aberto entre chamadas
 - Contextos podem ser inicializados e limpos múltiplas vezes
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -128,7 +128,7 @@
 - Comentários em funções públicas
 - Documentação de design em `doc/`
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
@@ -142,7 +142,7 @@
 - Teste básico executável com `make test`
 - Cobertura de testes > 80% (aspiração)
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado (cobertura ainda a medir)
+**Prioridade:** MÉDIA | **Status:** Implementado (cobertura ainda a medir)
 
 ---
 
@@ -157,7 +157,7 @@
 - Commits `fix`, `bugfix`, `refactor` incrementam PATCH
 - Primeiro release é `v0.1.0`
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado (primeiro release `v0.0.0` em breve)
+**Prioridade:** MÉDIA | **Status:** Implementado (primeiro release `v0.0.0` em breve)
 
 ---
 
@@ -172,26 +172,26 @@
 - Sem copy-paste significativo
 - Comentários em decisões não óbvias
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
 ## Matriz de Prioridades RNF
 
-| ID      | Requisito                 | Prioridade | Status |
+| ID | Requisito | Prioridade | Status |
 | ------- | ------------------------- | ---------- | ------ |
-| RNF-001 | C99                       | ALTA       | ✅     |
-| RNF-002 | Linux                     | ALTA       | ✅     |
-| RNF-003 | Sem deps externas         | ALTA       | ✅     |
-| RNF-004 | Multi-arquitetura         | MÉDIA      | ⚠️     |
-| RNF-005 | Performance               | MÉDIA      | ✅     |
-| RNF-006 | Segurança de memória      | ALTA       | ⚠️     |
-| RNF-007 | Tratamento de erros       | ALTA       | ✅     |
-| RNF-008 | Gerenciamento de recursos | ALTA       | ✅     |
-| RNF-009 | Documentação              | MÉDIA      | ✅     |
-| RNF-010 | Testabilidade             | MÉDIA      | ✅     |
-| RNF-011 | Versionamento             | MÉDIA      | ✅     |
-| RNF-012 | Maintainability           | MÉDIA      | ✅     |
+| RNF-001 | C99 | ALTA | |
+| RNF-002 | Linux | ALTA | |
+| RNF-003 | Sem deps externas | ALTA | |
+| RNF-004 | Multi-arquitetura | MÉDIA | ️ |
+| RNF-005 | Performance | MÉDIA | |
+| RNF-006 | Segurança de memória | ALTA | ️ |
+| RNF-007 | Tratamento de erros | ALTA | |
+| RNF-008 | Gerenciamento de recursos | ALTA | |
+| RNF-009 | Documentação | MÉDIA | |
+| RNF-010 | Testabilidade | MÉDIA | |
+| RNF-011 | Versionamento | MÉDIA | |
+| RNF-012 | Maintainability | MÉDIA | |
 
 ---
 

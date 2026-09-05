@@ -1,24 +1,24 @@
 # BUILD.md - Instruções de Build do CPU Reader
 
-**Versão:** 2.0  
-**Data:** 2026-09-04  
-**Status:** ✅ ATUALIZADO
+**Versão:** 2.0 
+**Data:** 2026-09-04 
+**Status:** ATUALIZADO
 
 ---
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 ### Sistema Operacional
 
 - **Linux** (kernel 3.10+)
-  - ✅ Debian/Ubuntu (14.04+)
-  - ✅ RHEL/CentOS (7.0+)
-  - ✅ Alpine Linux (3.10+)
+ - Debian/Ubuntu (14.04+)
+ - RHEL/CentOS (7.0+)
+ - Alpine Linux (3.10+)
 
 ### Compiladores
 
 - **GCC** 4.8+ com suporte a C99
-  - OU
+ - OU
 - **Clang** 3.5+ com suporte a C99
 
 ### Ferramentas de Build
@@ -29,9 +29,9 @@
 ### Dependências Opcionais
 
 - **ncurses-dev** (libncurses5-dev, libncursesw5-dev) - para compilar o monitor
-  - Debian/Ubuntu: `apt-get install libncurses-dev`
-  - RHEL/CentOS: `yum install ncurses-devel`
-  - Alpine: `apk add ncurses-dev`
+ - Debian/Ubuntu: `apt-get install libncurses-dev`
+ - RHEL/CentOS: `yum install ncurses-devel`
+ - Alpine: `apk add ncurses-dev`
 
 ### Dependências para Teste (Planejadas - Semana 2)
 
@@ -41,12 +41,12 @@
 
 ---
 
-## 🔨 Build Padrão
+## Build Padrão
 
 ### Compilação Completa (Biblioteca + Monitor + Testes)
 
 ```bash
-make          # equivalente a: make all
+make # equivalente a: make all
 ```
 
 **Saída esperada:**
@@ -94,7 +94,7 @@ make build/test_cpu
 
 ---
 
-## ✅ Testes
+## Testes
 
 ### Executar Testes
 
@@ -104,22 +104,22 @@ make test
 
 **O que valida:**
 
-- ✅ RF-001: Inicialização (`cpu_init()`)
-- ✅ RF-002: Limpeza (`cpu_cleanup()`)
-- ✅ RF-003: Informações estáticas (`cpu_get_info()`)
-- ✅ RF-004: Liberação de memória (`cpu_free_info()`)
-- ✅ RF-005: Uso agregado (`cpu_get_usage()`)
-- ✅ RF-006: Contextos independentes (`cpu_usage_context_*()`)
-- ✅ RF-007: Temperatura (`cpu_get_temperature()`)
-- ✅ RF-008: Clock speed (`cpu_get_clock_speed()`)
-- ✅ RF-009: Processos ativos (`cpu_get_active_processes()`)
-- ✅ RF-010: Tratamento de erros (`cpu_get_last_error_*()`)
+- RF-001: Inicialização (`cpu_init()`)
+- RF-002: Limpeza (`cpu_cleanup()`)
+- RF-003: Informações estáticas (`cpu_get_info()`)
+- RF-004: Liberação de memória (`cpu_free_info()`)
+- RF-005: Uso agregado (`cpu_get_usage()`)
+- RF-006: Contextos independentes (`cpu_usage_context_*()`)
+- RF-007: Temperatura (`cpu_get_temperature()`)
+- RF-008: Clock speed (`cpu_get_clock_speed()`)
+- RF-009: Processos ativos (`cpu_get_active_processes()`)
+- RF-010: Tratamento de erros (`cpu_get_last_error_*()`)
 
 **Esperado:** Execução sem crashes ou erros de segmentação
 
 ---
 
-## 🧹 Limpeza
+## Limpeza
 
 ```bash
 make clean
@@ -132,7 +132,7 @@ make clean
 
 ---
 
-## 🚀 Execução
+## Execução
 
 ### Monitor de Terminal
 
@@ -162,7 +162,7 @@ make clean
 
 ---
 
-## 🔧 Build com Flags Adicionais
+## Build com Flags Adicionais
 
 ### Compilação com Sanitizers (Semana 2)
 
@@ -198,7 +198,7 @@ make CFLAGS="-std=c99 -Wall -Wextra -Wpedantic -g -O0"
 
 ---
 
-## 🔍 Validação de Build
+## Validação de Build
 
 ### Verificar Compilação sem Warnings
 
@@ -226,7 +226,7 @@ nm libcpu.a | grep " T " | grep cpu_
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Erro: `make: gcc: comando não encontrado`
 
@@ -260,17 +260,17 @@ apk add ncurses-dev
 
 ### Erro: `error: undefined reference to 'endwin'`
 
-**Causa:** ncurses não foi encontrado durante a linkagem  
+**Causa:** ncurses não foi encontrado durante a linkagem 
 **Solução:** Instalar libncurses-dev conforme acima
 
 ### Aviso: `warning: implicit declaration of function`
 
-**Causa:** Função não declarada no header  
+**Causa:** Função não declarada no header 
 **Solução:** Verificar se `#include` está correto em `include/cpu.h`
 
 ---
 
-## 📊 Checklist de Build
+## Checklist de Build
 
 - [ ] Sistema Linux verificado
 - [ ] Compilador (gcc/clang) instalado
@@ -284,7 +284,7 @@ apk add ncurses-dev
 
 ---
 
-## 🔗 Referências
+## Referências
 
 - [README.md](../README.md) - Visão geral do projeto
 - [doc/requisitos-nao-funcionais.md](requisitos-nao-funcionais.md) - RNF-001, RNF-002, RNF-003
@@ -293,6 +293,6 @@ apk add ncurses-dev
 
 ---
 
-**Data:** 2026-09-04  
-**Versão:** 2.0  
-**Status:** ✅ ATUALIZADO
+**Data:** 2026-09-04 
+**Versão:** 2.0 
+**Status:** ATUALIZADO

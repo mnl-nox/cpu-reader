@@ -21,10 +21,10 @@ Usar C99 como padrão de linguagem obrigatório.
 
 **Consequências:**
 
-- ✅ Máxima portabilidade
-- ✅ Mínimo overhead de compilação
-- ❌ Sem alguns recursos modernos (threads nativas, atomic ops)
-- ❌ Thread-safety manual
+- Máxima portabilidade
+- Mínimo overhead de compilação
+- Sem alguns recursos modernos (threads nativas, atomic ops)
+- Thread-safety manual
 
 **Referências:**
 
@@ -45,18 +45,18 @@ Retornar `cpu_info_t *` alocada com `calloc()` que o chamador libera com `cpu_fr
 
 **Justificativa:**
 
-- ✅ Uma chamada única para obter todas as informações
-- ✅ Aplicação controla ciclo de vida
-- ✅ Funciona bem com linguagens que envolvem C (FFI)
-- ❌ Requer gerenciamento manual de memória
+- Uma chamada única para obter todas as informações
+- Aplicação controla ciclo de vida
+- Funciona bem com linguagens que envolvem C (FFI)
+- Requer gerenciamento manual de memória
 
 **Alternativas Consideradas:**
 
 1. Funções individuais (`cpu_get_model()`, `cpu_get_frequency()`, etc.)
-   - ❌ Múltiplas chamadas, mais overhead
+ - Múltiplas chamadas, mais overhead
 2. Estrutura em stack retornada por valor
-   - ❌ Não funciona em C para estruturas grandes
-   - ❌ Difícil de estender sem quebrar ABI
+ - Não funciona em C para estruturas grandes
+ - Difícil de estender sem quebrar ABI
 
 **Consequências:**
 
@@ -82,23 +82,23 @@ Usar `/proc/cpuinfo` para informações estáticas e `/proc/stat` para contadore
 
 **Justificativa:**
 
-- ✅ Interface padrão POSIX-like disponível em todos os Linux
-- ✅ Sem dependências externas
-- ✅ Simples parsing de texto
-- ✅ Nenhuma permissão elevada necessária
-- ❌ Formato pode variar por arquitetura e versão de kernel
+- Interface padrão POSIX-like disponível em todos os Linux
+- Sem dependências externas
+- Simples parsing de texto
+- Nenhuma permissão elevada necessária
+- Formato pode variar por arquitetura e versão de kernel
 
 **Alternativas Consideradas:**
 
 1. `/sys/devices/system/cpu/` (sysfs moderno)
-   - ✅ Mais estruturado
-   - ❌ Menos portável em kernels antigos
+ - Mais estruturado
+ - Menos portável em kernels antigos
 2. `libcpuid` ou equivalente
-   - ✅ Mais funcionalidades
-   - ❌ Dependência externa
+ - Mais funcionalidades
+ - Dependência externa
 3. Chamadas de sistema (p.ex., `cpuid` em x86)
-   - ✅ Acesso direto ao hardware
-   - ❌ Específico de arquitetura
+ - Acesso direto ao hardware
+ - Específico de arquitetura
 
 **Consequências:**
 
@@ -126,22 +126,22 @@ Para retornar estruturas alocadas dinamicamente em C, a biblioteca pode: alocar 
 
 **Justificativa:**
 
-- ✅ Flexibilidade: aplicação decide quando liberar
-- ✅ Compatível com linguagens dinamicamente tipadas (Python, Node.js)
-- ✅ Permite reutilizar mesma estrutura se necessário
-- ❌ Responsabilidade compartilhada de memória
-- ❌ Risco de vazamento se aplicação esquecer de liberar
+- Flexibilidade: aplicação decide quando liberar
+- Compatível com linguagens dinamicamente tipadas (Python, Node.js)
+- Permite reutilizar mesma estrutura se necessário
+- Responsabilidade compartilhada de memória
+- Risco de vazamento se aplicação esquecer de liberar
 
 **Alternativas Consideradas:**
 
 1. Retornar estrutura em stack (por valor)
-   - ❌ Não funciona para estruturas complexas/grandes
+ - Não funciona para estruturas complexas/grandes
 2. Passar buffer pré-alocado como argumento
-   - ✅ Sem ambiguidade de ownership
-   - ❌ API menos intuitiva
+ - Sem ambiguidade de ownership
+ - API menos intuitiva
 3. Alocador customizável (malloc wrapper)
-   - ✅ Flexibilidade de alocação
-   - ❌ Complexidade adicional
+ - Flexibilidade de alocação
+ - Complexidade adicional
 
 **Consequências:**
 
@@ -168,23 +168,23 @@ Para calcular uso de CPU (porcentagem), é necessário comparar dois pontos no t
 
 **Justificativa:**
 
-- ✅ API simples: uma única função para obter uso
-- ✅ Não requer gerenciamento manual de tempo/leituras
-- ✅ Intuitivo para usuários inexperientes
-- ❌ Estado compartilhado não thread-safe
-- ❌ Primeira leitura sempre retorna 0.0f
+- API simples: uma única função para obter uso
+- Não requer gerenciamento manual de tempo/leituras
+- Intuitivo para usuários inexperientes
+- Estado compartilhado não thread-safe
+- Primeira leitura sempre retorna 0.0f
 
 **Alternativas Consideradas:**
 
 1. Exigir duas leituras manuais
-   - ✅ Sem estado compartilhado
-   - ❌ API menos conveniente
+ - Sem estado compartilhado
+ - API menos conveniente
 2. `cpu_get_usage_snapshot()` + `cpu_get_usage_delta()`
-   - ✅ Melhor controle
-   - ❌ Mais complexo
+ - Melhor controle
+ - Mais complexo
 3. Timestamp automático com cache
-   - ✅ Evita primeira leitura 0.0f
-   - ❌ Espera oculta, comportamento surpresa
+ - Evita primeira leitura 0.0f
+ - Espera oculta, comportamento surpresa
 
 **Consequências:**
 
@@ -213,22 +213,22 @@ Núcleo (`libcpu.a`) sem ncurses; monitor é aplicação separada em `examples/m
 
 **Justificativa:**
 
-- ✅ Núcleo sem dependências opcionais
-- ✅ Aplicações podem usar a biblioteca sem ncurses
-- ✅ Fácil substituir monitor por interface Web, JSON, etc.
-- ✅ Teste de núcleo sem ncurses instalado
-- ❌ Requer app separada para função de exemplo
+- Núcleo sem dependências opcionais
+- Aplicações podem usar a biblioteca sem ncurses
+- Fácil substituir monitor por interface Web, JSON, etc.
+- Teste de núcleo sem ncurses instalado
+- Requer app separada para função de exemplo
 
 **Alternativas Consideradas:**
 
 1. Incluir ncurses no núcleo
-   - ❌ Força dependência em todas as aplicações
+ - Força dependência em todas as aplicações
 2. Plugin system para UIs
-   - ✅ Muito flexível
-   - ❌ Overhead adicional
+ - Muito flexível
+ - Overhead adicional
 3. Apenas library, sem exemplo
-   - ✅ Mínimo
-   - ❌ Menos usável para iniciantes
+ - Mínimo
+ - Menos usável para iniciantes
 
 **Consequências:**
 
@@ -255,24 +255,24 @@ Em x86_64 com GCC/Clang, usar inline assembly para somar contadores; preservar f
 
 **Justificativa:**
 
-- ✅ Performance marginal em ponto quente
-- ✅ Fallback C garante portabilidade
-- ✅ Código verificável (ambas as versões podem ser comparadas)
-- ✅ Manutenção viável (código é pequeno)
-- ❌ Assembly específico de arquitetura
-- ❌ Complexidade extra (dois caminhos de código)
+- Performance marginal em ponto quente
+- Fallback C garante portabilidade
+- Código verificável (ambas as versões podem ser comparadas)
+- Manutenção viável (código é pequeno)
+- Assembly específico de arquitetura
+- Complexidade extra (dois caminhos de código)
 
 **Alternativas Consideradas:**
 
 1. Apenas C em todas as arquiteturas
-   - ✅ Máxima portabilidade
-   - ❌ Sem otimização
+ - Máxima portabilidade
+ - Sem otimização
 2. Intrinsics SIMD generalizados
-   - ✅ Portável entre compiladores
-   - ❌ Nem sempre disponível em C99
+ - Portável entre compiladores
+ - Nem sempre disponível em C99
 3. Deixar para otimizador (compiler -O3)
-   - ✅ Simples
-   - ❌ Menos controle
+ - Simples
+ - Menos controle
 
 **Consequências:**
 
@@ -300,11 +300,11 @@ Manter variáveis estáticas globais para código e mensagem de erro; `cpu_get_l
 
 **Justificativa (2026-01):**
 
-- ✅ Simples de implementar
-- ✅ Compatible com C99
-- ✅ Sem necessidade de passar contexto de erro por todas as funções
-- ❌ Não thread-safe
-- ❌ Estado compartilhado entre threads
+- Simples de implementar
+- Compatible com C99
+- Sem necessidade de passar contexto de erro por todas as funções
+- Não thread-safe
+- Estado compartilhado entre threads
 
 **Revisão (2026-09-04):**
 Esta decisão é **aceitável** para versão 0.x, mas deve ser reconsiderada para 1.0 se thread-safety se tornar requisito.
@@ -315,14 +315,14 @@ Adicionar modo thread-safe opcional com `thread_local` em C11+.
 **Alternativas:**
 
 1. Thread-local storage (C11)
-   - ✅ Thread-safe
-   - ❌ Requer C11+
+ - Thread-safe
+ - Requer C11+
 2. Contexto de erro separado passado por argumento
-   - ✅ Explícito
-   - ❌ Muda toda a API
+ - Explícito
+ - Muda toda a API
 3. Ignorar erros, retornar valores especiais apenas
-   - ✅ Sem estado
-   - ❌ Menos informativo
+ - Sem estado
+ - Menos informativo
 
 **Consequências:**
 
@@ -351,25 +351,25 @@ Usar Conventional Commits com automação de tags: `feat` = MINOR, `fix`/`refact
 
 **Justificativa:**
 
-- ✅ Automação remove erro manual
-- ✅ Histórico de commits auto-documentado
-- ✅ Compatível com ferramentas (semantic-release, etc.)
-- ✅ Versão inicial `v0.1.0` (não v1.0.0, reflexo de estado BETA)
-- ❌ Requer disciplina nos commits
-- ❌ Não pode retroativamente ajustar versões
-- ❌ Sem controle fino sobre pré-releases
+- Automação remove erro manual
+- Histórico de commits auto-documentado
+- Compatível com ferramentas (semantic-release, etc.)
+- Versão inicial `v0.1.0` (não v1.0.0, reflexo de estado BETA)
+- Requer disciplina nos commits
+- Não pode retroativamente ajustar versões
+- Sem controle fino sobre pré-releases
 
 **Alternativas:**
 
 1. CHANGELOG manual + arquivo VERSION
-   - ✅ Total controle
-   - ❌ Errorprone, não escalável
+ - Total controle
+ - Errorprone, não escalável
 2. Tags manuais por release
-   - ✅ Simples
-   - ❌ Sem automação
+ - Simples
+ - Sem automação
 3. Semantic Versioning Com GitHub Releases
-   - ✅ Mais formal
-   - ❌ Requer passos adicionais
+ - Mais formal
+ - Requer passos adicionais
 
 **Consequências:**
 
@@ -405,11 +405,11 @@ Permitir override de caminhos via `CPU_READER_*_PATH`:
 
 **Justificativa:**
 
-- ✅ Teste sem recompilar
-- ✅ Usa fixtures de arquivo para casos edge
-- ✅ Sem impacto de performance (checagem uma vez)
-- ✅ Nenhuma dependência adicional
-- ❌ Segurança: nenhuma validação de caminho (apenas teste/dev)
+- Teste sem recompilar
+- Usa fixtures de arquivo para casos edge
+- Sem impacto de performance (checagem uma vez)
+- Nenhuma dependência adicional
+- Segurança: nenhuma validação de caminho (apenas teste/dev)
 
 **Consequências:**
 
@@ -437,10 +437,10 @@ Criar documento `doc/requisitos-nao-funcionais.md` com 12 RNFs categorizados: co
 
 **Justificativa:**
 
-- ✅ Critérios de aceitação formais para cada RNF
-- ✅ Priorização clara (ALTA, MÉDIA, BAIXA)
-- ✅ Rastreamento de status (✅ / ⚠️ / ❌)
-- ✅ Base para decisões arquiteturais futuras
+- Critérios de aceitação formais para cada RNF
+- Priorização clara (ALTA, MÉDIA, BAIXA)
+- Rastreamento de status ( / ️ / )
+- Base para decisões arquiteturais futuras
 
 **Consequências:**
 
@@ -472,10 +472,10 @@ Criar documento `doc/requisitos-funcionais.md` com 12 RFs implementados (RF-001 
 
 **Justificativa:**
 
-- ✅ Um lugar único para entender todas as funcionalidades
-- ✅ Exemplos de código em cada RF
-- ✅ Relacionamento com testes e exemplos
-- ✅ Roadmap claro das próximas RF
+- Um lugar único para entender todas as funcionalidades
+- Exemplos de código em cada RF
+- Relacionamento com testes e exemplos
+- Roadmap claro das próximas RF
 
 **Consequências:**
 
@@ -506,10 +506,10 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 
 **Benefícios:**
 
-- ✅ Arquitetura clara para novos contribuidores
-- ✅ Justificativa das escolhas por trás de cada decisão
-- ✅ Espaço para discussão de alternativas
-- ✅ Roadmap visual de evolução
+- Arquitetura clara para novos contribuidores
+- Justificativa das escolhas por trás de cada decisão
+- Espaço para discussão de alternativas
+- Roadmap visual de evolução
 
 **Status:** Em preparação
 
@@ -517,21 +517,21 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 
 ## Matriz de ADRs
 
-| ID       | Título             | Status   | Data       | Prioridade |
+| ID | Título | Status | Data | Prioridade |
 | -------- | ------------------ | -------- | ---------- | ---------- |
-| ADR-0001 | C99                | ACEITO   | 2026-01    | ALTA       |
-| ADR-0002 | API Estrutura      | ACEITO   | 2026-01    | ALTA       |
-| ADR-0003 | Interface /proc    | ACEITO   | 2026-01    | ALTA       |
-| ADR-0004 | Alocação Explícita | ACEITO   | 2026-01    | ALTA       |
-| ADR-0005 | Deltas de Uso      | ACEITO   | 2026-01    | ALTA       |
-| ADR-0006 | Monitor Separado   | ACEITO   | 2026-01    | MÉDIA      |
-| ADR-0007 | Assembly x86_64    | ACEITO   | 2026-01    | BAIXA      |
-| ADR-0008 | Erro Global        | ACEITO   | 2026-01    | MÉDIA      |
-| ADR-0009 | Versionamento      | ACEITO   | 2026-01    | MÉDIA      |
-| ADR-0010 | Injeção Teste      | ACEITO   | 2026-01    | BAIXA      |
-| ADR-0011 | RNFs Formalizados  | PROPOSTO | 2026-09-04 | MÉDIA      |
-| ADR-0012 | RFs Consolidadas   | PROPOSTO | 2026-09-04 | MÉDIA      |
-| ADR-0013 | Design Estruturado | PROPOSTO | 2026-09-04 | BAIXA      |
+| ADR-0001 | C99 | ACEITO | 2026-01 | ALTA |
+| ADR-0002 | API Estrutura | ACEITO | 2026-01 | ALTA |
+| ADR-0003 | Interface /proc | ACEITO | 2026-01 | ALTA |
+| ADR-0004 | Alocação Explícita | ACEITO | 2026-01 | ALTA |
+| ADR-0005 | Deltas de Uso | ACEITO | 2026-01 | ALTA |
+| ADR-0006 | Monitor Separado | ACEITO | 2026-01 | MÉDIA |
+| ADR-0007 | Assembly x86_64 | ACEITO | 2026-01 | BAIXA |
+| ADR-0008 | Erro Global | ACEITO | 2026-01 | MÉDIA |
+| ADR-0009 | Versionamento | ACEITO | 2026-01 | MÉDIA |
+| ADR-0010 | Injeção Teste | ACEITO | 2026-01 | BAIXA |
+| ADR-0011 | RNFs Formalizados | PROPOSTO | 2026-09-04 | MÉDIA |
+| ADR-0012 | RFs Consolidadas | PROPOSTO | 2026-09-04 | MÉDIA |
+| ADR-0013 | Design Estruturado | PROPOSTO | 2026-09-04 | BAIXA |
 
 ---
 

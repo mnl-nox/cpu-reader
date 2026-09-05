@@ -1,13 +1,13 @@
-# 🚀 Progresso do Projeto CPU Reader
+# Progresso do Projeto CPU Reader
 
-**Data:** 2026-09-04  
-**Status:** ✅ SEMANA 1 CONCLUÍDA
+**Data:** 2026-09-04 
+**Status:** SEMANA 1 CONCLUÍDA
 
 ---
 
-## 📊 Resultados Alcançados
+## Resultados Alcançados
 
-### ✅ Documentação (11 Arquivos)
+### Documentação (11 Arquivos)
 
 | Documento | Tipo | Linhas | Versão |
 |-----------|------|--------|--------|
@@ -25,123 +25,123 @@
 
 **Total: 11 documentos, 7500+ linhas**
 
-### ✅ Requisitos Documentados (24)
+### Requisitos Documentados (24)
 
 - **12 RF Implementadas** (RF-001 a RF-012)
-  - Inicialização, limpeza, informações estáticas, uso agregado
-  - Temperatura, clock speed, processos ativos, tratamento de erros
-  - Contextos independentes, injeção de dados, otimização x86_64
+ - Inicialização, limpeza, informações estáticas, uso agregado
+ - Temperatura, clock speed, processos ativos, tratamento de erros
+ - Contextos independentes, injeção de dados, otimização x86_64
 
 - **12 RNF Definidas** (RNF-001 a RNF-012)
-  - Compatibilidade (C99, Linux)
-  - Performance, segurança de memória
-  - Documentação, testabilidade
-  - Versionamento semântico, maintainability
+ - Compatibilidade (C99, Linux)
+ - Performance, segurança de memória
+ - Documentação, testabilidade
+ - Versionamento semântico, maintainability
 
 - **3 RF Futuras** (RF-013 a RF-015)
-  - Métricas por núcleo
-  - Cache configurável
-  - Thread-safety
+ - Métricas por núcleo
+ - Cache configurável
+ - Thread-safety
 
-### ✅ Arquitetura Formalizada (13)
+### Arquitetura Formalizada (13)
 
 - **13 ADRs Formalizadas** (ADR-0001 a ADR-0013)
 - **10 Componentes Documentados**
 - **4 Padrões de Design Identificados**
 - **14 Diagramas UML em Mermaid**
 
-### ✅ Validação Alcançada
+### Validação Alcançada
 
 | Categoria | Meta | Alcançado | Status |
 |-----------|------|-----------|--------|
-| RF | 12/12 | 12/12 | ✅ 100% |
-| RNF | 10/12 | 10/12 | ✅ 83% |
-| Compilação | 0 warnings | 0 warnings | ✅ Pass |
-| Testes | Passing | Passing | ✅ Pass |
-| Documentação | Completa | Completa | ✅ Pass |
+| RF | 12/12 | 12/12 | 100% |
+| RNF | 10/12 | 10/12 | 83% |
+| Compilação | 0 warnings | 0 warnings | Pass |
+| Testes | Passing | Passing | Pass |
+| Documentação | Completa | Completa | Pass |
 
-### ✅ Commits Realizados (2)
+### Commits Realizados (2)
 
 1. **aad3709** - `docs: consolidate requirements, architecture, and design documentation`
-   - 7 novos documentos
-   - 4337 inserções
+ - 7 novos documentos
+ - 4337 inserções
 
 2. **caab858** - `docs: add build and validation documentation`
-   - BUILD.md, VALIDATION.md
-   - 1043 inserções
+ - BUILD.md, VALIDATION.md
+ - 1043 inserções
 
 ---
 
-## 📚 Documentação Organizada
+## Documentação Organizada
 
 ```
 projeto/
-├── README.md                          [ATUALIZADO - Links p/ docs]
-├── BUILD.md                           [NOVO - Instruções]
-├── VALIDATION.md                      [NOVO - Testes validados]
-├── PROGRESS.md                        [NOVO - Este arquivo]
-├── Makefile                           [Original]
+├── README.md [ATUALIZADO - Links p/ docs]
+├── BUILD.md [NOVO - Instruções]
+├── VALIDATION.md [NOVO - Testes validados]
+├── PROGRESS.md [NOVO - Este arquivo]
+├── Makefile [Original]
 ├── doc/
-│   ├── README.md                      [NOVO - Índice]
-│   ├── CONSOLIDACAO-VALIDACAO.md      [NOVO - Sumário]
-│   ├── requisitos-funcionais.md       [NOVO]
-│   ├── requisitos-nao-funcionais.md   [NOVO]
-│   ├── architecture-decision-records  [NOVO]
-│   ├── design.md                      [EXPANDIDO v2.0]
-│   ├── software-requirements-spec     [NOVO - SRS]
-│   ├── uml-diagrams.md                [NOVO - 14 diagramas]
-│   ├── roadmap-evolucao-semana.md     [NOVO - 8 semanas]
-│   ├── prioridades-sdlc.md            [ATUALIZADO]
-│   ├── SUMMARY.sh                     [NOVO - Visual report]
-│   ├── [6 docs originais...]
+│ ├── README.md [NOVO - Índice]
+│ ├── CONSOLIDACAO-VALIDACAO.md [NOVO - Sumário]
+│ ├── requisitos-funcionais.md [NOVO]
+│ ├── requisitos-nao-funcionais.md [NOVO]
+│ ├── architecture-decision-records [NOVO]
+│ ├── design.md [EXPANDIDO v2.0]
+│ ├── software-requirements-spec [NOVO - SRS]
+│ ├── uml-diagrams.md [NOVO - 14 diagramas]
+│ ├── roadmap-evolucao-semana.md [NOVO - 8 semanas]
+│ ├── prioridades-sdlc.md [ATUALIZADO]
+│ ├── SUMMARY.sh [NOVO - Visual report]
+│ ├── [6 docs originais...]
 ├── src/
-│   ├── cpu.c
-│   ├── cpu_info.c
-│   ├── cpu_usage.c
+│ ├── cpu.c
+│ ├── cpu_info.c
+│ ├── cpu_usage.c
 ├── include/
-│   └── cpu.h
+│ └── cpu.h
 ├── examples/
-│   └── monitor.c
+│ └── monitor.c
 └── tests/
-    └── test_cpu.c
+ └── test_cpu.c
 ```
 
 ---
 
-## ✨ Qualidade Alcançada
+## Qualidade Alcançada
 
 ### Especificação
-- ✅ 24 requisitos com critérios de aceitação
-- ✅ 100% de rastreabilidade (req → teste → impl)
-- ✅ SRS formal com 700+ linhas
+- 24 requisitos com critérios de aceitação
+- 100% de rastreabilidade (req → teste → impl)
+- SRS formal com 700+ linhas
 
 ### Arquitetura
-- ✅ 13 decisões arquiteturais formalizadas
-- ✅ 10 componentes identificados
-- ✅ 14 diagramas UML (Mermaid)
-- ✅ Padrões de design documentados
+- 13 decisões arquiteturais formalizadas
+- 10 componentes identificados
+- 14 diagramas UML (Mermaid)
+- Padrões de design documentados
 
 ### Implementação
-- ✅ Compilação C99 sem warnings
-- ✅ 12 RF implementadas 100%
-- ✅ Testes unitários passando
-- ✅ Monitor ncurses funcionando
+- Compilação C99 sem warnings
+- 12 RF implementadas 100%
+- Testes unitários passando
+- Monitor ncurses funcionando
 
 ### Documentação
-- ✅ 11 documentos técnicos
-- ✅ 7500+ linhas de especificação
-- ✅ Índices navegáveis por persona
-- ✅ Roadmap 8 semanas
+- 11 documentos técnicos
+- 7500+ linhas de especificação
+- Índices navegáveis por persona
+- Roadmap 8 semanas
 
 ---
 
-## 🎯 Próximas Fases
+## Próximas Fases
 
 ### Semana 2 (2026-09-11) - Validação
 - [ ] AddressSanitizer tests
 - [ ] Multi-distribuição (RHEL, Alpine)
 - [ ] Benchmarks básicos
-- **Saída esperada:** ✅ 12/12 RNF validadas
+- **Saída esperada:** 12/12 RNF validadas
 
 ### Semana 3 (2026-09-16) - CI/CD
 - [ ] GitHub Actions workflow
@@ -157,48 +157,48 @@ projeto/
 
 ---
 
-## 📈 Métricas de Sucesso
+## Métricas de Sucesso
 
 | Métrica | Meta | Alcançado | % |
 |---------|------|-----------|---|
-| Documentos | 7 | 11 | 157% ✅ |
-| Requisitos | 20 | 24 | 120% ✅ |
-| ADRs | 10 | 13 | 130% ✅ |
-| Diagramas | 10 | 14 | 140% ✅ |
-| Linhas doc | 5000 | 7500+ | 150% ✅ |
-| RF validadas | 12 | 12 | 100% ✅ |
-| RNF validadas | 10 | 10 | 100% ✅ |
-| Compilação | 0 warnings | 0 | 100% ✅ |
-| Testes | Passing | Passing | 100% ✅ |
+| Documentos | 7 | 11 | 157% |
+| Requisitos | 20 | 24 | 120% |
+| ADRs | 10 | 13 | 130% |
+| Diagramas | 10 | 14 | 140% |
+| Linhas doc | 5000 | 7500+ | 150% |
+| RF validadas | 12 | 12 | 100% |
+| RNF validadas | 10 | 10 | 100% |
+| Compilação | 0 warnings | 0 | 100% |
+| Testes | Passing | Passing | 100% |
 
 ---
 
-## 🎁 Entregáveis (Semana 1)
+## Entregáveis (Semana 1)
 
-✅ Especificação técnica completa  
-✅ 14 Diagramas UML em Mermaid  
-✅ Matriz de rastreabilidade RF→Teste→Impl  
-✅ Roadmap detalhado 8 semanas  
-✅ Critérios de aceitação 100%  
-✅ ADRs formalizadas com contexto  
-✅ SRS formal para stakeholders  
-✅ Documentação de build  
-✅ Relatório de validação  
-✅ Código compilando e testando  
-
----
-
-## 🚀 Pronto para
-
-1. ✅ **Code Review** - Arquitetura bem documentada
-2. ✅ **Validação** - Semana 2 com sanitizers
-3. ✅ **CI/CD** - Semana 3 com GitHub Actions
-4. ✅ **Release** - v0.2.0 em semana 4
-5. ✅ **Expansão** - RF-013 e futuras bem planejadas
+ Especificação técnica completa 
+ 14 Diagramas UML em Mermaid 
+ Matriz de rastreabilidade RF→Teste→Impl 
+ Roadmap detalhado 8 semanas 
+ Critérios de aceitação 100% 
+ ADRs formalizadas com contexto 
+ SRS formal para stakeholders 
+ Documentação de build 
+ Relatório de validação 
+ Código compilando e testando 
 
 ---
 
-## 📞 Como Usar
+## Pronto para
+
+1. **Code Review** - Arquitetura bem documentada
+2. **Validação** - Semana 2 com sanitizers
+3. **CI/CD** - Semana 3 com GitHub Actions
+4. **Release** - v0.2.0 em semana 4
+5. **Expansão** - RF-013 e futuras bem planejadas
+
+---
+
+## Como Usar
 
 ### Começar
 1. Leia [README.md](README.md)
@@ -218,7 +218,7 @@ projeto/
 
 ---
 
-## ✅ Checklist Semana 1
+## Checklist Semana 1
 
 - [x] Documentação consolidada
 - [x] 7 novos documentos criados
@@ -236,9 +236,9 @@ projeto/
 
 ---
 
-**Status Final:** ✅ SEMANA 1 100% COMPLETA
+**Status Final:** SEMANA 1 100% COMPLETA
 
 **Próxima Revisão:** 2026-09-11 (Semana 2)
 
-**Mantido por:** Equipe de Desenvolvimento  
+**Mantido por:** Equipe de Desenvolvimento 
 **Última atualização:** 2026-09-04

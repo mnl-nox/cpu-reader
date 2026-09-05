@@ -1,7 +1,7 @@
 # Roadmap de Evolução - CPU Reader
 
-**Período:** Semana de 2026-09-04 a 2026-09-11  
-**Versão do Produto:** v0.2.0 (planejada)  
+**Período:** Semana de 2026-09-04 a 2026-09-11 
+**Versão do Produto:** v0.2.0 (planejada) 
 **Status:** EM PLANEJAMENTO
 
 ---
@@ -12,17 +12,17 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 
 ### Objetivos Principais
 
-1. ✅ Documentação consolidada (CONCLUÍDO)
-2. 🔄 Validação formal de requisitos
-3. 🔄 Preparação de CI/CD
-4. 🔄 Testes com sanitizers
-5. 🔄 Suporte inicial a múltiplas plataformas
+1. Documentação consolidada (CONCLUÍDO)
+2. Validação formal de requisitos
+3. Preparação de CI/CD
+4. Testes com sanitizers
+5. Suporte inicial a múltiplas plataformas
 
 ---
 
 ## 2. Plano Detalhado por Dia
 
-### Dia 1 (Terça, 2026-09-04) - Documentação ✅ CONCLUÍDO
+### Dia 1 (Terça, 2026-09-04) - Documentação CONCLUÍDO
 
 **Objetivo:** Consolidar toda a documentação do projeto.
 
@@ -42,7 +42,7 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 - 14 diagramas UML em Mermaid
 - Roadmap de 8 semanas
 
-**Status:** ✅ CONCLUÍDO
+**Status:** CONCLUÍDO
 
 ---
 
@@ -53,23 +53,23 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 **Tarefas:**
 
 1. **Validação de RF (Requisitos Funcionais)**
-   - [ ] Executar `make test` e validar 12 RF
-   - [ ] Verificar critérios de aceitação de RF-001 a RF-012
-   - [ ] Documentar resultado em `VALIDATION.md`
-   - Tempo estimado: 2h
+ - [ ] Executar `make test` e validar 12 RF
+ - [ ] Verificar critérios de aceitação de RF-001 a RF-012
+ - [ ] Documentar resultado em `VALIDATION.md`
+ - Tempo estimado: 2h
 
 2. **Validação de RNF (Requisitos Não-Funcionais)**
-   - [ ] Compilar com `gcc -std=c99 -Wall -Wextra -Wpedantic` (RNF-001)
-   - [ ] Compilar com `clang -std=c99 -Wall -Wextra -Wpedantic` (RNF-001)
-   - [ ] Testar em pelo menos 2 distribuições Linux (RNF-002)
-   - [ ] Validar sem ncurses no núcleo (RNF-003)
-   - Tempo estimado: 2h
+ - [ ] Compilar com `gcc -std=c99 -Wall -Wextra -Wpedantic` (RNF-001)
+ - [ ] Compilar com `clang -std=c99 -Wall -Wextra -Wpedantic` (RNF-001)
+ - [ ] Testar em pelo menos 2 distribuições Linux (RNF-002)
+ - [ ] Validar sem ncurses no núcleo (RNF-003)
+ - Tempo estimado: 2h
 
 3. **Executar Testes com Sanitizers**
-   - [ ] Compilar com `-fsanitize=address -fsanitize=undefined`
-   - [ ] Executar `./build/test_cpu`
-   - [ ] Documento de sanitizer report
-   - Tempo estimado: 1h
+ - [ ] Compilar com `-fsanitize=address -fsanitize=undefined`
+ - [ ] Executar `./build/test_cpu`
+ - [ ] Documento de sanitizer report
+ - Tempo estimado: 1h
 
 **Entregáveis:**
 
@@ -86,24 +86,24 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 **Tarefas:**
 
 1. **GitHub Actions Workflow (`.github/workflows/`)**
-   - [ ] Criar `test.yml` que executa:
-     - Compilação com `make`
-     - Testes com `make test`
-     - Build com diferentes flags (`-fsanitize=*`)
-   - [ ] Rodar em `ubuntu-latest` (x86_64)
-   - Tempo estimado: 2h
+ - [ ] Criar `test.yml` que executa:
+ - Compilação com `make`
+ - Testes com `make test`
+ - Build com diferentes flags (`-fsanitize=*`)
+ - [ ] Rodar em `ubuntu-latest` (x86_64)
+ - Tempo estimado: 2h
 
 2. **Script de Build Reprodutível**
-   - [ ] Validar `Makefile` em múltiplas shells (bash, sh)
-   - [ ] Documentar pré-requisitos em `BUILD.md`
-   - [ ] Criar script `scripts/build.sh` para reprodução
-   - Tempo estimado: 1h
+ - [ ] Validar `Makefile` em múltiplas shells (bash, sh)
+ - [ ] Documentar pré-requisitos em `BUILD.md`
+ - [ ] Criar script `scripts/build.sh` para reprodução
+ - Tempo estimado: 1h
 
 3. **Lint e Verificação Estática**
-   - [ ] Adicionar `clang-tidy` ao workflow (opcional, não-blocking)
-   - [ ] Adicionar `cppcheck` (opcional, não-blocking)
-   - [ ] Documento de como rodar localmente
-   - Tempo estimado: 1h
+ - [ ] Adicionar `clang-tidy` ao workflow (opcional, não-blocking)
+ - [ ] Adicionar `cppcheck` (opcional, não-blocking)
+ - [ ] Documento de como rodar localmente
+ - Tempo estimado: 1h
 
 **Entregáveis:**
 
@@ -120,24 +120,24 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 **Tarefas:**
 
 1. **Testes em x86_64**
-   - [x] Já funcionando (máquina padrão)
-   - [ ] Executar `make test` com assembly inline (RNF-005)
-   - [ ] Validar performance (< 5ms `cpu_get_usage()`)
-   - Tempo estimado: 0.5h
+ - [x] Já funcionando (máquina padrão)
+ - [ ] Executar `make test` com assembly inline (RNF-005)
+ - [ ] Validar performance (< 5ms `cpu_get_usage()`)
+ - Tempo estimado: 0.5h
 
 2. **Testes em ARM64 (se disponível)**
-   - [ ] Usar QEMU ou máquina ARM
-   - [ ] Compilar com `arm64-linux-gnu-gcc` (cross-compile)
-   - [ ] Executar testes
-   - [ ] Validar fallback C para soma de contadores (RNF-004)
-   - Tempo estimado: 2h (ou skip se não disponível)
+ - [ ] Usar QEMU ou máquina ARM
+ - [ ] Compilar com `arm64-linux-gnu-gcc` (cross-compile)
+ - [ ] Executar testes
+ - [ ] Validar fallback C para soma de contadores (RNF-004)
+ - Tempo estimado: 2h (ou skip se não disponível)
 
 3. **Testes em distribuições diferentes**
-   - [ ] Alpine Linux (musl libc)
-   - [ ] Debian/Ubuntu (glibc)
-   - [ ] RHEL/CentOS (glibc)
-   - Usar docker se necessário
-   - Tempo estimado: 2h
+ - [ ] Alpine Linux (musl libc)
+ - [ ] Debian/Ubuntu (glibc)
+ - [ ] RHEL/CentOS (glibc)
+ - Usar docker se necessário
+ - Tempo estimado: 2h
 
 **Entregáveis:**
 
@@ -154,31 +154,31 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 **Tarefas:**
 
 1. **Benchmarks de Performance (RNF-005)**
-   - [ ] Medir `cpu_get_info()` com `time` / `perf`
-   - [ ] Medir `cpu_get_usage()` (1ª e 2ª chamada)
-   - [ ] Medir consumo de memória com `valgrind --tool=massif`
-   - [ ] Documentar em `PERFORMANCE.md`
-   - Tempo estimado: 1.5h
+ - [ ] Medir `cpu_get_info()` com `time` / `perf`
+ - [ ] Medir `cpu_get_usage()` (1ª e 2ª chamada)
+ - [ ] Medir consumo de memória com `valgrind --tool=massif`
+ - [ ] Documentar em `PERFORMANCE.md`
+ - Tempo estimado: 1.5h
 
 2. **Cobertura de Testes (RNF-010)**
-   - [ ] Compilar com `--coverage` / gcov
-   - [ ] Executar `make test`
-   - [ ] Gerar relatório: `gcov src/*.c`
-   - [ ] Aspiração: > 80% cobertura
-   - Tempo estimado: 1.5h
+ - [ ] Compilar com `--coverage` / gcov
+ - [ ] Executar `make test`
+ - [ ] Gerar relatório: `gcov src/*.c`
+ - [ ] Aspiração: > 80% cobertura
+ - Tempo estimado: 1.5h
 
 3. **Preparação de Release**
-   - [ ] Criar `CHANGELOG.md` (resumo de v0.2.0)
-   - [ ] Atualizar `README.md` com novas seções (Documentação)
-   - [ ] Tag `v0.2.0` (ou deixar automation GitHub Actions)
-   - [ ] Commit final: `docs: consolidate documentation`
-   - Tempo estimado: 1h
+ - [ ] Criar `CHANGELOG.md` (resumo de v0.2.0)
+ - [ ] Atualizar `README.md` com novas seções (Documentação)
+ - [ ] Tag `v0.2.0` (ou deixar automation GitHub Actions)
+ - [ ] Commit final: `docs: consolidate documentation`
+ - Tempo estimado: 1h
 
 4. **Documentação de Contribuição**
-   - [ ] Criar `CONTRIBUTING.md` (guia para contribuidores)
-   - [ ] Documentar workflow de ADR
-   - [ ] Guia de teste local
-   - Tempo estimado: 1h
+ - [ ] Criar `CONTRIBUTING.md` (guia para contribuidores)
+ - [ ] Documentar workflow de ADR
+ - [ ] Guia de teste local
+ - Tempo estimado: 1h
 
 **Entregáveis:**
 
@@ -192,15 +192,15 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 
 ## 3. Matriz de Requisitos e Ações
 
-| Requisito               | Ação                        | Dia | Prioridade | Status  |
+| Requisito | Ação | Dia | Prioridade | Status |
 | ----------------------- | --------------------------- | --- | ---------- | ------- |
-| RNF-001 (C99)           | Compilar com flags -std=c99 | 2   | ALTA       | Qua     |
-| RNF-002 (Linux)         | Testar em 3+ distribuições  | 4-5 | ALTA       | Sex-Seg |
-| RNF-003 (Sem deps)      | Validar sem ncurses         | 2   | ALTA       | Qua     |
-| RNF-005 (Performance)   | Benchmarks formais          | 5   | MÉDIA      | Seg     |
-| RNF-006 (Segurança mem) | AddressSanitizer + Valgrind | 2-3 | ALTA       | Qua-Qui |
-| RNF-010 (Testabilidade) | Cobertura com gcov          | 5   | MÉDIA      | Seg     |
-| CI/CD                   | GitHub Actions workflow     | 3   | ALTA       | Qui     |
+| RNF-001 (C99) | Compilar com flags -std=c99 | 2 | ALTA | Qua |
+| RNF-002 (Linux) | Testar em 3+ distribuições | 4-5 | ALTA | Sex-Seg |
+| RNF-003 (Sem deps) | Validar sem ncurses | 2 | ALTA | Qua |
+| RNF-005 (Performance) | Benchmarks formais | 5 | MÉDIA | Seg |
+| RNF-006 (Segurança mem) | AddressSanitizer + Valgrind | 2-3 | ALTA | Qua-Qui |
+| RNF-010 (Testabilidade) | Cobertura com gcov | 5 | MÉDIA | Seg |
+| CI/CD | GitHub Actions workflow | 3 | ALTA | Qui |
 
 ---
 
@@ -315,28 +315,28 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 
 ### Estimativa de Esforço
 
-| Fase                 | Semanas       | Pessoa-horas  | Prioridade |
+| Fase | Semanas | Pessoa-horas | Prioridade |
 | -------------------- | ------------- | ------------- | ---------- |
-| Documentação (Dia 1) | 1             | 8             | ALTA       |
-| Validação + Testes   | 1             | 6             | ALTA       |
-| CI/CD Setup          | 1-2           | 6             | ALTA       |
-| Multi-plataforma     | 1-2           | 6             | ALTA       |
-| Benchmarks           | 1             | 4             | MÉDIA      |
-| RF-013 (cores)       | 2             | 12            | MÉDIA      |
-| Release + Package    | 2             | 8             | MÉDIA      |
-| **Total**            | **8 semanas** | **~50 horas** |            |
+| Documentação (Dia 1) | 1 | 8 | ALTA |
+| Validação + Testes | 1 | 6 | ALTA |
+| CI/CD Setup | 1-2 | 6 | ALTA |
+| Multi-plataforma | 1-2 | 6 | ALTA |
+| Benchmarks | 1 | 4 | MÉDIA |
+| RF-013 (cores) | 2 | 12 | MÉDIA |
+| Release + Package | 2 | 8 | MÉDIA |
+| **Total** | **8 semanas** | **~50 horas** | |
 
 ---
 
 ## 9. Riscos e Mitigações
 
-| Risco                          | Probabilidade | Impacto | Mitigação                        |
+| Risco | Probabilidade | Impacto | Mitigação |
 | ------------------------------ | ------------- | ------- | -------------------------------- |
-| CI/CD demora mais que esperado | MÉDIA         | MÉDIO   | Começar cedo, usar templates     |
-| Incompatibilidade ARM64        | BAIXA         | MÉDIO   | Testar com QEMU, cross-compile   |
-| Performance não atinge meta    | BAIXA         | MÉDIO   | Profiling antecipado com `perf`  |
-| Cobertura abaixo de 80%        | MÉDIA         | MÉDIO   | Adicionar testes para edge cases |
-| Release automation falha       | BAIXA         | ALTO    | Teste dry-run de release         |
+| CI/CD demora mais que esperado | MÉDIA | MÉDIO | Começar cedo, usar templates |
+| Incompatibilidade ARM64 | BAIXA | MÉDIO | Testar com QEMU, cross-compile |
+| Performance não atinge meta | BAIXA | MÉDIO | Profiling antecipado com `perf` |
+| Cobertura abaixo de 80% | MÉDIA | MÉDIO | Adicionar testes para edge cases |
+| Release automation falha | BAIXA | ALTO | Teste dry-run de release |
 
 ---
 
@@ -405,10 +405,10 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 
 ## 13. Próximos Passos Imediatos (Hoje, 2026-09-04)
 
-1. ✅ Documentação completada
-2. 🔄 **PRÓXIMO:** Revisar este documento com a equipe
-3. 🔄 **PRÓXIMO:** Executar validação de requisitos (Dia 2)
-4. 🔄 **PRÓXIMO:** Começar setup CI/CD (Dia 3)
+1. Documentação completada
+2. **PRÓXIMO:** Revisar este documento com a equipe
+3. **PRÓXIMO:** Executar validação de requisitos (Dia 2)
+4. **PRÓXIMO:** Começar setup CI/CD (Dia 3)
 
 ---
 
@@ -424,7 +424,7 @@ Esta semana focará em **consolidação de robustez** e preparação para **inte
 
 ---
 
-**Data de Criação:** 2026-09-04  
-**Última Atualização:** 2026-09-04  
-**Status:** APROVADO PARA EXECUÇÃO  
+**Data de Criação:** 2026-09-04 
+**Última Atualização:** 2026-09-04 
+**Status:** APROVADO PARA EXECUÇÃO 
 **Próxima Revisão:** 2026-09-06 (Final da Semana 1)

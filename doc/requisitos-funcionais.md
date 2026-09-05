@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-Este documento consolida todos os requisitos funcionais da biblioteca CPU Reader, organizados por módulo e com critérios de aceitação detalhados. Os requisitos marcados como ✅ estão implementados; ⚠️ está parcialmente implementado; e ❌ está em escopo futuro.
+Este documento consolida todos os requisitos funcionais da biblioteca CPU Reader, organizados por módulo e com critérios de aceitação detalhados. Os requisitos marcados como estão implementados; ️ está parcialmente implementado; e está em escopo futuro.
 
 ---
 
@@ -22,13 +22,13 @@ Este documento consolida todos os requisitos funcionais da biblioteca CPU Reader
 
 ```c
 cpu_init();
-float usage1 = cpu_get_usage();  // retorna 0.0f (primeira leitura)
-float usage2 = cpu_get_usage();  // retorna valor entre 0-100
+float usage1 = cpu_get_usage(); // retorna 0.0f (primeira leitura)
+float usage2 = cpu_get_usage(); // retorna valor entre 0-100
 assert(usage1 == 0.0f);
 assert(usage2 >= 0.0f && usage2 <= 100.0f);
 ```
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -47,11 +47,11 @@ assert(usage2 >= 0.0f && usage2 <= 100.0f);
 ```c
 cpu_init();
 cpu_cleanup();
-cpu_init();  // sem erro
+cpu_init(); // sem erro
 cpu_cleanup();
 ```
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -64,13 +64,13 @@ cpu_cleanup();
 **Funcionalidade esperada:**
 
 - `cpu_get_info()` retorna `cpu_info_t*` com os seguintes campos preenchidos:
-  - `cores`: número de processadores lógicos de `/proc/cpuinfo`
-  - `threads`: processadores online (via `sysconf(_SC_NPROCESSORS_ONLN)`)
-  - `model`: primeira linha `model name` de `/proc/cpuinfo` (até 255 chars)
-  - `frequency_mhz`: primeira linha `cpu MHz` de `/proc/cpuinfo`
-  - `flags`: primeiro `flags` de `/proc/cpuinfo` (até 511 chars)
-  - `active_processes`: preenchido se `/proc/loadavg` for legível, senão 0
-  - `temperature_c`: preenchido se sensor `sysfs` for disponível, senão 0
+ - `cores`: número de processadores lógicos de `/proc/cpuinfo`
+ - `threads`: processadores online (via `sysconf(_SC_NPROCESSORS_ONLN)`)
+ - `model`: primeira linha `model name` de `/proc/cpuinfo` (até 255 chars)
+ - `frequency_mhz`: primeira linha `cpu MHz` de `/proc/cpuinfo`
+ - `flags`: primeiro `flags` de `/proc/cpuinfo` (até 511 chars)
+ - `active_processes`: preenchido se `/proc/loadavg` for legível, senão 0
+ - `temperature_c`: preenchido se sensor `sysfs` for disponível, senão 0
 
 **Critérios de Aceitação:**
 
@@ -87,7 +87,7 @@ cpu_free_info(info);
 
 **Retorno em falha:** `NULL` se `/proc/cpuinfo` não puder ser aberto ou se `calloc()` falhar.
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -106,14 +106,14 @@ cpu_free_info(info);
 ```c
 cpu_info_t *info = cpu_get_info();
 if (info != NULL) {
-    printf("Model: %s\n", info->model);
-    cpu_free_info(info);
-    info = NULL;  // boa prática, mas não verificada pela API
+ printf("Model: %s\n", info->model);
+ cpu_free_info(info);
+ info = NULL; // boa prática, mas não verificada pela API
 }
-cpu_free_info(NULL);  // sem erro
+cpu_free_info(NULL); // sem erro
 ```
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -146,15 +146,15 @@ usage = (delta_active / delta_total) * 100.0f
 ```c
 cpu_init();
 float usage1 = cpu_get_usage();
-assert(usage1 == 0.0f);  // primeira leitura
-usleep(100000);  // espera 100ms
+assert(usage1 == 0.0f); // primeira leitura
+usleep(100000); // espera 100ms
 float usage2 = cpu_get_usage();
 assert(usage2 >= 0.0f && usage2 <= 100.0f);
 ```
 
 **Retorno em falha:** `-1.0f` se `/proc/stat` não puder ser lido ou parsing falhar.
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -176,13 +176,13 @@ cpu_usage_context_t ctx1, ctx2;
 cpu_usage_context_init(&ctx1);
 cpu_usage_context_init(&ctx2);
 
-float u1_1 = cpu_get_usage_context(&ctx1);  // 0.0f
-float u2_1 = cpu_get_usage_context(&ctx2);  // 0.0f
+float u1_1 = cpu_get_usage_context(&ctx1); // 0.0f
+float u2_1 = cpu_get_usage_context(&ctx2); // 0.0f
 
 usleep(100000);
 
-float u1_2 = cpu_get_usage_context(&ctx1);  // valor real
-float u2_2 = cpu_get_usage_context(&ctx2);  // valor real (pode diferir de u1_2)
+float u1_2 = cpu_get_usage_context(&ctx1); // valor real
+float u2_2 = cpu_get_usage_context(&ctx2); // valor real (pode diferir de u1_2)
 
 assert(u1_1 == 0.0f && u2_1 == 0.0f);
 assert(u1_2 >= 0.0f && u2_2 >= 0.0f);
@@ -191,7 +191,7 @@ cpu_usage_context_cleanup(&ctx1);
 cpu_usage_context_cleanup(&ctx2);
 ```
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
@@ -218,7 +218,7 @@ float temp = cpu_get_temperature();
 assert(temp > -1.1f && (temp == -1.0f || (temp > 0.0f && temp < 150.0f)));
 ```
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
@@ -245,7 +245,7 @@ float clock = cpu_get_clock_speed();
 assert(clock > -1.1f && (clock == -1.0f || (clock > 0.0f && clock < 10000.0f)));
 ```
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
@@ -271,7 +271,7 @@ int procs = cpu_get_active_processes();
 assert(procs >= -1);
 ```
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
@@ -284,12 +284,12 @@ assert(procs >= -1);
 **Funcionalidade esperada:**
 
 - `cpu_get_last_error_code()` retorna um `cpu_error_t`:
-  - `CPU_ERROR_NONE`: nenhum erro (sucesso)
-  - `CPU_ERROR_INVALID_ARGUMENT`: argumento inválido
-  - `CPU_ERROR_FILE_OPEN`: falha ao abrir arquivo
-  - `CPU_ERROR_PARSE`: falha no parsing de dados
-  - `CPU_ERROR_MEMORY`: falha em alocação de memória
-  - `CPU_ERROR_UNSUPPORTED`: operação não suportada no sistema
+ - `CPU_ERROR_NONE`: nenhum erro (sucesso)
+ - `CPU_ERROR_INVALID_ARGUMENT`: argumento inválido
+ - `CPU_ERROR_FILE_OPEN`: falha ao abrir arquivo
+ - `CPU_ERROR_PARSE`: falha no parsing de dados
+ - `CPU_ERROR_MEMORY`: falha em alocação de memória
+ - `CPU_ERROR_UNSUPPORTED`: operação não suportada no sistema
 - `cpu_get_last_error()` retorna string descritiva (até 255 chars)
 - Relatório é zerado após chamada bem-sucedida
 - Relatório é global (não thread-safe)
@@ -298,7 +298,7 @@ assert(procs >= -1);
 
 ```c
 // Sucesso limpa o erro anterior
-cpu_get_info();  // sucesso
+cpu_get_info(); // sucesso
 assert(cpu_get_last_error_code() == CPU_ERROR_NONE);
 
 // Falha registra erro
@@ -309,7 +309,7 @@ assert(cpu_get_last_error_code() == CPU_ERROR_FILE_OPEN);
 assert(strlen(cpu_get_last_error()) > 0);
 ```
 
-**Prioridade:** ALTA | **Status:** ✅ Implementado
+**Prioridade:** ALTA | **Status:** Implementado
 
 ---
 
@@ -322,11 +322,11 @@ assert(strlen(cpu_get_last_error()) > 0);
 **Funcionalidade esperada:**
 
 - Variáveis de ambiente permitem substituir caminhos padrão:
-  - `CPU_READER_CPUINFO_PATH`: substitui `/proc/cpuinfo`
-  - `CPU_READER_PROC_STAT_PATH`: substitui `/proc/stat`
-  - `CPU_READER_CPU_TEMP_PATH`: substitui `/sys/class/thermal/...`
-  - `CPU_READER_CPU_FREQ_PATH`: substitui `/sys/devices/system/cpu/.../scaling_cur_freq`
-  - `CPU_READER_LOADAVG_PATH`: substitui `/proc/loadavg`
+ - `CPU_READER_CPUINFO_PATH`: substitui `/proc/cpuinfo`
+ - `CPU_READER_PROC_STAT_PATH`: substitui `/proc/stat`
+ - `CPU_READER_CPU_TEMP_PATH`: substitui `/sys/class/thermal/...`
+ - `CPU_READER_CPU_FREQ_PATH`: substitui `/sys/devices/system/cpu/.../scaling_cur_freq`
+ - `CPU_READER_LOADAVG_PATH`: substitui `/proc/loadavg`
 - Permitir uso de fixtures de teste sem recompilar
 - Sem impacto em performance (checagem apenas uma vez por função)
 
@@ -344,7 +344,7 @@ CPU_READER_CPUINFO_PATH=/tmp/test_fixtures/cpuinfo ./build/test_cpu
 # Biblioteca deve usar o arquivo injetado
 ```
 
-**Prioridade:** MÉDIA | **Status:** ✅ Implementado
+**Prioridade:** MÉDIA | **Status:** Implementado
 
 ---
 
@@ -373,26 +373,26 @@ assert(sum == 1500);
 // Em arm64, usa fallback C
 ```
 
-**Prioridade:** BAIXA | **Status:** ✅ Implementado
+**Prioridade:** BAIXA | **Status:** Implementado
 
 ---
 
 ## Matriz de Requisitos Funcionais
 
-| ID     | Módulo        | Requisito               | Prioridade | Status |
+| ID | Módulo | Requisito | Prioridade | Status |
 | ------ | ------------- | ----------------------- | ---------- | ------ |
-| RF-001 | Inicialização | Inicializar biblioteca  | ALTA       | ✅     |
-| RF-002 | Inicialização | Limpar biblioteca       | ALTA       | ✅     |
-| RF-003 | Informações   | Ler informações básicas | ALTA       | ✅     |
-| RF-004 | Informações   | Liberar memória         | ALTA       | ✅     |
-| RF-005 | Uso           | Calcular uso agregado   | ALTA       | ✅     |
-| RF-006 | Uso           | Contextos independentes | MÉDIA      | ✅     |
-| RF-007 | Temperatura   | Ler temperatura         | MÉDIA      | ✅     |
-| RF-008 | Clock         | Ler velocidade          | MÉDIA      | ✅     |
-| RF-009 | Processos     | Contar processos ativos | MÉDIA      | ✅     |
-| RF-010 | Erros         | Reportar falhas         | ALTA       | ✅     |
-| RF-011 | Testes        | Injetar caminhos        | MÉDIA      | ✅     |
-| RF-012 | Performance   | Otimizar x86_64         | BAIXA      | ✅     |
+| RF-001 | Inicialização | Inicializar biblioteca | ALTA | |
+| RF-002 | Inicialização | Limpar biblioteca | ALTA | |
+| RF-003 | Informações | Ler informações básicas | ALTA | |
+| RF-004 | Informações | Liberar memória | ALTA | |
+| RF-005 | Uso | Calcular uso agregado | ALTA | |
+| RF-006 | Uso | Contextos independentes | MÉDIA | |
+| RF-007 | Temperatura | Ler temperatura | MÉDIA | |
+| RF-008 | Clock | Ler velocidade | MÉDIA | |
+| RF-009 | Processos | Contar processos ativos | MÉDIA | |
+| RF-010 | Erros | Reportar falhas | ALTA | |
+| RF-011 | Testes | Injetar caminhos | MÉDIA | |
+| RF-012 | Performance | Otimizar x86_64 | BAIXA | |
 
 ---
 
@@ -409,7 +409,7 @@ cpu_core_info_t *cpu_get_core_info(int core_id);
 float cpu_get_core_usage(int core_id);
 ```
 
-**Status:** ❌ Futuro (P2 - Semana 3-4)
+**Status:** Futuro (P2 - Semana 3-4)
 
 ---
 
@@ -417,7 +417,7 @@ float cpu_get_core_usage(int core_id);
 
 **Descrição:** Opção de cachear resultados por período configurável.
 
-**Status:** ❌ Futuro (P3 - Semana 5-6)
+**Status:** Futuro (P3 - Semana 5-6)
 
 ---
 
@@ -425,7 +425,7 @@ float cpu_get_core_usage(int core_id);
 
 **Descrição:** API thread-safe com sincronização interna.
 
-**Status:** ❌ Futuro (P3 - Semana 5-6)
+**Status:** Futuro (P3 - Semana 5-6)
 
 ---
 
@@ -433,13 +433,13 @@ float cpu_get_core_usage(int core_id);
 
 Todos os RF implementados têm:
 
-- ✅ Testes em `tests/test_cpu.c`
-- ✅ Exemplos de uso em `examples/monitor.c`
-- ✅ Documentação em `include/cpu.h`
-- ✅ Critérios de aceitação verificados
+- Testes em `tests/test_cpu.c`
+- Exemplos de uso em `examples/monitor.c`
+- Documentação em `include/cpu.h`
+- Critérios de aceitação verificados
 
 Para executar testes:
 
 ```bash
-make test  # Compila e executa tests/test_cpu.c
+make test # Compila e executa tests/test_cpu.c
 ```
