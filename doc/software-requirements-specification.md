@@ -1,6 +1,6 @@
 # Software Requirements Specification (SRS) - CPU Reader
 
-**Versão:** 2.0 
+**Versão:** 0.1.1
 **Data:** 2026-09-04 
 **Status:** APROVADO 
 **Autor:** Equipe de Desenvolvimento
