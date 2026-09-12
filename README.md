@@ -139,14 +139,14 @@ Quando mais de um commit elegível chega no mesmo push, é criada uma única tag
 - [x] Commit realizado com `docs: consolidate requirements...`
 
 ### Próximas Fases
-// Semana 2 em Atraso 
+// Semana 2 
 **Semana 2 (2026-09-11)** - Validação e Testes
-- [ ] Sanitizers (AddressSanitizer, UBSan)
+- [x] Sanitizers (AddressSanitizer, UBSan)
 - [ ] Multi-distribuição (RHEL, Alpine)
 - [ ] Benchmarks básicos
 
 **Semana 3 (2026-09-16)** - CI/CD Setup
-- [ ] GitHub Actions workflow
+- [x] GitHub Actions workflow
 - [ ] Lint estático (clang-tidy)
 - [ ] Multi-plataforma CI
 
@@ -157,8 +157,8 @@ Quando mais de um commit elegível chega no mesmo push, é criada uma única tag
 
 ## Versão Atual
 
-- **Versão:** v0.1.0 (tag automatizada)
-- **Status:** Beta (Semana 1)
+- **Versão:** v0.1.1 (tag automatizada)
+- **Status:** Beta (Semana 2)
 - **Requisitos:** 12/12 RF implementadas 
 - **RNF Validadas:** 10/12 
 - **Testes:** Todos passando 
