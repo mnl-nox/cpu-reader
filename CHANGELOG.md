@@ -1,5 +1,22 @@
 # Changelog - CPU Reader
 
+## [Unreleased]
+
+### Changed
+- Reorganized the repository documentation to match the current file structure
+- Added dedicated build and validation guides at the repository root
+- Simplified the main README and documentation index to reference only existing files
+
+## [v1.0.0-beta.1] - 2026-10-04
+
+### Added
+- Portable C validation target for architectures without x86_64 assembly
+- Explicit Beta compatibility matrix for Linux x86_64, arm64 and armv7
+
+### Changed
+- Made ncurses optional for building and testing the core library
+- Updated build, validation and API documentation for Beta usage
+
 ## [v0.1.1] - 2026-09-04
 
 ### Fixed
@@ -84,7 +101,6 @@
 ## Release Notes
 
 ### v0.1.1 Highlights
-- Documentation polish: Removed all emoji characters for universal compatibility
 - Maintained all technical content and specifications
 - Ready for Week 2 validation phase (sanitizers and multi-platform testing)
 
