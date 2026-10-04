@@ -6,6 +6,8 @@
 - Reorganized the repository documentation to match the current file structure
 - Added dedicated build and validation guides at the repository root
 - Simplified the main README and documentation index to reference only existing files
+- Added Docker Compose validation services for functionality, sanitizers,
+  hardening, static analysis and local telemetry
 
 ## [v1.0.0-beta.1] - 2026-10-04
 

@@ -31,3 +31,15 @@ jobs:
           else
             make test
           fi
+
+  quality:
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [test-sanitize, test-security]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run quality check
+        run: make ${{ matrix.check }}

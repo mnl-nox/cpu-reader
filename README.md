@@ -59,6 +59,9 @@ make test-portable
 ```bash
 make       # biblioteca e monitor
 make test  # compila e executa os testes
+make test-sanitize # AddressSanitizer e UndefinedBehaviorSanitizer
+make test-security # flags de hardening do compilador e linker
+make telemetry # gera telemetria local em build/telemetry.json
 make clean # remove build/ e libcpu.a
 ```
 
@@ -119,6 +122,26 @@ As variáveis abaixo permitem redirecionar leituras sem recompilar:
 - [doc/software-requirements-specification.md](doc/software-requirements-specification.md) - SRS
 - [doc/architecture-decision-records.md](doc/architecture-decision-records.md) - ADRs
 - [doc/uml-diagrams.md](doc/uml-diagrams.md) - diagramas UML
+- [SECURITY.md](SECURITY.md) - controles de segurança e política de relato
+
+## Testes com Docker
+
+Com Docker e Docker Compose instalados, execute a matriz completa:
+
+```bash
+docker compose build
+docker compose run --rm gcc
+docker compose run --rm monitor
+docker compose run --rm portable
+docker compose run --rm sanitizers
+docker compose run --rm security
+docker compose run --rm static-analysis
+docker compose run --rm telemetry
+```
+
+Os serviços não acessam rede durante a execução dos testes. O serviço
+`telemetry` gera apenas um resumo local em JSON; nenhuma métrica é enviada
+para fora do ambiente.
 
 ## Status
 

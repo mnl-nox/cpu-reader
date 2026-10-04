@@ -1,0 +1,42 @@
+services:
+  gcc:
+    build:
+      context: .
+    command: make test
+
+  monitor:
+    build:
+      context: .
+    command: make all
+
+  portable:
+    build:
+      context: .
+    command: make test-portable
+
+  sanitizers:
+    build:
+      context: .
+    command: make test-sanitize
+
+  security:
+    build:
+      context: .
+    command: make test-security
+
+  static-analysis:
+    build:
+      context: .
+    command:
+      - sh
+      - -c
+      - cppcheck --enable=warning,style,performance,portability --error-exitcode=1
+        --inline-suppr --std=c99 -Iinclude src tests examples
+
+  telemetry:
+    build:
+      context: .
+    command:
+      - sh
+      - -c
+      - make test && make telemetry && cat build/telemetry.json

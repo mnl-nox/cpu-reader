@@ -1,0 +1,6 @@
+.git
+.github
+.vscode
+build
+libcpu.a
+*.log

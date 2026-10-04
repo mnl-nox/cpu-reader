@@ -7,6 +7,7 @@ Este diretório reúne a documentação técnica consolidada do projeto.
 - [../README.md](../README.md) - visão geral do projeto, build e uso
 - [../BUILD.md](../BUILD.md) - instruções de compilação
 - [../VALIDATION.md](../VALIDATION.md) - guia de validação
+- [../SECURITY.md](../SECURITY.md) - controles de segurança e relato
 
 ## Requisitos e especificação
 

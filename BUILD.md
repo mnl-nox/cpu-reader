@@ -16,6 +16,9 @@ make core  # compila apenas libcpu.a
 make monitor
 make test  # compila e executa os testes
 make test-portable # testa o fallback C sem assembly x86_64
+make test-sanitize # executa AddressSanitizer e UndefinedBehaviorSanitizer
+make test-security # executa com flags de hardening
+make telemetry # gera resumo JSON local da execução
 make clean # remove build/ e libcpu.a
 ```
 
@@ -45,3 +48,16 @@ O `Makefile` usa, por padrão:
 O código é Linux-only e compatível com `x86_64`, `aarch64/arm64`, `armv7` e
 outras arquiteturas com `/proc` e `sysfs`. A implementação C portátil é a
 referência para arquiteturas sem o caminho assembly.
+
+## Segurança e telemetria
+
+`make test-security` habilita proteção de stack, `_FORTIFY_SOURCE`, PIE,
+relro/now e verificações de formato. `make test-sanitize` detecta acessos
+inválidos e comportamento indefinido durante os testes.
+
+`make telemetry` produz `build/telemetry.json` com compiler, plataforma e
+status. Esse arquivo é local e não contém dados da máquina além do identificador
+genérico da plataforma; não há envio automático de telemetria.
+
+Consulte [SECURITY.md](SECURITY.md) para o escopo de segurança e o processo de
+relato responsável.

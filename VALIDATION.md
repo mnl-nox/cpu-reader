@@ -20,6 +20,9 @@ Execute:
 ```bash
 make test
 make test-portable
+make test-sanitize
+make test-security
+make telemetry
 ```
 
 ## Validação manual
@@ -44,6 +47,26 @@ make test-portable
 - Monitor ncurses: compilável com ncurses de desenvolvimento instalado
 - Overrides de teste: cobertos pelos testes automatizados
 - Fallback C para arquiteturas não x86_64: validado por `make test-portable`
+- Memória e comportamento indefinido: validados por `make test-sanitize`
+- Hardening de compilação e linkedição: validado por `make test-security`
+- Telemetria local: validada pela geração de `build/telemetry.json`
+
+## Execução com Docker
+
+```bash
+docker compose build
+docker compose run --rm gcc
+docker compose run --rm monitor
+docker compose run --rm portable
+docker compose run --rm sanitizers
+docker compose run --rm security
+docker compose run --rm static-analysis
+docker compose run --rm telemetry
+```
+
+O serviço `static-analysis` usa Cppcheck. O container é atualizado durante o
+build, executa como usuário sem privilégios, não publica portas e os testes não
+enviam dados para serviços externos.
 
 ## Matriz de compatibilidade
 
