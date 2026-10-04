@@ -19,7 +19,8 @@ static const char *proc_stat_path(void) {
 
 static unsigned long long
 sum_cpu_counters(const unsigned long long counters[8]) {
-#if defined(__x86_64__) && (defined(__GNUC__) || defined(__clang__))
+#if !defined(CPU_READER_DISABLE_ASM) && defined(__x86_64__) && \
+    (defined(__GNUC__) || defined(__clang__))
   const unsigned long long *values = counters;
   unsigned long long total;
 
