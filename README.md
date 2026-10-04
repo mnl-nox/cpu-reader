@@ -1,8 +1,25 @@
 # CPU Reader
 
+![CPU Reader](https://img.shields.io/badge/CPU%20Reader-Linux%20Monitor-2563eb?style=for-the-badge&logo=linux&logoColor=white)
+![Beta](https://img.shields.io/badge/status-BETA-f59e0b?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
+![Linux](https://img.shields.io/badge/platform-Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
+![C99](https://img.shields.io/badge/language-C99-A8B9CC?style=flat-square&logo=c&logoColor=white)
+![MIT License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)
+
+![Build](https://img.shields.io/github/actions/workflow/status/mnl-nox/cpu-reader/ci.yml?branch=main&label=build&logo=githubactions&logoColor=white)
+![Docker](https://img.shields.io/badge/tests-Docker%20Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Make](https://img.shields.io/badge/build-GNU%20Make-427819?style=flat-square&logo=gnu&logoColor=white)
+![Sanitizers](https://img.shields.io/badge/quality-ASan%20%2B%20UBSan-8b5cf6?style=flat-square)
+![Cppcheck](https://img.shields.io/badge/static%20analysis-Cppcheck-0f766e?style=flat-square)
+![Architecture](https://img.shields.io/badge/architectures-x86__64%20%7C%20arm64%20%7C%20armv7-64748b?style=flat-square)
+
 Biblioteca C99 para consultar informações da CPU em Linux, incluindo uso agregado,
 processos ativos, temperatura e velocidade de clock. O repositório também inclui
 um monitor de terminal baseado em ncurses como exemplo de consumo da API.
+
+> Biblioteca Beta pronta para uso em Linux, com testes funcionais, validação
+> portátil, sanitizers, hardening, análise estática e execução reproduzível com
+> Docker Compose.
 
 ## Visão geral
 
