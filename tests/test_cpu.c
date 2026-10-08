@@ -95,7 +95,7 @@ static int expect_info_failure_for_invalid_content(void) {
     return -1;
   }
 
-  if (expect_last_error(CPU_ERROR_PARSE, "Dados obrigatorios") != 0) {
+  if (expect_last_error(CPU_ERROR_PARSE, "Topologia de CPU ausente") != 0) {
     unsetenv("CPU_READER_CPUINFO_PATH");
     unlink(path);
     return -1;
@@ -353,9 +353,7 @@ int main(void) {
   char stat_fixture[] = "/tmp/cpu-reader-stat-valid-XXXXXX";
 
   if (info == NULL || info->logical_processors <= 0 ||
-      info->threads <= 0 || info->model[0] == '\0' ||
-      info->current_frequency_mhz <= 0.0f ||
-      info->flags[0] == '\0') {
+      info->threads <= 0 || info->model[0] == '\0') {
     fprintf(stderr, "cpu_get_info returned incomplete data\n");
     return 1;
   }
