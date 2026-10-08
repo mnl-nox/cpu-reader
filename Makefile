@@ -33,7 +33,7 @@ test: build/test_cpu build/test_platform
 
 test-portable:
 	$(MAKE) clean
-	$(MAKE) CFLAGS="$(CFLAGS) -DCPU_READER_DISABLE_ASM" test
+	$(MAKE) CFLAGS="$(CFLAGS)" test
 
 test-sanitize:
 	$(MAKE) clean
