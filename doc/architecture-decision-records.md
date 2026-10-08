@@ -486,10 +486,10 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 | ADR-0009 | Versionamento | ACEITO | 2026-01 | MÉDIA |
 | ADR-0010 | Injeção Teste | ACEITO | 2026-01 | BAIXA |
 | ADR-0011 | RNFs Formalizados | PROPOSTO | 2026-09-04 | MÉDIA |
-| ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
-| ADR-0015 | Erros explícitos por operação/contexto | PROPOSTO | 2026-10-08 | ALTA |
 | ADR-0012 | RFs Consolidadas | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0013 | Design Estruturado | PROPOSTO | 2026-09-04 | BAIXA |
+| ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
+| ADR-0015 | Revisão final da API de erros explícitos | PROPOSTO | 2026-10-08 | MÉDIA |
 
 ---
 
@@ -517,7 +517,7 @@ local informativo sem limiar rígido.
 
 ## Próximas ADRs Esperadas (Backlog)
 
-- **ADR-0015:** API de erros explícitos por resultado/contexto antes da versão 1.0
+- **ADR-0015:** Revisão final da API de erros explícitos e compatibilidade ABI antes da versão 1.0
 - **ADR-0016:** Caching de resultados
 - **ADR-0017:** Suporte a múltiplas distribuições
 - **ADR-0018:** API bindings (Python, Node.js)
