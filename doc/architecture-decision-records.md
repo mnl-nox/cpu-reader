@@ -487,7 +487,6 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 | ADR-0010 | Injeção Teste | ACEITO | 2026-01 | BAIXA |
 | ADR-0011 | RNFs Formalizados | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
-| ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
 | ADR-0015 | Erros explícitos por operação/contexto | PROPOSTO | 2026-10-08 | ALTA |
 | ADR-0012 | RFs Consolidadas | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0013 | Design Estruturado | PROPOSTO | 2026-09-04 | BAIXA |
