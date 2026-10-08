@@ -153,8 +153,6 @@ static void *worker_read_missing_cpuinfo(void *argument) {
 static int test_error_state_is_thread_local(void) {
   pthread_t thread;
   thread_result_t result;
-  cpu_usage_context_t context;
-
   memset(&result, 0, sizeof(result));
   setenv("CPU_READER_CPUINFO_PATH", "/tmp/cpu-reader-missing-thread-cpuinfo", 1);
   if (cpu_usage_context_init(NULL) != -1 ||
@@ -178,7 +176,6 @@ static int test_error_state_is_thread_local(void) {
     fprintf(stderr, "error diagnostics leaked between threads\n");
     return -1;
   }
-  (void)context;
   return 0;
 }
 
