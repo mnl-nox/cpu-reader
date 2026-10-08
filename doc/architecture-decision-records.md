@@ -524,7 +524,7 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 
 ## Próximas ADRs Esperadas (Backlog)
 
-- **ADR-0014:** Thread-safety com thread_local (C11)
+- **ADR-0014:** API de erros explícitos por resultado/contexto antes da versão 1.0
 - **ADR-0015:** Caching de resultados
 - **ADR-0016:** Suporte a múltiplas distribuições
 - **ADR-0017:** API bindings (Python, Node.js)
