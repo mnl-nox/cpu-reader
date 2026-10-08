@@ -14,14 +14,14 @@ Usar C99 como padrão de linguagem obrigatório.
 
 **Justificativa:**
 
-- C99 é suportado por todos os compiladores modernos (GCC, Clang, MSVC)
-- Evita recursos C11+ que reduzem portabilidade
+- GCC e Clang, nas versões usadas pelo CI Linux, oferecem suporte a C99 e à extensão `__thread` usada para compatibilidade com o diagnóstico legado
+- Mantém o padrão de linguagem em C99; algumas extensões de compilador e APIs POSIX ainda limitam toolchains/hosts suportados
 - Mantém compatibilidade com sistemas legados
 - Simples compilação com `gcc -std=c99`
 
 **Consequências:**
 
-- Máxima portabilidade
+- Portabilidade dentro do alvo Linux/GCC/Clang validado
 - Mínimo overhead de compilação
 - Sem alguns recursos modernos (threads nativas, atomic ops)
 - Thread-safety manual
