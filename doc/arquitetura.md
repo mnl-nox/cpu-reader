@@ -54,7 +54,7 @@ legada enquanto permanece compilável em modo C99.
 
 ## Portabilidade validada
 
-A CI executa GCC/Clang nativos e portáteis em Linux x86_64, sanitizers e
+A implementação atual soma contadores em C em todas as arquiteturas; não existe caminho assembly ativo. A CI executa GCC/Clang nativos e portáteis em Linux x86_64, sanitizers e
 hardening, além de runtime nativo aarch64/arm64. O fallback C pode ser
 compilado em outros alvos, mas ARMv7 de 32 bits ainda não é declarado validado
 em runtime. O benchmark é informativo e não impõe limites rígidos.
