@@ -8,7 +8,7 @@ SECURITY_LDFLAGS ?= -Wl,-z,relro,-z,now -pie
 
 LIBRARY = libcpu.a
 CORE_OBJECT = build/cpu.o
-CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_usage.o
+CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usage.o
 MONITOR = build/cpu-monitor
 
 .PHONY: all core monitor test test-portable test-sanitize test-security \
@@ -64,6 +64,10 @@ build/cpu.o: src/cpu.c include/cpu.h src/cpu_internal.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 build/cpu_info.o: src/cpu_info.c include/cpu.h src/cpu_internal.h
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/cpu_telemetry.o: src/cpu_telemetry.c include/cpu.h src/cpu_internal.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 
