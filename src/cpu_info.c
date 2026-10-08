@@ -33,6 +33,50 @@ static void trim_key(char *key) {
   }
 }
 
+static int record_physical_core(int physical_id, int core_id,
+                               int **physical_ids, int **core_ids,
+                               int *count, int *capacity) {
+  int index;
+
+  for (index = 0; index < *count; index++) {
+    if ((*physical_ids)[index] == physical_id &&
+        (*core_ids)[index] == core_id) {
+      return 0;
+    }
+  }
+
+  if (*count >= *capacity) {
+    int new_capacity;
+    int *new_physical_ids;
+    int *new_core_ids;
+
+    if (*capacity <= 0 || *capacity > INT_MAX / 2) {
+      return -1;
+    }
+    new_capacity = *capacity * 2;
+    if ((size_t)new_capacity > ((size_t)-1) / sizeof(int)) {
+      return -1;
+    }
+    new_physical_ids =
+        realloc(*physical_ids, (size_t)new_capacity * sizeof(int));
+    if (new_physical_ids == NULL) {
+      return -1;
+    }
+    *physical_ids = new_physical_ids;
+    new_core_ids = realloc(*core_ids, (size_t)new_capacity * sizeof(int));
+    if (new_core_ids == NULL) {
+      return -1;
+    }
+    *core_ids = new_core_ids;
+    *capacity = new_capacity;
+  }
+
+  (*physical_ids)[*count] = physical_id;
+  (*core_ids)[*count] = core_id;
+  (*count)++;
+  return 0;
+}
+
 cpu_info_t *cpu_get_info(void) {
   FILE *file;
   cpu_info_t *info;
@@ -113,18 +157,18 @@ cpu_info_t *cpu_get_info(void) {
                            "ID de processador invalido em %s", path);
         return NULL;
       }
-      if (have_processor && current_physical_id >= 0 && current_core_id >= 0) {
-        int index;
-        for (index = 0; index < physical_cores; index++) {
-          if (physical_ids[index] == current_physical_id &&
-              core_ids[index] == current_core_id) {
-            break;
-          }
-        }
-        if (index == physical_cores && physical_cores < physical_capacity) {
-          physical_ids[physical_cores] = current_physical_id;
-          core_ids[physical_cores++] = current_core_id;
-        }
+      if (have_processor && current_physical_id >= 0 &&
+          current_core_id >= 0 &&
+          record_physical_core(current_physical_id, current_core_id,
+                               &physical_ids, &core_ids, &physical_cores,
+                               &physical_capacity) != 0) {
+        free(physical_ids);
+        free(core_ids);
+        fclose(file);
+        free(info);
+        cpu_set_last_error(CPU_ERROR_MEMORY,
+                           "Nao foi possivel expandir a topologia da CPU");
+        return NULL;
       }
       info->logical_processors++;
       have_processor = 1;
@@ -189,18 +233,18 @@ cpu_info_t *cpu_get_info(void) {
     return NULL;
   }
 
-  if (have_processor && current_physical_id >= 0 && current_core_id >= 0) {
-    int index;
-    for (index = 0; index < physical_cores; index++) {
-      if (physical_ids[index] == current_physical_id &&
-          core_ids[index] == current_core_id) {
-        break;
-      }
-    }
-    if (index == physical_cores && physical_cores < physical_capacity) {
-      physical_ids[physical_cores] = current_physical_id;
-      core_ids[physical_cores++] = current_core_id;
-    }
+  if (have_processor && current_physical_id >= 0 &&
+      current_core_id >= 0 &&
+      record_physical_core(current_physical_id, current_core_id, &physical_ids,
+                           &core_ids, &physical_cores, &physical_capacity) !=
+          0) {
+    free(physical_ids);
+    free(core_ids);
+    fclose(file);
+    free(info);
+    cpu_set_last_error(CPU_ERROR_MEMORY,
+                       "Nao foi possivel expandir a topologia da CPU");
+    return NULL;
   }
   fclose(file);
   free(physical_ids);
