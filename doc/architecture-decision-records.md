@@ -288,54 +288,41 @@ Em x86_64 com GCC/Clang, usar inline assembly para somar contadores; preservar f
 
 ---
 
-## ADR-0008: Relatório Global de Falhas (vs Por-Contexto)
+## ADR-0008: Diagnóstico de erro legado por thread
 
-**Status:** ACEITO | **Data:** 2026 | **Modificado:** Sim, 2026-09-04
+**Status:** SUBSTITUÍDO PARCIALMENTE | **Data:** 2026-10-08
 
-**Contexto:**
-Quando operações falham, a API deve expor informações de erro. A escolha é: retorno de erro por contexto (thread-local ou estrutura), ou global.
+**Contexto:** A API histórica `cpu_get_last_error_code()` / `cpu_get_last_error()`
+não recebe um objeto de resultado e, originalmente, usava estado global,
+permitindo que uma chamada concorrente sobrescrevesse o diagnóstico de outra.
+A API também exige que o consumidor consulte a mensagem imediatamente após a
+operação que falhou.
 
-**Decisão:**
-Manter variáveis estáticas globais para código e mensagem de erro; `cpu_get_last_error_code()` e `cpu_get_last_error()` acessam-nas.
+**Decisão atual:** Manter os símbolos legados para compatibilidade Beta, mas
+guardar código e mensagem em armazenamento local à thread nas toolchains GCC e
+Clang. O contexto padrão usado por `cpu_get_usage()` também é local à thread.
+A implementação falha explicitamente na compilação em toolchains sem suporte a
+`__thread`, em vez de degradar silenciosamente para estado global.
 
-**Justificativa (2026-01):**
+**Limitações:** Isso não cria ownership de erro por operação nem por contexto.
+Uma operação bem-sucedida na mesma thread pode limpar o diagnóstico anterior.
+Um mesmo `cpu_usage_context_t` explícito não é seguro para acesso concorrente;
+variáveis de ambiente de override também não devem ser alteradas durante
+chamadas concorrentes.
 
-- Simples de implementar
-- Compatible com C99
-- Sem necessidade de passar contexto de erro por todas as funções
-- Não thread-safe
-- Estado compartilhado entre threads
+**Próxima decisão obrigatória antes da versão 1.0:** adicionar APIs com erro
+explícito no resultado/argumento de saída (ou contexto de erro próprio), definir
+ownership e ciclo de vida e manter os wrappers legados como camada de
+compatibilidade. A API nova não deve depender de "último erro" implícito.
 
-**Revisão (2026-09-04):**
-Esta decisão é **aceitável** para versão 0.x, mas deve ser reconsiderada para 1.0 se thread-safety se tornar requisito.
+**Alternativas consideradas:**
 
-**Futuro (ADR-0009):**
-Adicionar modo thread-safe opcional com `thread_local` em C11+.
+1. Estado global compartilhado — rejeitado por data races e diagnósticos cruzados.
+2. Estado local à thread — adotado como correção transitória compatível com a API.
+3. Erro explícito por operação/contexto — direção recomendada para a API 1.0.
 
-**Alternativas:**
-
-1. Thread-local storage (C11)
- - Thread-safe
- - Requer C11+
-2. Contexto de erro separado passado por argumento
- - Explícito
- - Muda toda a API
-3. Ignorar erros, retornar valores especiais apenas
- - Sem estado
- - Menos informativo
-
-**Consequências:**
-
-- Aplicações multi-thread devem usar `cpu_usage_context_t` por thread
-- Relatório de erro é global (sobrescrito por chamada seguinte)
-- Documentação deve alertar sobre uso concorrente
-- Futura versão pode adicionar `cpu_get_last_error_thread_local()`
-
-**Referências:**
-
-- D-008: Relatório global de falhas
-- RF-010: Relatório de falhas
-- ADR-0009 (futuro): Thread-safety
+**Critérios de validação:** teste concorrente garante que threads independentes
+preservam seus próprios diagnósticos; CI cobre GCC/Clang e sanitizers.
 
 ---
 
