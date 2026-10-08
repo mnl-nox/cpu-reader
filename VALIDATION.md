@@ -75,6 +75,6 @@ enviam dados para serviços externos.
 
 | Plataforma | Núcleo | Monitor | Implementação |
 | --- | --- | --- | --- |
-| Linux x86_64 | Suportado | Opcional | Assembly otimizado ou C |
-| Linux aarch64/arm64 | Suportado | Opcional | C portátil |
+| Linux x86_64 | Validado em CI | Opcional | C |
+| Linux aarch64/arm64 | Validado em runtime na CI | Opcional | C |
 | Linux armv7 (32-bit) | Não validado em runtime | Opcional | C portátil pretendido |
