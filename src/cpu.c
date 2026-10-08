@@ -114,3 +114,69 @@ void cpu_free_info(cpu_info_t *info) { free(info); }
 cpu_error_t cpu_get_last_error_code(void) { return last_error_code; }
 
 const char *cpu_get_last_error(void) { return last_error_message; }
+
+/* Copy the legacy thread-local diagnostic into caller-owned storage. This
+ * snapshot has a stable lifetime independent of subsequent API calls. */
+void cpu_error_info_clear(cpu_error_info_t *error) {
+  if (error != NULL) {
+    error->code = CPU_ERROR_NONE;
+    error->message[0] = '\0';
+  }
+}
+
+static void cpu_capture_error(cpu_error_info_t *error) {
+  if (error != NULL) {
+    error->code = last_error_code;
+    snprintf(error->message, sizeof(error->message), "%s", last_error_message);
+  }
+}
+
+int cpu_init_ex(cpu_error_info_t *error) {
+  int result = cpu_init();
+  cpu_capture_error(error);
+  return result;
+}
+
+cpu_info_t *cpu_get_info_ex(cpu_error_info_t *error) {
+  cpu_info_t *result = cpu_get_info();
+  cpu_capture_error(error);
+  return result;
+}
+
+float cpu_get_usage_ex(cpu_error_info_t *error) {
+  float result = cpu_get_usage();
+  cpu_capture_error(error);
+  return result;
+}
+
+int cpu_usage_context_init_ex(cpu_usage_context_t *context,
+                              cpu_error_info_t *error) {
+  int result = cpu_usage_context_init(context);
+  cpu_capture_error(error);
+  return result;
+}
+
+float cpu_get_usage_context_ex(cpu_usage_context_t *context,
+                               cpu_error_info_t *error) {
+  float result = cpu_get_usage_context(context);
+  cpu_capture_error(error);
+  return result;
+}
+
+float cpu_get_temperature_ex(cpu_error_info_t *error) {
+  float result = cpu_get_temperature();
+  cpu_capture_error(error);
+  return result;
+}
+
+float cpu_get_clock_speed_ex(cpu_error_info_t *error) {
+  float result = cpu_get_clock_speed();
+  cpu_capture_error(error);
+  return result;
+}
+
+int cpu_get_active_processes_ex(cpu_error_info_t *error) {
+  int result = cpu_get_active_processes();
+  cpu_capture_error(error);
+  return result;
+}
