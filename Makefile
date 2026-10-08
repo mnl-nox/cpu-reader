@@ -12,7 +12,7 @@ CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usag
 MONITOR = build/cpu-monitor
 
 .PHONY: all core monitor test test-portable test-sanitize test-security \
-	telemetry clean
+	telemetry benchmark clean
 
 all: core monitor
 
@@ -44,6 +44,13 @@ test-security:
 	$(MAKE) clean
 	$(MAKE) CFLAGS="$(CFLAGS) $(SECURITY_CFLAGS)" \
 		LDFLAGS="$(LDFLAGS) $(SECURITY_LDFLAGS)" test
+
+benchmark: build/bench_cpu
+	./build/bench_cpu
+
+build/bench_cpu: bench/bench_cpu.c $(LIBRARY)
+	@mkdir -p build
+	$(CC) $(CFLAGS) -D_POSIX_C_SOURCE=200809L -o $@ $< -L. -lcpu $(LDFLAGS)
 
 telemetry: test
 	@mkdir -p build
