@@ -45,9 +45,10 @@ legada enquanto permanece compilável em modo C99.
 - A primeira chamada a um contexto de uso estabelece a referência e retorna
   `0.0f`. Chamadas subsequentes retornam o percentual derivado dos deltas.
 - A API legada de erro (`cpu_get_last_error*`) armazena o último diagnóstico
-  por thread em GCC/Clang. Uma operação bem-sucedida pode limpar esse
-  diagnóstico da mesma thread; portanto, consumidores devem lê-lo imediatamente
-  após uma falha. Não é um objeto de erro com ownership por operação.
+  por thread em GCC/Clang. Variantes `*_ex` copiam o diagnóstico para um
+  `cpu_error_info_t` pertencente ao chamador; esse snapshot não muda após
+  chamadas posteriores. O consumidor deve limpar/reutilizar o objeto quando
+  desejar, usando `cpu_error_info_clear()`.
 - `cpu_get_usage()`, `cpu_init()` e `cpu_cleanup()` usam contexto padrão
   por thread. Contextos explícitos pertencem ao consumidor e exigem
   sincronização externa se compartilhados entre threads.
@@ -94,8 +95,9 @@ cpu_info.c            cpu_usage.c          cpu_telemetry.c
 
 ## Limitações conhecidas
 
-1. A API legada de erros é baseada no conceito de "último erro" e será
-   substituída ou complementada por resultados explícitos antes da versão 1.0.
+1. A API legada de erros continua disponível por compatibilidade; a família `*_ex`
+   fornece snapshots explícitos por operação. Novas funções fallíveis devem
+   oferecer o contrato explícito.
 2. O estado por thread não torna um mesmo `cpu_usage_context_t` seguro para
    uso concorrente, nem torna chamadas simultâneas a `setenv()/unsetenv()`
    seguras.
