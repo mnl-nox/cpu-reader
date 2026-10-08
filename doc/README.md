@@ -36,6 +36,7 @@ doc/
   README.md
   arquitetura.md
   architecture-decision-records.md
+
   requerimentos.md
   requisitos-nao-funcionais.md
   software-requirements-specification.md
@@ -44,5 +45,5 @@ doc/
 
 ## Observação
 
-O escopo Beta atual é Linux. A biblioteca suporta `x86_64`, `aarch64/arm64`,
-`armv7` e outras arquiteturas Linux por meio do fallback C portátil.
+O escopo Beta atual é Linux. A CI valida x86_64 e aarch64/arm64. ARMv7 é um
+alvo pretendido pelo fallback C, mas ainda não tem runtime dedicado validado.
