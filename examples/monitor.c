@@ -1,21 +1,21 @@
 #include "cpu.h"
 
 #include <ncurses.h>
-#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 int main(void)
 {
-        cpu_info_t *info;
-        float usage;
-        float clock_speed;
-        float temperature;
-
         if (cpu_init() != 0)
         {
                 return 1;
         }
 
-        initscr();
+        if (initscr() == NULL)
+        {
+                cpu_cleanup();
+                return 1;
+        }
         cbreak();
         noecho();
         curs_set(0);
@@ -23,7 +23,7 @@ int main(void)
 
         while (getch() != 'q')
         {
-                info = cpu_get_info();
+                cpu_info_t *info = cpu_get_info();
                 erase();
 
                 if (info == NULL)
@@ -32,16 +32,50 @@ int main(void)
                 }
                 else
                 {
-                        usage = cpu_get_usage();
-                        clock_speed = cpu_get_clock_speed();
-                        temperature = cpu_get_temperature();
+                        float usage = cpu_get_usage();
+                        char usage_error[256] = "";
+                        float clock_speed = cpu_get_clock_speed();
+                        float temperature = cpu_get_temperature();
+
+                        /*
+                         * Each metric updates the shared error slot. Copy the
+                         * usage error before collecting the other metrics.
+                         */
+                        if (usage < 0.0f)
+                        {
+                                snprintf(usage_error, sizeof(usage_error),
+                                         "%s", cpu_get_last_error());
+                        }
+
                         mvprintw(0, 0, "CPU Reader MVP");
                         mvprintw(2, 0, "Modelo:    %s", info->model[0] ? info->model : "desconhecido");
-                        mvprintw(3, 0, "Nucleos:   %d", info->cores);
-                        mvprintw(4, 0, "Threads:   %d", info->threads);
-                        mvprintw(5, 0, "Processos: %d",
-                                 info->active_processes >= 0 ? info->active_processes : 0);
-                        mvprintw(6, 0, "Frequencia base: %.2f MHz", info->frequency_mhz);
+                        if (info->physical_cores > 0)
+                        {
+                                mvprintw(3, 0, "Nucleos fisicos: %d", info->physical_cores);
+                        }
+                        else
+                        {
+                                mvprintw(3, 0, "Nucleos fisicos: indisponivel");
+                        }
+                        mvprintw(4, 0, "Processadores logicos: %d", info->logical_processors);
+                        if (info->active_processes >= 0)
+                        {
+                                mvprintw(5, 0, "Processos: %d",
+                                         info->active_processes);
+                        }
+                        else
+                        {
+                                mvprintw(5, 0, "Processos: indisponivel");
+                        }
+                        if (info->current_frequency_mhz > 0.0f)
+                        {
+                                mvprintw(6, 0, "Frequencia atual: %.2f MHz",
+                                         info->current_frequency_mhz);
+                        }
+                        else
+                        {
+                                mvprintw(6, 0, "Frequencia atual: indisponivel");
+                        }
                         if (clock_speed < 0.0f)
                         {
                                 mvprintw(7, 0, "Clock atual: indisponivel");
@@ -61,7 +95,7 @@ int main(void)
                         if (usage < 0.0f)
                         {
                                 mvprintw(9, 0, "Uso:       indisponivel");
-                                mvprintw(10, 0, "Falha: %s", cpu_get_last_error());
+                                mvprintw(10, 0, "Falha: %s", usage_error);
                         }
                         else
                         {

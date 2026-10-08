@@ -240,6 +240,24 @@ static int expect_clock_speed_failure(void) {
   return expect_last_error(CPU_ERROR_PARSE, "frequencia");
 }
 
+static int expect_clock_speed_rejects_trailing_data(void) {
+  char path[] = "/tmp/cpu-reader-freq-truncated-XXXXXX";
+
+  if (make_temp_file(path, "3200000junk\n") != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_CPU_FREQ_PATH", path, 1);
+  if (cpu_get_clock_speed() != -1.0f ||
+      expect_last_error(CPU_ERROR_PARSE, "frequencia") != 0) {
+    unsetenv("CPU_READER_CPU_FREQ_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_CPU_FREQ_PATH");
+  unlink(path);
+  return 0;
+}
+
 static int expect_active_processes_success(void) {
   char path[] = "/tmp/cpu-reader-loadavg-XXXXXX";
   int active_processes;
@@ -285,6 +303,26 @@ static int expect_active_processes_failure(void) {
   return expect_last_error(CPU_ERROR_PARSE, "processos ativos");
 }
 
+static int expect_usage_rejects_truncated_line(void) {
+  char path[] = "/tmp/cpu-reader-stat-truncated-XXXXXX";
+  cpu_usage_context_t context;
+
+  if (make_temp_file(path, "cpu 10 0 5 20\n") != 0 ||
+      cpu_usage_context_init(&context) != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_PROC_STAT_PATH", path, 1);
+  if (cpu_get_usage_context(&context) != -1.0f ||
+      expect_last_error(CPU_ERROR_PARSE, "linha cpu") != 0) {
+    unsetenv("CPU_READER_PROC_STAT_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_PROC_STAT_PATH");
+  unlink(path);
+  return 0;
+}
+
 int main(void) {
   cpu_info_t *info = cpu_get_info();
   cpu_usage_context_t first_context;
@@ -293,8 +331,9 @@ int main(void) {
   float usage;
   char stat_fixture[] = "/tmp/cpu-reader-stat-valid-XXXXXX";
 
-  if (info == NULL || info->cores <= 0 || info->threads <= 0 ||
-      info->model[0] == '\0' || info->frequency_mhz <= 0.0f ||
+  if (info == NULL || info->logical_processors <= 0 ||
+      info->threads <= 0 || info->model[0] == '\0' ||
+      info->current_frequency_mhz <= 0.0f ||
       info->flags[0] == '\0') {
     fprintf(stderr, "cpu_get_info returned incomplete data\n");
     return 1;
@@ -325,8 +364,10 @@ int main(void) {
       expect_usage_failure_for_invalid_content(&fixture_context) != 0 ||
       expect_temperature_success() != 0 || expect_temperature_failure() != 0 ||
       expect_clock_speed_success() != 0 || expect_clock_speed_failure() != 0 ||
+      expect_clock_speed_rejects_trailing_data() != 0 ||
       expect_active_processes_success() != 0 ||
-      expect_active_processes_failure() != 0) {
+      expect_active_processes_failure() != 0 ||
+      expect_usage_rejects_truncated_line() != 0) {
     cpu_free_info(info);
     return 1;
   }

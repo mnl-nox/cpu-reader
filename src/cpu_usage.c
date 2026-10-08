@@ -3,6 +3,7 @@
 #include "cpu_internal.h"
 
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,35 +18,47 @@ static const char *proc_stat_path(void) {
   return path;
 }
 
-static unsigned long long
-sum_cpu_counters(const unsigned long long counters[8]) {
-#if !defined(CPU_READER_DISABLE_ASM) && defined(__x86_64__) && \
-    (defined(__GNUC__) || defined(__clang__))
-  const unsigned long long *values = counters;
-  unsigned long long total;
-
-  __asm__ volatile("xorq %[total], %[total]\n\t"
-                   "movq $8, %%rcx\n\t"
-                   "1:\n\t"
-                   "addq (%[values]), %[total]\n\t"
-                   "addq $8, %[values]\n\t"
-                   "decq %%rcx\n\t"
-                   "jnz 1b"
-                   : [total] "=&r"(total), [values] "+r"(values)
-                   :
-                   : "rcx", "cc", "memory");
-
-  return total;
-#else
-  unsigned long long total = 0;
+static int sum_cpu_counters(const unsigned long long counters[8],
+                            unsigned long long *total) {
+  unsigned long long accumulated = 0;
   size_t index;
 
-  for (index = 0; index < 8; index++) {
-    total += counters[index];
+  if (total == NULL) {
+    return -1;
   }
+  for (index = 0; index < 8; index++) {
+    if (accumulated > ULLONG_MAX - counters[index]) {
+      return -1;
+    }
+    accumulated += counters[index];
+  }
+  *total = accumulated;
+  return 0;
+}
 
-  return total;
-#endif
+/*
+ * /proc/stat uses one aggregate "cpu" row followed by eight monotonically
+ * increasing counters. Keeping this parser strict prevents a partial sample
+ * from changing the usage context.
+ */
+static int parse_cpu_stat_line(char *line,
+                               unsigned long long counters[8]) {
+  char *token;
+  char *save = NULL;
+  int index;
+
+  token = strtok_r(line, " \t\r\n", &save);
+  if (token == NULL || strcmp(token, "cpu") != 0) {
+    return -1;
+  }
+  for (index = 0; index < 8; index++) {
+    token = strtok_r(NULL, " \t\r\n", &save);
+    if (token == NULL ||
+        cpu_parse_unsigned_long_long(token, &counters[index]) != 0) {
+      return -1;
+    }
+  }
+  return strtok_r(NULL, " \t\r\n", &save) == NULL ? 0 : -1;
 }
 
 int cpu_usage_context_init(cpu_usage_context_t *context) {
@@ -101,12 +114,30 @@ float cpu_get_usage_context(cpu_usage_context_t *context) {
     return -1.0f;
   }
 
-  if (fscanf(file, "cpu %llu %llu %llu %llu %llu %llu %llu %llu", &user, &nice,
-             &system, &idle, &iowait, &irq, &softirq, &steal) != 8) {
-    fclose(file);
-    cpu_set_last_error(CPU_ERROR_PARSE,
-                       "Nao foi possivel interpretar a linha cpu em %s", path);
-    return -1.0f;
+  {
+    char line[1024];
+    unsigned long long values[8];
+    if (fgets(line, sizeof(line), file) == NULL ||
+        strchr(line, '\n') == NULL) {
+      fclose(file);
+      cpu_set_last_error(CPU_ERROR_PARSE,
+                         "Nao foi possivel interpretar a linha cpu em %s", path);
+      return -1.0f;
+    }
+    if (parse_cpu_stat_line(line, values) != 0) {
+      fclose(file);
+      cpu_set_last_error(CPU_ERROR_PARSE,
+                         "Nao foi possivel interpretar a linha cpu em %s", path);
+      return -1.0f;
+    }
+    user = values[0];
+    nice = values[1];
+    system = values[2];
+    idle = values[3];
+    iowait = values[4];
+    irq = values[5];
+    softirq = values[6];
+    steal = values[7];
   }
 
   fclose(file);
@@ -119,7 +150,16 @@ float cpu_get_usage_context(cpu_usage_context_t *context) {
   counters[5] = irq;
   counters[6] = softirq;
   counters[7] = steal;
-  total = sum_cpu_counters(counters);
+  if (sum_cpu_counters(counters, &total) != 0) {
+    cpu_set_last_error(CPU_ERROR_PARSE,
+                       "Overflow nos contadores de CPU em %s", path);
+    return -1.0f;
+  }
+  if (idle > ULLONG_MAX - iowait) {
+    cpu_set_last_error(CPU_ERROR_PARSE,
+                       "Overflow nos contadores de ociosidade em %s", path);
+    return -1.0f;
+  }
   idle_total = idle + iowait;
   if (!context->has_previous) {
     context->previous_total = total;
