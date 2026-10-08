@@ -207,16 +207,66 @@ static int test_topology_grows_beyond_online_count(void) {
 typedef struct {
   cpu_error_t code;
   char message[256];
+  cpu_error_info_t snapshot;
 } thread_result_t;
 
 static void *worker_read_missing_cpuinfo(void *argument) {
   thread_result_t *result = (thread_result_t *)argument;
-  cpu_info_t *info = cpu_get_info();
+  cpu_info_t *info = cpu_get_info_ex(&result->snapshot);
 
   cpu_free_info(info);
-  result->code = cpu_get_last_error_code();
-  snprintf(result->message, sizeof(result->message), "%s", cpu_get_last_error());
+  result->code = result->snapshot.code;
+  snprintf(result->message, sizeof(result->message), "%s", result->snapshot.message);
   return NULL;
+}
+
+static int test_error_snapshot_survives_later_success(void) {
+  char missing_path[] = "/tmp/cpu-reader-no-such-cpuinfo-file";
+  char valid_path[] = "/tmp/cpu-reader-cpuinfo-valid-XXXXXX";
+  const char *valid_fixture = "processor : 0\nProcessor : Test CPU\n";
+  cpu_error_info_t error;
+  cpu_info_t *info;
+  int fd = mkstemp(valid_path);
+
+  if (fd < 0) {
+    perror("mkstemp explicit error fixture");
+    return -1;
+  }
+  close(fd);
+  if (write_text(valid_path, valid_fixture) != 0) {
+    unlink(valid_path);
+    return -1;
+  }
+
+  cpu_error_info_clear(&error);
+  setenv("CPU_READER_CPUINFO_PATH", missing_path, 1);
+  info = cpu_get_info_ex(&error);
+  if (info != NULL || error.code != CPU_ERROR_FILE_OPEN ||
+      strstr(error.message, "Nao foi possivel abrir") == NULL) {
+    cpu_free_info(info);
+    unsetenv("CPU_READER_CPUINFO_PATH");
+    unlink(valid_path);
+    fprintf(stderr, "explicit error snapshot was not populated\n");
+    return -1;
+  }
+
+  setenv("CPU_READER_CPUINFO_PATH", valid_path, 1);
+  info = cpu_get_info();
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  unlink(valid_path);
+  if (info == NULL || error.code != CPU_ERROR_FILE_OPEN ||
+      strstr(error.message, "Nao foi possivel abrir") == NULL) {
+    cpu_free_info(info);
+    fprintf(stderr, "later successful operation modified caller-owned error\n");
+    return -1;
+  }
+  cpu_free_info(info);
+  cpu_error_info_clear(&error);
+  if (error.code != CPU_ERROR_NONE || error.message[0] != '\0') {
+    fprintf(stderr, "explicit error snapshot clear failed\n");
+    return -1;
+  }
+  return 0;
 }
 
 static int test_error_state_is_thread_local(void) {
@@ -252,6 +302,7 @@ int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
       test_topology_with_and_without_ids() != 0 ||
       test_topology_grows_beyond_online_count() != 0 ||
+      test_error_snapshot_survives_later_success() != 0 ||
       test_error_state_is_thread_local() != 0) {
     return 1;
   }
