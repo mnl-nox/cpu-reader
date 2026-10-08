@@ -151,6 +151,59 @@ static int test_topology_with_and_without_ids(void) {
   return 0;
 }
 
+static int test_topology_grows_beyond_online_count(void) {
+  char path[] = "/tmp/cpu-reader-topology-large-XXXXXX";
+  long online = sysconf(_SC_NPROCESSORS_ONLN);
+  long count;
+  long index;
+  int fd;
+  FILE *file;
+  cpu_info_t *info;
+
+  if (online <= 0 || online > 4096) {
+    fprintf(stderr, "unexpected online processor count for fixture: %ld\n",
+            online);
+    return -1;
+  }
+  count = online + 2;
+  fd = mkstemp(path);
+  if (fd < 0) {
+    perror("mkstemp large topology");
+    return -1;
+  }
+  file = fdopen(fd, "w");
+  if (file == NULL) {
+    close(fd);
+    unlink(path);
+    return -1;
+  }
+  for (index = 0; index < count; index++) {
+    if (fprintf(file, "processor : %ld\nphysical id : 0\ncore id : %ld\n\n",
+                index, index) < 0) {
+      fclose(file);
+      unlink(path);
+      return -1;
+    }
+  }
+  if (fclose(file) != 0) {
+    unlink(path);
+    return -1;
+  }
+
+  setenv("CPU_READER_CPUINFO_PATH", path, 1);
+  info = cpu_get_info();
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  unlink(path);
+  if (info == NULL || info->logical_processors != count ||
+      info->physical_cores != count || info->threads != online) {
+    fprintf(stderr, "topology storage did not grow for larger cpuinfo fixture\n");
+    cpu_free_info(info);
+    return -1;
+  }
+  cpu_free_info(info);
+  return 0;
+}
+
 typedef struct {
   cpu_error_t code;
   char message[256];
@@ -198,6 +251,7 @@ static int test_error_state_is_thread_local(void) {
 int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
       test_topology_with_and_without_ids() != 0 ||
+      test_topology_grows_beyond_online_count() != 0 ||
       test_error_state_is_thread_local() != 0) {
     return 1;
   }
