@@ -9,16 +9,13 @@
 #include <ctype.h>
 #include <string.h>
 
-static cpu_usage_context_t default_usage_context;
-
-/* GCC and Clang support thread-local storage in C99 mode. This preserves the
- * legacy error API while preventing threads from overwriting each other's
- * diagnostics. */
+/* GCC and Clang provide thread-local storage as an extension in C99 mode. */
 #if defined(__GNUC__) || defined(__clang__)
 #define CPU_THREAD_LOCAL __thread
 #else
 #error "cpu-reader requires GCC or Clang thread-local storage support"
 #endif
+static CPU_THREAD_LOCAL cpu_usage_context_t default_usage_context;
 static CPU_THREAD_LOCAL cpu_error_t last_error_code;
 static CPU_THREAD_LOCAL char last_error_message[256];
 void cpu_clear_last_error(void) {
