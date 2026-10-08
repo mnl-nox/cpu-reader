@@ -323,6 +323,27 @@ static int expect_usage_rejects_truncated_line(void) {
   return 0;
 }
 
+
+static int expect_usage_rejects_invalid_extra_counter(void) {
+  char path[] = "/tmp/cpu-reader-stat-extra-invalid-XXXXXX";
+  cpu_usage_context_t context;
+
+  if (make_temp_file(path, "cpu 10 0 5 20 0 0 0 0 0 invalid\\n") != 0 ||
+      cpu_usage_context_init(&context) != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_PROC_STAT_PATH", path, 1);
+  if (cpu_get_usage_context(&context) != -1.0f ||
+      expect_last_error(CPU_ERROR_PARSE, "linha cpu") != 0) {
+    unsetenv("CPU_READER_PROC_STAT_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_PROC_STAT_PATH");
+  unlink(path);
+  return 0;
+}
+
 int main(void) {
   cpu_info_t *info = cpu_get_info();
   cpu_usage_context_t first_context;
@@ -367,13 +388,14 @@ int main(void) {
       expect_clock_speed_rejects_trailing_data() != 0 ||
       expect_active_processes_success() != 0 ||
       expect_active_processes_failure() != 0 ||
-      expect_usage_rejects_truncated_line() != 0) {
+      expect_usage_rejects_truncated_line() != 0 ||
+      expect_usage_rejects_invalid_extra_counter() != 0) {
     cpu_free_info(info);
     return 1;
   }
 
   if (make_temp_file(stat_fixture,
-                     "cpu 10 0 5 20 0 0 0 0\ncpu0 10 0 5 20 0 0 0 0\n") != 0) {
+                     "cpu 10 0 5 20 0 0 0 0 0 0\ncpu0 10 0 5 20 0 0 0 0 0 0\n") != 0) {
     fprintf(stderr, "failed to create stat fixture: %s\n", strerror(errno));
     cpu_free_info(info);
     return 1;
@@ -382,7 +404,7 @@ int main(void) {
   setenv("CPU_READER_PROC_STAT_PATH", stat_fixture, 1);
   if (cpu_get_usage_context(&fixture_context) != 0.0f ||
       write_file(stat_fixture,
-                 "cpu 20 0 10 20 0 0 0 0\ncpu0 20 0 10 20 0 0 0 0\n") != 0) {
+                 "cpu 20 0 10 20 0 0 0 0 0 0\ncpu0 20 0 10 20 0 0 0 0 0 0\n") != 0) {
     fprintf(stderr, "failed to prepare stat fixture sequence\n");
     unsetenv("CPU_READER_PROC_STAT_PATH");
     unlink(stat_fixture);
