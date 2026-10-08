@@ -17,7 +17,7 @@ static cpu_usage_context_t default_usage_context;
 #if defined(__GNUC__) || defined(__clang__)
 #define CPU_THREAD_LOCAL __thread
 #else
-#define CPU_THREAD_LOCAL
+#error "cpu-reader requires GCC or Clang thread-local storage support"
 #endif
 static CPU_THREAD_LOCAL cpu_error_t last_error_code;
 static CPU_THREAD_LOCAL char last_error_message[256];
