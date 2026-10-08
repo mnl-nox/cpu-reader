@@ -328,7 +328,7 @@ static int expect_usage_rejects_invalid_extra_counter(void) {
   char path[] = "/tmp/cpu-reader-stat-extra-invalid-XXXXXX";
   cpu_usage_context_t context;
 
-  if (make_temp_file(path, "cpu 10 0 5 20 0 0 0 0 0 invalid\\n") != 0 ||
+  if (make_temp_file(path, "cpu 10 0 5 20 0 0 0 0 0 invalid\n") != 0 ||
       cpu_usage_context_init(&context) != 0) {
     return -1;
   }
