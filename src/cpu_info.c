@@ -227,7 +227,7 @@ static float read_temperature_auto(int report_errors) {
     snprintf(type_path, sizeof(type_path), "/sys/class/thermal/%s/type",
              entry->d_name);
     if (read_first_line(type_path, type, sizeof(type)) == 0) {
-      type[strcspn(type, "\\r\\n")] = '\\0';
+      type[strcspn(type, "\r\n")] = '\0';
       is_cpu_sensor = strstr(type, "cpu") != NULL ||
                       strstr(type, "CPU") != NULL ||
                       strstr(type, "pkg_temp") != NULL;
@@ -256,6 +256,7 @@ static float read_temperature_auto(int report_errors) {
   }
   return -1.0f;
 }
+
 float cpu_read_temperature(int report_errors) {
   const char *path = cpu_temp_path();
   float temperature;
