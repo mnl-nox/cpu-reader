@@ -505,6 +505,17 @@ cpu_info_t *cpu_get_info(void) {
     }
   }
 
+  if (ferror(file)) {
+    int read_error = errno != 0 ? errno : EIO;
+    free(physical_ids);
+    free(core_ids);
+    fclose(file);
+    free(info);
+    cpu_set_last_error(CPU_ERROR_FILE_OPEN, "Erro ao ler %s: %s", path,
+                       strerror(read_error));
+    return NULL;
+  }
+
   if (have_processor && current_physical_id >= 0 && current_core_id >= 0) {
     int index;
     for (index = 0; index < physical_cores; index++) {
