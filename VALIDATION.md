@@ -48,7 +48,7 @@ make telemetry
 - Biblioteca principal: validada pelo teste integrado
 - Monitor ncurses: compilável com ncurses de desenvolvimento instalado
 - Overrides de teste: cobertos pelos testes automatizados
-- Fallback C: validado em x86_64 por `make test-portable` e em runtime aarch64/arm64 pela CI; isso não equivale a validar ARMv7.
+- Implementação C: validada em x86_64 com GCC/Clang e em runtime aarch64/arm64 pela CI; `make test-portable` é um alias de compatibilidade, não uma implementação distinta. Isso não equivale a validar ARMv7.
 - Memória e comportamento indefinido: validados por `make test-sanitize`
 - Hardening de compilação e linkedição: validado por `make test-security`
 - Microbenchmark: `make benchmark`, resultado local informativo sem limiar rígido
