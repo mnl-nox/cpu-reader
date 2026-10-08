@@ -243,48 +243,24 @@ Núcleo (`libcpu.a`) sem ncurses; monitor é aplicação separada em `examples/m
 
 ---
 
-## ADR-0007: Assembly Inline Limitado a Trecho Aritmético
+## ADR-0007: Implementação C portátil para contadores
 
-**Status:** ACEITO | **Data:** 2026 | **Modificado:** Não
+**Status:** SUBSTITUÍDO | **Data:** 2026-10-08
 
-**Contexto:**
-A soma dos 8 contadores de CPU em `/proc/stat` pode ser otimizada com assembly. O tradeoff é portabilidade vs performance.
+**Contexto:** A documentação histórica afirmava que a soma dos contadores de
+`/proc/stat` usava assembly inline em x86_64. A implementação atual não contém
+um caminho assembly: a soma é C e o macro `CPU_READER_DISABLE_ASM` não seleciona
+uma implementação diferente.
 
-**Decisão:**
-Em x86_64 com GCC/Clang, usar inline assembly para somar contadores; preservar fallback C idêntico para outras arquiteturas/compiladores.
+**Decisão:** Manter a implementação C como única implementação até que um
+benchmark reproduzível demonstre uma melhoria material e sustentável que
+justifique código específico de arquitetura. Não anunciar otimização assembly
+nem usar o modo `test-portable` como evidência de dois caminhos distintos.
 
-**Justificativa:**
-
-- Performance marginal em ponto quente
-- Fallback C garante portabilidade
-- Código verificável (ambas as versões podem ser comparadas)
-- Manutenção viável (código é pequeno)
-- Assembly específico de arquitetura
-- Complexidade extra (dois caminhos de código)
-
-**Alternativas Consideradas:**
-
-1. Apenas C em todas as arquiteturas
- - Máxima portabilidade
- - Sem otimização
-2. Intrinsics SIMD generalizados
- - Portável entre compiladores
- - Nem sempre disponível em C99
-3. Deixar para otimizador (compiler -O3)
- - Simples
- - Menos controle
-
-**Consequências:**
-
-- Compilação diferente em x86_64 vs outras arquiteturas
-- Testes devem validar ambos os caminhos
-- Documentação deve mencionar otimização
-- CI deve testar em x86_64 e pelo menos um ARM
-
-**Referências:**
-
-- D-007: Assembly limitado ao trecho aritmético
-- RF-012: Soma otimizada (x86_64)
+**Consequências:** `make test-portable` permanece temporariamente como alias
+compatível para a suíte C portátil. `make benchmark` fornece medições locais
+informativas, sem limiar rígido de CI. Uma otimização futura deve ter
+implementação comparável, teste de equivalência e resultados documentados.
 
 ---
 
