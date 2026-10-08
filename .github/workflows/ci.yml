@@ -47,3 +47,27 @@ jobs:
         run: make test
       - name: Run benchmark (informational)
         run: make benchmark
+
+  armv7-qemu:
+    name: gcc / armv7 QEMU runtime
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ARMv7 toolchain and emulator
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-linux-gnueabihf qemu-user
+      - name: Cross-compile tests
+        run: make clean && make CC=arm-linux-gnueabihf-gcc build/test_cpu build/test_platform
+      - name: Run ARMv7 tests under QEMU
+        run: |
+          qemu-arm -L /usr/arm-linux-gnueabihf ./build/test_cpu
+          qemu-arm -L /usr/arm-linux-gnueabihf ./build/test_platform
+
+  static-analysis:
+    name: cppcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+      - name: Analyze source and tests
+        run: cppcheck --enable=warning,style,performance,portability --error-exitcode=1 --inline-suppr --std=c99 -Iinclude src tests examples bench
