@@ -1,56 +1,105 @@
 # Arquitetura do CPU Reader
 
-## Visão geral
+## Objetivo e limites
 
-O projeto é uma biblioteca C pequena, compilada como `libcpu.a`, e uma aplicação de exemplo separada. A biblioteca depende apenas da libc e do pseudo-sistema de arquivos `/proc` do Linux. O monitor depende adicionalmente de ncurses.
+CPU Reader é uma biblioteca C99 para Linux que lê métricas do sistema em
+`/proc` e `sysfs`, além de um monitor opcional em ncurses. O núcleo não depende
+de ncurses nem de bibliotecas de terceiros. O projeto usa extensões de
+armazenamento local à thread de GCC/Clang para manter compatibilidade com a API
+legada enquanto permanece compilável em modo C99.
 
-## Componentes
+## Camadas e responsabilidades
 
-### API pública: `include/cpu.h`
+- **Contrato público — `include/cpu.h`:** tipos, ownership de snapshots,
+  contextos de amostragem e funções públicas.
+- **Fachada e compatibilidade — `src/cpu.c`:** conversões numéricas estritas,
+  wrappers públicos, estado de amostragem padrão por thread e diagnóstico
+  legado por thread.
+- **Informações/topologia — `src/cpu_info.c`:** lê `/proc/cpuinfo`, identifica
+  processadores lógicos e conta pares únicos `physical id`/`core id` quando
+  fornecidos.
+- **Telemetria — `src/cpu_telemetry.c`:** encapsula leitura de temperatura
+  (`sysfs` térmico ou override), clock atual (`cpufreq` com fallback para
+  `cpu MHz`) e processos executáveis via `/proc/loadavg`.
+- **Uso — `src/cpu_usage.c`:** lê os oito primeiros contadores agregados da
+  linha `cpu` em `/proc/stat`, valida todos os tokens adicionais e calcula o
+  delta entre amostras por contexto.
+- **Aplicação — `examples/monitor.c`:** interface ncurses; consome a API pública
+  e libera cada snapshot.
+- **Validação — `tests/` e `bench/`:** fixtures determinísticas, testes de
+  concorrência/portabilidade e microbenchmark informativo.
 
-Declara `cpu_info_t`, `cpu_usage_context_t`, `cpu_error_t` e as funções públicas da biblioteca:
+## Contratos de dados
 
-- `cpu_init()` e `cpu_cleanup()` reinicializam o contexto padrão usado pelo cálculo de uso.
-- `cpu_get_info()` retorna informações lidas de `/proc/cpuinfo`.
-- `cpu_get_usage()` calcula o uso agregado a partir de `/proc/stat`.
-- `cpu_usage_context_init()`, `cpu_usage_context_cleanup()` e `cpu_get_usage_context()` permitem estado independente por instância.
-- `cpu_get_temperature()` lê a temperatura por `sysfs`, quando há sensor compatível, e retorna `-1.0f` quando ela não está disponível.
-- `cpu_get_clock_speed()` consulta o clock atual por `sysfs`, com fallback para `/proc/cpuinfo`.
-- `cpu_get_active_processes()` lê o número de processos em execução em `/proc/loadavg`.
-- `cpu_free_info()` libera a estrutura retornada por `cpu_get_info()`.
-- `cpu_get_last_error_code()` e `cpu_get_last_error()` expõem o último relatório de falha.
+- `cpu_info_t` é alocada pela biblioteca e liberada pelo consumidor com
+  `cpu_free_info()`. A biblioteca não mantém ponteiro para o snapshot após
+  retorná-lo.
+- `logical_processors` conta entradas `processor` do arquivo lido.
+  `threads` é campo legado que reporta o número online retornado por
+  `sysconf(_SC_NPROCESSORS_ONLN)`; os dois podem divergir em ambientes
+  isolados/containers e não devem ser tratados como sinônimos.
+- `physical_cores` conta pares únicos de IDs físicos/núcleo. Se a plataforma
+  não fornece ambos os IDs, zero significa **desconhecido**, não zero núcleos.
+- `current_frequency_mhz` é uma observação atual; não significa frequência base.
+  Frequência e temperatura são opcionais e usam `-1.0f` quando indisponíveis.
+- A primeira chamada a um contexto de uso estabelece a referência e retorna
+  `0.0f`. Chamadas subsequentes retornam o percentual derivado dos deltas.
+- A API legada de erro (`cpu_get_last_error*`) armazena o último diagnóstico
+  por thread em GCC/Clang. Uma operação bem-sucedida pode limpar esse
+  diagnóstico da mesma thread; portanto, consumidores devem lê-lo imediatamente
+  após uma falha. Não é um objeto de erro com ownership por operação.
+- `cpu_get_usage()`, `cpu_init()` e `cpu_cleanup()` usam contexto padrão
+  por thread. Contextos explícitos pertencem ao consumidor e exigem
+  sincronização externa se compartilhados entre threads.
 
-### Implementação do núcleo
+## Portabilidade validada
 
-`src/cpu.c` concentra o ciclo de vida, o contexto padrão e o relatório global de falhas.
+A CI executa GCC/Clang nativos e portáteis em Linux x86_64, sanitizers e
+hardening, além de runtime nativo aarch64/arm64. O fallback C pode ser
+compilado em outros alvos, mas ARMv7 de 32 bits ainda não é declarado validado
+em runtime. O benchmark é informativo e não impõe limites rígidos.
 
-`src/cpu_info.c` abre `/proc/cpuinfo`, ou o caminho definido em `CPU_READER_CPUINFO_PATH`, aloca a estrutura e processa as chaves `processor`, `model name`, `cpu MHz` e `flags`. O mesmo módulo lê temperatura, clock e processos ativos. Os caminhos podem ser substituídos, respectivamente, por `CPU_READER_CPU_TEMP_PATH`, `CPU_READER_CPU_FREQ_PATH` e `CPU_READER_LOADAVG_PATH`.
+## Variáveis de ambiente para fixtures
 
-`src/cpu_usage.c` lê `/proc/stat`, ou o caminho definido em `CPU_READER_PROC_STAT_PATH`, e calcula o uso agregado por contexto. A soma dos oito contadores usa assembly inline em `x86_64` com GCC ou Clang; nas demais combinações, usa o fallback C equivalente.
+- `CPU_READER_CPUINFO_PATH`: fonte alternativa para `/proc/cpuinfo`.
+- `CPU_READER_PROC_STAT_PATH`: fonte alternativa para `/proc/stat`.
+- `CPU_READER_LOADAVG_PATH`: fonte alternativa para `/proc/loadavg`.
+- `CPU_READER_CPU_TEMP_PATH`: arquivo de temperatura direto (milésimos de °C).
+- `CPU_READER_THERMAL_PATH`: raiz de fixtures `thermal_zone*/type` e `temp`.
+- `CPU_READER_CPU_FREQ_PATH`: arquivo de clock em kHz.
 
-`cpu_get_info()` retorna `NULL` quando não consegue abrir o arquivo, alocar memória ou obter contagens válidas. O campo `cores` conta entradas `processor`; na prática, representa processadores lógicos. `threads` vem de `_SC_NPROCESSORS_ONLN`. Quando disponíveis, `active_processes` e `temperature_c` também são preenchidos.
-
-`cpu_get_usage_context()` lê os oito primeiros contadores da linha `cpu` em `/proc/stat`. A diferença entre a leitura atual e a anterior produz a porcentagem de tempo não ocioso. A primeira chamada estabelece a referência e retorna `0.0f`. `cpu_get_usage()` usa um contexto padrão por compatibilidade.
-
-### Aplicação: `examples/monitor.c`
-
-Inicializa ncurses, atualiza as informações a cada segundo e encerra quando recebe `q`. A aplicação libera cada `cpu_info_t` depois de exibi-la.
-
-## Estado e limitações
-
-O contexto padrão usado por `cpu_get_usage()` e o relatório retornado por `cpu_get_last_error()` são globais e não devem ser compartilhados por chamadas concorrentes. Para obter isolamento no cálculo, cada consumidor deve usar seu próprio `cpu_usage_context_t`; o relatório de falhas ainda não tem alternativa por contexto. A biblioteca não implementa sincronização automática, cache de informações, logging ou métricas por núcleo.
-
-As variáveis de ambiente de override existem para testes e depuração. Em uso normal, a biblioteca continua dependente das interfaces Linux em `/proc`.
+Esses overrides são úteis para testes. Alterar variáveis de ambiente enquanto
+outras threads chamam a biblioteca não é seguro; configure-as antes de iniciar
+as operações.
 
 ## Fluxo de dados
 
 ```text
-Aplicação
-    |
-    v
-include/cpu.h -> src/cpu.c
-                    |-- /proc/cpuinfo -> cpu_info_t
-                    |-- /proc/stat    -> uso agregado (%)
-                    |-- /proc/loadavg -> processos ativos
-                    `-- sysfs          -> temperatura e clock
+Aplicação/monitor
+       |
+       v
+API pública (include/cpu.h)
+       |
+       v
+Fachada e parsing comum (src/cpu.c)
+       |-------------------|---------------------|
+       v                   v                     v
+cpu_info.c            cpu_usage.c          cpu_telemetry.c
+/proc/cpuinfo         /proc/stat           /proc/loadavg + sysfs
+       |                   |                     |
+       +-------------------+---------------------+
+                           v
+                 snapshots / valores / erros
 ```
+
+## Limitações conhecidas
+
+1. A API legada de erros é baseada no conceito de "último erro" e será
+   substituída ou complementada por resultados explícitos antes da versão 1.0.
+2. O estado por thread não torna um mesmo `cpu_usage_context_t` seguro para
+   uso concorrente, nem torna chamadas simultâneas a `setenv()/unsetenv()`
+   seguras.
+3. A temperatura é escolhida pelo nome do tipo do sensor; quando não há um
+   sensor reconhecível como CPU/package, o comportamento de fallback é usar o
+   primeiro sensor válido encontrado. O nome/origem do sensor ainda não é
+   exposto na API.
