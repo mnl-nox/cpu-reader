@@ -27,8 +27,9 @@ $(MONITOR): examples/monitor.c $(LIBRARY)
 	@mkdir -p build
 	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu -lncurses $(LDFLAGS)
 
-test: build/test_cpu
+test: build/test_cpu build/test_platform
 	./build/test_cpu
+	./build/test_platform
 
 test-portable:
 	$(MAKE) clean
@@ -53,6 +54,10 @@ telemetry: test
 build/test_cpu: tests/test_cpu.c $(LIBRARY)
 	@mkdir -p build
 	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu $(LDFLAGS)
+
+build/test_platform: tests/test_platform.c $(LIBRARY)
+	@mkdir -p build
+	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu $(LDFLAGS) -pthread
 
 build/cpu.o: src/cpu.c include/cpu.h src/cpu_internal.h
 	@mkdir -p build

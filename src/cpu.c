@@ -10,11 +10,17 @@
 #include <string.h>
 
 static cpu_usage_context_t default_usage_context;
-static cpu_error_t last_error_code;
-static char last_error_message[256];
 
-/* Error state is process-global because the public API predates per-reader
- * objects; every failing public operation must set it before returning. */
+/* GCC and Clang support thread-local storage in C99 mode. This preserves the
+ * legacy error API while preventing threads from overwriting each other's
+ * diagnostics. */
+#if defined(__GNUC__) || defined(__clang__)
+#define CPU_THREAD_LOCAL __thread
+#else
+#error "cpu-reader requires GCC or Clang thread-local storage support"
+#endif
+static CPU_THREAD_LOCAL cpu_error_t last_error_code;
+static CPU_THREAD_LOCAL char last_error_message[256];
 void cpu_clear_last_error(void) {
   last_error_code = CPU_ERROR_NONE;
   last_error_message[0] = '\0';

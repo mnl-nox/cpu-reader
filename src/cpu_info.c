@@ -4,6 +4,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,28 @@ static const char *cpu_temp_path(void) {
   }
 
   return path;
+}
+
+static const char *thermal_root_path(void) {
+  const char *path = getenv("CPU_READER_THERMAL_PATH");
+
+  return path != NULL && path[0] != '\0' ? path : "/sys/class/thermal";
+}
+
+static int is_cpu_thermal_type(const char *type) {
+  char normalized[128];
+  size_t index;
+
+  if (type == NULL) {
+    return 0;
+  }
+  for (index = 0; index + 1 < sizeof(normalized) && type[index] != '\0'; index++) {
+    normalized[index] = (char)tolower((unsigned char)type[index]);
+  }
+  normalized[index] = '\0';
+  return strstr(normalized, "cpu") != NULL ||
+         strstr(normalized, "pkg_temp") != NULL ||
+         strstr(normalized, "package") != NULL;
 }
 
 static const char *cpu_freq_path(void) {
@@ -199,14 +222,15 @@ static float read_temperature_from_path(const char *path, int report_errors) {
 }
 
 static float read_temperature_auto(int report_errors) {
-  DIR *directory = opendir("/sys/class/thermal");
+  const char *root = thermal_root_path();
+  DIR *directory = opendir(root);
   struct dirent *entry;
   float fallback_temperature = -1.0f;
 
   if (directory == NULL) {
     if (report_errors) {
       cpu_set_last_error(CPU_ERROR_FILE_OPEN,
-                         "Nao foi possivel abrir /sys/class/thermal: %s",
+                         "Nao foi possivel abrir %s: %s", root,
                          strerror(errno));
     }
     return -1.0f;
@@ -223,14 +247,15 @@ static float read_temperature_auto(int report_errors) {
       continue;
     }
 
-    snprintf(path, sizeof(path), "/sys/class/thermal/%s/temp", entry->d_name);
-    snprintf(type_path, sizeof(type_path), "/sys/class/thermal/%s/type",
-             entry->d_name);
+    if (snprintf(path, sizeof(path), "%s/%s/temp", root, entry->d_name) >=
+            (int)sizeof(path) ||
+        snprintf(type_path, sizeof(type_path), "%s/%s/type", root,
+                 entry->d_name) >= (int)sizeof(type_path)) {
+      continue;
+    }
     if (read_first_line(type_path, type, sizeof(type)) == 0) {
       type[strcspn(type, "\r\n")] = '\0';
-      is_cpu_sensor = strstr(type, "cpu") != NULL ||
-                      strstr(type, "CPU") != NULL ||
-                      strstr(type, "pkg_temp") != NULL;
+      is_cpu_sensor = is_cpu_thermal_type(type);
     }
 
     temperature = read_temperature_from_path(path, 0);
