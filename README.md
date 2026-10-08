@@ -35,7 +35,7 @@ um monitor de terminal baseado em ncurses como exemplo de consumo da API.
 
 ```text
 include/cpu.h                  API pública
-src/cpu.c                      fachada da API e estado global
+src/cpu.c                      fachada da API e estado por thread
 src/cpu_info.c                 parsing de /proc/cpuinfo e topologia
 src/cpu_telemetry.c             temperatura, clock e loadavg via proc/sysfs
 src/cpu_usage.c                cálculo de uso agregado via /proc/stat
@@ -58,7 +58,7 @@ build/                         artefatos gerados
 
 ## Compatibilidade Beta
 
-A validação automatizada executa em Linux `x86_64` e `aarch64/arm64`. O caminho otimizado com assembly é usado apenas em `x86_64` com GCC/Clang; as demais combinações usam o fallback C portátil. `armv7` é um alvo pretendido pelo código C portátil, mas ainda não tem validação de runtime dedicada e não é anunciado como validado.
+A validação automatizada executa em Linux `x86_64` e `aarch64/arm64`. A implementação atual usa C em todas as arquiteturas; não há caminho de assembly ativo. O alvo `test-portable` mantém compatibilidade com scripts existentes e valida a compilação C. `armv7` é um alvo pretendido pelo código C portátil, mas ainda não tem validação de runtime dedicada e não é anunciado como validado.
 
 O núcleo (`libcpu.a`) não depende de ncurses. O monitor é um exemplo opcional.
 Para validar apenas o núcleo:
@@ -168,7 +168,7 @@ fallback C portátil e testes automatizados da API pública.
 
 ## Semântica das métricas
 
-- `logical_processors` representa os processadores lógicos online; não é uma
+- `logical_processors` conta entradas `processor` em `/proc/cpuinfo`; não é uma
   contagem de núcleos físicos.
 - `physical_cores` é calculado a partir dos pares `physical id`/`core id` de
   `/proc/cpuinfo`. O valor zero indica que a topologia física não foi
