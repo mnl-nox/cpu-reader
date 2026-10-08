@@ -165,6 +165,20 @@ para fora do ambiente.
 `v1.0.0-beta.1`: biblioteca Beta pronta para uso em Linux, com suporte ao
 fallback C portátil e testes automatizados da API pública.
 
+## Semântica das métricas
+
+- `logical_processors` representa os processadores lógicos online; não é uma
+  contagem de núcleos físicos.
+- `physical_cores` é calculado a partir dos pares `physical id`/`core id` de
+  `/proc/cpuinfo`. O valor zero indica que a topologia física não foi
+  disponibilizada pelo sistema.
+- `current_frequency_mhz` representa o valor atual reportado por `cpu MHz` ou
+  pelo sysfs. Ele não é uma frequência base garantida.
+- Os campos legados `cores`, `threads` e `frequency_mhz` permanecem na
+  estrutura por compatibilidade, mas novos consumidores devem usar os campos
+  semânticos acima. O parser rejeita valores incompletos, não numéricos,
+  negativos quando inválidos, fora de faixa ou com caracteres residuais.
+
 ## Licença
 
 MIT. Consulte [LICENSE](LICENSE).
