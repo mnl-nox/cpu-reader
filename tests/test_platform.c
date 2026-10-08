@@ -308,8 +308,8 @@ static int test_error_snapshot_survives_later_success(void) {
   info = cpu_get_info();
   unsetenv("CPU_READER_CPUINFO_PATH");
   unlink(valid_path);
-  if (info == NULL || error.code != CPU_ERROR_FILE_OPEN ||
-      strstr(error.message, "Nao foi possivel abrir") == NULL) {
+  if (info == NULL || error.code != saved_error.code ||
+      strcmp(error.message, saved_error.message) != 0) {
     cpu_free_info(info);
     fprintf(stderr, "later successful operation modified caller-owned error\n");
     return -1;
