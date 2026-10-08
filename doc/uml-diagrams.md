@@ -55,6 +55,10 @@ classDiagram
         +unsigned long long previous_idle
         +int has_previous
     }
+    class cpu_error_info_t {
+        +cpu_error_t code
+        +char message[256]
+    }
     class cpu_error_t {
         <<enumeration>>
         CPU_ERROR_NONE
@@ -97,5 +101,5 @@ sequenceDiagram
 - O contexto padrão de `cpu_get_usage()` e o diagnóstico legado são locais à
   thread em GCC/Clang. Contextos explícitos compartilhados precisam de
   sincronização externa.
-- A API de erro baseada em "último erro" é transitória. Uma API de resultado
-  explícito é necessária antes da versão 1.0.
+- A API de erro baseada em "último erro" é legada; variantes `*_ex` copiam o
+  diagnóstico para `cpu_error_info_t` pertencente ao chamador.
