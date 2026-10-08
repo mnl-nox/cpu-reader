@@ -48,7 +48,7 @@ make telemetry
 - Biblioteca principal: validada pelo teste integrado
 - Monitor ncurses: compilável com ncurses de desenvolvimento instalado
 - Overrides de teste: cobertos pelos testes automatizados
-- Implementação C: validada em x86_64 com GCC/Clang e em runtime aarch64/arm64 pela CI; `make test-portable` é um alias de compatibilidade, não uma implementação distinta. Isso não equivale a validar ARMv7.
+- Implementação C: validada em x86_64 com GCC/Clang, em runtime nativo aarch64/arm64 e sob QEMU para ARMv7; a emulação não substitui hardware ARMv7 nativo. `make test-portable` é um alias de compatibilidade, não uma implementação distinta.
 - Memória e comportamento indefinido: validados por `make test-sanitize`
 - Hardening de compilação e linkedição: validado por `make test-security`
 - Microbenchmark: `make benchmark`, resultado local informativo sem limiar rígido
@@ -77,4 +77,4 @@ enviam dados para serviços externos.
 | --- | --- | --- | --- |
 | Linux x86_64 | Validado em CI | Opcional | C |
 | Linux aarch64/arm64 | Validado em runtime na CI | Opcional | C |
-| Linux armv7 (32-bit) | Não validado em runtime | Opcional | C portátil pretendido |
+| Linux armv7 (32-bit) | Testado sob QEMU; não hardware nativo | Opcional | C |
