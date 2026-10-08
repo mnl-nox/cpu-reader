@@ -264,41 +264,34 @@ implementação comparável, teste de equivalência e resultados documentados.
 
 ---
 
-## ADR-0008: Diagnóstico de erro legado por thread
+## ADR-0008: Diagnóstico de erro legado e snapshots explícitos
 
-**Status:** SUBSTITUÍDO PARCIALMENTE | **Data:** 2026-10-08
+**Status:** ACEITO COM COMPATIBILIDADE LEGADA | **Data:** 2026-10-08
 
-**Contexto:** A API histórica `cpu_get_last_error_code()` / `cpu_get_last_error()`
-não recebe um objeto de resultado e, originalmente, usava estado global,
-permitindo que uma chamada concorrente sobrescrevesse o diagnóstico de outra.
-A API também exige que o consumidor consulte a mensagem imediatamente após a
-operação que falhou.
+**Contexto:** A API original `cpu_get_last_error_code()` /
+`cpu_get_last_error()` expõe apenas o "último erro". Estado global permitia
+diagnósticos cruzados entre threads e a mensagem podia ser apagada por uma
+operação posterior.
 
-**Decisão atual:** Manter os símbolos legados para compatibilidade Beta, mas
-guardar código e mensagem em armazenamento local à thread nas toolchains GCC e
-Clang. O contexto padrão usado por `cpu_get_usage()` também é local à thread.
-A implementação falha explicitamente na compilação em toolchains sem suporte a
-`__thread`, em vez de degradar silenciosamente para estado global.
+**Decisão:** Manter a API antiga com armazenamento local à thread em GCC/Clang.
+Adicionar `cpu_error_info_t`, `cpu_error_info_clear()` e variantes `*_ex` para
+as operações fallíveis: cada variante copia código e mensagem para um objeto
+pertencente ao chamador. O snapshot permanece estável até que o próprio
+chamador o limpe ou sobrescreva.
 
-**Limitações:** Isso não cria ownership de erro por operação nem por contexto.
-Uma operação bem-sucedida na mesma thread pode limpar o diagnóstico anterior.
-Um mesmo `cpu_usage_context_t` explícito não é seguro para acesso concorrente;
-variáveis de ambiente de override também não devem ser alteradas durante
-chamadas concorrentes.
+**Limites:** O armazenamento interno da API legada continua local à thread; o
+snapshot explícito evita que o consumidor dependa dele depois do retorno.
+Contextos de uso explícitos continuam sendo propriedade do consumidor e não são
+seguros para acesso concorrente sem sincronização. Variáveis de ambiente de
+override devem ser configuradas antes de iniciar threads.
 
-**Próxima decisão obrigatória antes da versão 1.0:** adicionar APIs com erro
-explícito no resultado/argumento de saída (ou contexto de erro próprio), definir
-ownership e ciclo de vida e manter os wrappers legados como camada de
-compatibilidade. A API nova não deve depender de "último erro" implícito.
+**Consequências:** Novas APIs fallíveis devem preferir uma saída de erro explícita.
+A família antiga permanece por compatibilidade, mas deve ser considerada legada.
+O contrato de ownership e o ciclo de vida do snapshot são documentados em
+`include/cpu.h`.
 
-**Alternativas consideradas:**
-
-1. Estado global compartilhado — rejeitado por data races e diagnósticos cruzados.
-2. Estado local à thread — adotado como correção transitória compatível com a API.
-3. Erro explícito por operação/contexto — direção recomendada para a API 1.0.
-
-**Critérios de validação:** teste concorrente garante que threads independentes
-preservam seus próprios diagnósticos; CI cobre GCC/Clang e sanitizers.
+**Validação:** testes verificam isolamento entre threads e que um snapshot de
+erro continua válido depois de uma chamada bem-sucedida posterior.
 
 ---
 
@@ -494,9 +487,32 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 | ADR-0010 | Injeção Teste | ACEITO | 2026-01 | BAIXA |
 | ADR-0011 | RNFs Formalizados | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
+| ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
 | ADR-0015 | Erros explícitos por operação/contexto | PROPOSTO | 2026-10-08 | ALTA |
 | ADR-0012 | RFs Consolidadas | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0013 | Design Estruturado | PROPOSTO | 2026-09-04 | BAIXA |
+
+---
+
+## ADR-0014: Separação dos módulos de domínio e telemetria
+
+**Status:** ACEITO | **Data:** 2026-10-08
+
+**Contexto:** `src/cpu_info.c` acumulava parsing de topologia, temperatura,
+frequência e `loadavg`, aumentando o acoplamento entre domínios.
+
+**Decisão:** Separar parsing de CPU/topologia em `src/cpu_info.c`, telemetria de
+`sysfs` e `/proc/loadavg` em `src/cpu_telemetry.c`, cálculo de uso em
+`src/cpu_usage.c` e wrappers/contratos comuns em `src/cpu.c`. O contrato
+interno permanece em `src/cpu_internal.h`; consumidores dependem apenas de
+`include/cpu.h`.
+
+**Consequências:** Cada módulo tem responsabilidade mais clara, fixtures podem
+testar cada fonte de dados e a biblioteca principal continua sem ncurses. Não
+foi adicionada uma camada de plugins sem necessidade demonstrada.
+
+**Validação:** GCC/Clang, sanitizers, hardening e runtime ARM64 no CI; benchmark
+local informativo sem limiar rígido.
 
 ---
 
