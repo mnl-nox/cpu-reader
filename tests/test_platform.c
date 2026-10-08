@@ -117,7 +117,7 @@ static int test_topology_with_and_without_ids(void) {
   }
   cpu_free_info(info);
 
-  if (write_text(path, "processor : 0\\nphysical id : 0\\n") != 0) {
+  if (write_text(path, "processor : 0\nphysical id : 0\n") != 0) {
     unsetenv("CPU_READER_CPUINFO_PATH");
     unlink(path);
     return -1;
@@ -125,7 +125,7 @@ static int test_topology_with_and_without_ids(void) {
   info = cpu_get_info();
   if (info == NULL || info->logical_processors != 1 ||
       info->physical_cores != 0) {
-    fprintf(stderr, "partial topology metadata must not invent a physical core\\n");
+    fprintf(stderr, "partial topology metadata must not invent a physical core\n");
     cpu_free_info(info);
     unsetenv("CPU_READER_CPUINFO_PATH");
     unlink(path);
