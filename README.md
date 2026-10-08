@@ -58,7 +58,7 @@ build/                         artefatos gerados
 
 ## Compatibilidade Beta
 
-A validação automatizada executa em Linux `x86_64` e `aarch64/arm64`. A implementação atual usa C em todas as arquiteturas; não há caminho de assembly ativo. O alvo `test-portable` mantém compatibilidade com scripts existentes e valida a compilação C. `armv7` é um alvo pretendido pelo código C portátil, mas ainda não tem validação de runtime dedicada e não é anunciado como validado.
+A validação automatizada executa em Linux `x86_64` e `aarch64/arm64`. A implementação atual usa C em todas as arquiteturas; não há caminho de assembly ativo. O alvo `test-portable` mantém compatibilidade com scripts existentes e valida a compilação C. `armv7` de 32 bits também executa a suíte sob emulação QEMU na CI; isso não equivale a validar hardware ARMv7 nativo.
 
 O núcleo (`libcpu.a`) não depende de ncurses. O monitor é um exemplo opcional.
 Para validar apenas o núcleo:
