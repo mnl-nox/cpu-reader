@@ -29,7 +29,7 @@ um monitor de terminal baseado em ncurses como exemplo de consumo da API.
 - `cpu_get_temperature()` e `cpu_get_clock_speed()` consultam `sysfs`, com fallback
   para arquivos do Linux quando aplicável.
 - `cpu_get_active_processes()` lê a quantidade de processos em execução.
-- `cpu_get_last_error_code()` e `cpu_get_last_error()` expõem a última falha.
+- `cpu_get_last_error_code()` e `cpu_get_last_error()` expõem a última falha da thread chamadora.
 
 ## Estrutura do repositório
 
@@ -116,7 +116,7 @@ const char *cpu_get_last_error(void);
 - `cpu_get_temperature()` e `cpu_get_clock_speed()` retornam `-1.0f` quando a
   leitura não está disponível.
 - `cpu_get_active_processes()` retorna `-1` em falha.
-- O relatório global de erro é limpo por chamadas bem-sucedidas.
+- O relatório de erro da thread chamadora é limpo por chamadas bem-sucedidas; threads diferentes não sobrescrevem seus diagnósticos.
 
 ## Overrides para testes e depuração
 
@@ -125,6 +125,7 @@ As variáveis abaixo permitem redirecionar leituras sem recompilar:
 - `CPU_READER_CPUINFO_PATH`
 - `CPU_READER_PROC_STAT_PATH`
 - `CPU_READER_CPU_TEMP_PATH`
+- `CPU_READER_THERMAL_PATH` (raiz alternativa para `thermal_zone*/type` e `temp`)
 - `CPU_READER_CPU_FREQ_PATH`
 - `CPU_READER_LOADAVG_PATH`
 
