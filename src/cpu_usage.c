@@ -37,9 +37,10 @@ static int sum_cpu_counters(const unsigned long long counters[8],
 }
 
 /*
- * /proc/stat uses one aggregate "cpu" row followed by eight monotonically
- * increasing counters. Keeping this parser strict prevents a partial sample
- * from changing the usage context.
+ * /proc/stat starts with at least eight counters. Newer Linux kernels append
+ * guest and guest_nice (and may add more fields in the future). We use the
+ * first eight counters for totals, but validate every additional token so
+ * malformed trailing data cannot be accepted as a valid sample.
  */
 static int parse_cpu_stat_line(char *line,
                                unsigned long long counters[8]) {
@@ -58,7 +59,13 @@ static int parse_cpu_stat_line(char *line,
       return -1;
     }
   }
-  return strtok_r(NULL, " \t\r\n", &save) == NULL ? 0 : -1;
+  while ((token = strtok_r(NULL, " \t\r\n", &save)) != NULL) {
+    unsigned long long ignored_counter;
+    if (cpu_parse_unsigned_long_long(token, &ignored_counter) != 0) {
+      return -1;
+    }
+  }
+  return 0;
 }
 
 int cpu_usage_context_init(cpu_usage_context_t *context) {
