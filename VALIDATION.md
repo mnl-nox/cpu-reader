@@ -12,7 +12,8 @@ O teste integrado cobre os fluxos principais da API pública:
 - temperatura
 - clock atual
 - contagem de processos ativos
-- relatório de erros
+- isolamento de diagnóstico legado por thread
+- topologia completa, incompleta e ausente
 - caminhos injetáveis por variáveis de ambiente
 
 Execute:
@@ -22,6 +23,7 @@ make test
 make test-portable
 make test-sanitize
 make test-security
+make benchmark
 make telemetry
 ```
 
@@ -46,9 +48,10 @@ make telemetry
 - Biblioteca principal: validada pelo teste integrado
 - Monitor ncurses: compilável com ncurses de desenvolvimento instalado
 - Overrides de teste: cobertos pelos testes automatizados
-- Fallback C para arquiteturas não x86_64: validado por `make test-portable`
+- Fallback C: validado em x86_64 por `make test-portable` e em runtime aarch64/arm64 pela CI; isso não equivale a validar ARMv7.
 - Memória e comportamento indefinido: validados por `make test-sanitize`
 - Hardening de compilação e linkedição: validado por `make test-security`
+- Microbenchmark: `make benchmark`, resultado local informativo sem limiar rígido
 - Telemetria local: validada pela geração de `build/telemetry.json`
 
 ## Execução com Docker
@@ -74,4 +77,4 @@ enviam dados para serviços externos.
 | --- | --- | --- | --- |
 | Linux x86_64 | Suportado | Opcional | Assembly otimizado ou C |
 | Linux aarch64/arm64 | Suportado | Opcional | C portátil |
-| Linux armv7 | Suportado | Opcional | C portátil |
+| Linux armv7 (32-bit) | Não validado em runtime | Opcional | C portátil pretendido |
