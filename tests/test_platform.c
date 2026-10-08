@@ -270,6 +270,7 @@ static int test_error_snapshot_survives_later_success(void) {
   char valid_path[] = "/tmp/cpu-reader-cpuinfo-valid-XXXXXX";
   const char *valid_fixture = "processor : 0\nProcessor : Test CPU\n";
   cpu_error_info_t error;
+  cpu_error_info_t saved_error;
   cpu_info_t *info;
   int missing_fd = mkstemp(missing_path);
   int fd = mkstemp(valid_path);
@@ -302,6 +303,7 @@ static int test_error_snapshot_survives_later_success(void) {
     return -1;
   }
 
+  saved_error = error;
   setenv("CPU_READER_CPUINFO_PATH", valid_path, 1);
   info = cpu_get_info();
   unsetenv("CPU_READER_CPUINFO_PATH");
