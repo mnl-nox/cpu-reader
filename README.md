@@ -29,7 +29,7 @@ um monitor de terminal baseado em ncurses como exemplo de consumo da API.
 - `cpu_get_temperature()` e `cpu_get_clock_speed()` consultam `sysfs`, com fallback
   para arquivos do Linux quando aplicável.
 - `cpu_get_active_processes()` lê a quantidade de processos em execução.
-- `cpu_get_last_error_code()` e `cpu_get_last_error()` expõem a última falha da thread chamadora (compatibilidade legada).
+- `cpu_get_last_error_code()` e `cpu_get_last_error()` expõem a última falha da thread chamadora (compatibilidade legada). Para capturar um diagnóstico estável por operação, use as variantes `*_ex(..., cpu_error_info_t *)`; o snapshot pertence ao chamador e não muda em chamadas posteriores.
 
 ## Estrutura do repositório
 
@@ -105,6 +105,10 @@ int cpu_get_active_processes(void);
 void cpu_free_info(cpu_info_t *info);
 cpu_error_t cpu_get_last_error_code(void);
 const char *cpu_get_last_error(void);
+void cpu_error_info_clear(cpu_error_info_t *error);
+cpu_info_t *cpu_get_info_ex(cpu_error_info_t *error);
+float cpu_get_usage_ex(cpu_error_info_t *error);
+float cpu_get_usage_context_ex(cpu_usage_context_t *context, cpu_error_info_t *error);
 ```
 
 ### Comportamento principal
@@ -116,7 +120,7 @@ const char *cpu_get_last_error(void);
   leitura não está disponível.
 - `cpu_get_active_processes()` retorna `-1` em falha.
 - O contexto usado por `cpu_get_usage()` e o relatório de erro legado são locais à thread em GCC/Clang; threads distintas não compartilham esse estado. Contextos explícitos não devem ser acessados simultaneamente sem sincronização externa.
-- A API de erro legado é transitória; veja ADR-0008. Para bibliotecas consumidoras que precisem de erros associados a cada operação/contexto, uma API de resultado explícito deve preceder a versão 1.0.
+- A API de erro legado é transitória; veja ADR-0008. A família `*_ex` já permite snapshots de erro pertencentes ao chamador; novos endpoints fallíveis devem oferecer variante explícita.
 
 ## Overrides para testes e depuração
 
