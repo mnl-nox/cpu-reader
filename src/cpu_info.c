@@ -77,7 +77,7 @@ static int record_physical_core(int physical_id, int core_id,
   return 0;
 }
 
-cpu_info_t *cpu_get_info(void) {
+cpu_info_t *cpu_read_info(void) {
   FILE *file;
   cpu_info_t *info;
   const char *path = cpuinfo_path();
@@ -259,22 +259,6 @@ cpu_info_t *cpu_get_info(void) {
   }
   info->physical_cores = physical_cores;
   info->cores = info->physical_cores;
-  info->frequency_mhz = info->current_frequency_mhz;
-
-  info->active_processes = cpu_read_active_processes(0);
-  info->temperature_c = cpu_read_temperature(0);
-  if (info->current_frequency_mhz <= 0.0f) {
-    info->current_frequency_mhz = cpu_read_clock_speed(0);
-  }
-  if (info->current_frequency_mhz > 0.0f) {
-    info->frequency_mhz = info->current_frequency_mhz;
-  }
-  if (info->current_frequency_mhz <= 0.0f) {
-    /* Frequency telemetry is optional on some architectures and virtualized
-     * systems. Keep the CPU snapshot useful and report unavailable as -1. */
-    info->current_frequency_mhz = -1.0f;
-    info->frequency_mhz = -1.0f;
-  }
 
   cpu_clear_last_error();
   return info;
