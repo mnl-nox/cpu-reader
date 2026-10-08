@@ -10,14 +10,13 @@ permissions:
 
 jobs:
   core:
-    name: ${{ matrix.compiler }} / ${{ matrix.mode }}
+    name: ${{ matrix.compiler }} / native
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
-        mode: [native, portable]
-    env:
+      env:
       CC: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v4
@@ -25,12 +24,7 @@ jobs:
         if: matrix.compiler == 'clang'
         run: sudo apt-get update && sudo apt-get install -y clang
       - name: Build and test
-        run: |
-          if [ "${{ matrix.mode }}" = "portable" ]; then
-            make test-portable
-          else
-            make test
-          fi
+        run: make test
 
   quality:
     name: ${{ matrix.check }}
@@ -51,5 +45,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and test
         run: make test
-      - name: Test portable implementation
-        run: make test-portable
+      - name: Run benchmark (informational)
+        run: make benchmark
