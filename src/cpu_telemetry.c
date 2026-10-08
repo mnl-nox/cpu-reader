@@ -213,7 +213,7 @@ static float read_temperature_from_path(const char *path, int report_errors) {
 static float read_temperature_auto(int report_errors) {
   const char *root = thermal_root_path();
   DIR *directory = opendir(root);
-  struct dirent *entry;
+  const struct dirent *entry;
   float fallback_temperature = -1.0f;
 
   if (directory == NULL) {
@@ -288,10 +288,8 @@ float cpu_read_clock_speed(int report_errors) {
   const char *path = cpu_freq_path();
   char buffer[128];
   long value;
-  float fallback_frequency;
-
   if (read_first_line(path, buffer, sizeof(buffer)) != 0) {
-    fallback_frequency = parse_frequency_from_cpuinfo();
+    float fallback_frequency = parse_frequency_from_cpuinfo();
     if (fallback_frequency > 0.0f) {
       if (report_errors) {
         cpu_clear_last_error();
