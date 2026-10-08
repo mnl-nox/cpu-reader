@@ -201,6 +201,7 @@ static float read_temperature_from_path(const char *path, int report_errors) {
 static float read_temperature_auto(int report_errors) {
   DIR *directory = opendir("/sys/class/thermal");
   struct dirent *entry;
+  float fallback_temperature = -1.0f;
 
   if (directory == NULL) {
     if (report_errors) {
@@ -213,21 +214,42 @@ static float read_temperature_auto(int report_errors) {
 
   while ((entry = readdir(directory)) != NULL) {
     char path[PATH_MAX];
+    char type_path[PATH_MAX];
+    char type[128];
     float temperature;
+    int is_cpu_sensor = 0;
 
     if (strncmp(entry->d_name, "thermal_zone", 12) != 0) {
       continue;
     }
 
     snprintf(path, sizeof(path), "/sys/class/thermal/%s/temp", entry->d_name);
+    snprintf(type_path, sizeof(type_path), "/sys/class/thermal/%s/type",
+             entry->d_name);
+    if (read_first_line(type_path, type, sizeof(type)) == 0) {
+      type[strcspn(type, "\r\n")] = '\0';
+      is_cpu_sensor = strstr(type, "cpu") != NULL ||
+                      strstr(type, "CPU") != NULL ||
+                      strstr(type, "pkg_temp") != NULL;
+    }
+
     temperature = read_temperature_from_path(path, 0);
-    if (temperature >= 0.0f) {
+    if (temperature < 0.0f) {
+      continue;
+    }
+    if (is_cpu_sensor) {
       closedir(directory);
       return temperature;
+    }
+    if (fallback_temperature < 0.0f) {
+      fallback_temperature = temperature;
     }
   }
 
   closedir(directory);
+  if (fallback_temperature >= 0.0f) {
+    return fallback_temperature;
+  }
   if (report_errors) {
     cpu_set_last_error(CPU_ERROR_UNSUPPORTED,
                        "Nao foi possivel localizar um sensor de temperatura");
@@ -435,7 +457,10 @@ cpu_info_t *cpu_get_info(void) {
       have_processor = 1;
       current_physical_id = -1;
       current_core_id = -1;
-    } else if (strcmp(line, "model name") == 0 && info->model[0] == '\0') {
+    } else if ((strcmp(line, "model name") == 0 ||
+                strcmp(line, "Processor") == 0 ||
+                strcmp(line, "Hardware") == 0) &&
+               info->model[0] == '\0') {
       copy_value(info->model, sizeof(info->model), separator);
     } else if (strcmp(line, "cpu MHz") == 0 &&
                info->current_frequency_mhz == 0.0f) {
@@ -473,9 +498,22 @@ cpu_info_t *cpu_get_info(void) {
         return NULL;
       }
       current_core_id = (int)value;
-    } else if (strcmp(line, "flags") == 0 && info->flags[0] == '\0') {
+    } else if ((strcmp(line, "flags") == 0 ||
+                strcmp(line, "Features") == 0) &&
+               info->flags[0] == '\0') {
       copy_value(info->flags, sizeof(info->flags), separator);
     }
+  }
+
+  if (ferror(file)) {
+    int read_error = errno != 0 ? errno : EIO;
+    free(physical_ids);
+    free(core_ids);
+    fclose(file);
+    free(info);
+    cpu_set_last_error(CPU_ERROR_FILE_OPEN, "Erro ao ler %s: %s", path,
+                       strerror(read_error));
+    return NULL;
   }
 
   if (have_processor && current_physical_id >= 0 && current_core_id >= 0) {
@@ -494,12 +532,13 @@ cpu_info_t *cpu_get_info(void) {
   fclose(file);
   free(physical_ids);
   free(core_ids);
-  if (info->logical_processors <= 0 || info->threads <= 0 ||
-      info->model[0] == '\0' || info->flags[0] == '\0') {
+  if (info->logical_processors <= 0 || info->threads <= 0) {
     free(info);
-    cpu_set_last_error(CPU_ERROR_PARSE, "Dados obrigatorios ausentes em %s",
-                       path);
+    cpu_set_last_error(CPU_ERROR_PARSE, "Topologia de CPU ausente em %s", path);
     return NULL;
+  }
+  if (info->model[0] == '\0') {
+    snprintf(info->model, sizeof(info->model), "%s", "Unknown CPU");
   }
   info->physical_cores = physical_cores;
   info->cores = info->physical_cores;
@@ -514,10 +553,10 @@ cpu_info_t *cpu_get_info(void) {
     info->frequency_mhz = info->current_frequency_mhz;
   }
   if (info->current_frequency_mhz <= 0.0f) {
-    free(info);
-    cpu_set_last_error(CPU_ERROR_PARSE,
-                       "Frequencia atual ausente ou invalida em %s", path);
-    return NULL;
+    /* Frequency telemetry is optional on some architectures and virtualized
+     * systems. Keep the CPU snapshot useful and report unavailable as -1. */
+    info->current_frequency_mhz = -1.0f;
+    info->frequency_mhz = -1.0f;
   }
 
   cpu_clear_last_error();

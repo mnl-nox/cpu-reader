@@ -173,11 +173,18 @@ fallback C portátil e testes automatizados da API pública.
   `/proc/cpuinfo`. O valor zero indica que a topologia física não foi
   disponibilizada pelo sistema.
 - `current_frequency_mhz` representa o valor atual reportado por `cpu MHz` ou
-  pelo sysfs. Ele não é uma frequência base garantida.
+  pelo sysfs. Ele não é uma frequência base garantida; `-1.0f` indica que a
+  plataforma não disponibilizou uma leitura válida.
+- `model` usa os campos disponíveis na arquitetura (`model name`, `Processor`
+  ou `Hardware`); se nenhum existir, retorna `Unknown CPU`. `flags` pode ficar
+  vazio quando o kernel não expõe `flags` ou `Features`.
+- A contagem de núcleos físicos pode ser zero quando `physical id`/`core id`
+  não são fornecidos. Isso indica dado desconhecido, não uma CPU sem núcleos.
 - Os campos legados `cores`, `threads` e `frequency_mhz` permanecem na
   estrutura por compatibilidade, mas novos consumidores devem usar os campos
-  semânticos acima. O parser rejeita valores incompletos, não numéricos,
-  negativos quando inválidos, fora de faixa ou com caracteres residuais.
+  semânticos acima. Os parsers rejeitam valores numéricos incompletos, fora de
+  faixa ou com caracteres residuais; campos adicionais numéricos válidos de
+  `/proc/stat` são aceitos para compatibilidade entre versões do kernel.
 
 ## Licença
 
