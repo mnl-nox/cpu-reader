@@ -109,6 +109,28 @@ float cpu_get_clock_speed(void) { return cpu_read_clock_speed(1); }
 
 int cpu_get_active_processes(void) { return cpu_read_active_processes(1); }
 
+cpu_info_t *cpu_get_info(void) {
+  cpu_info_t *info = cpu_read_info();
+
+  if (info == NULL) {
+    return NULL;
+  }
+
+  info->active_processes = cpu_read_active_processes(0);
+  info->temperature_c = cpu_read_temperature(0);
+  if (info->current_frequency_mhz <= 0.0f) {
+    info->current_frequency_mhz = cpu_read_clock_speed(0);
+  }
+  if (info->current_frequency_mhz <= 0.0f) {
+    /* Frequency telemetry is optional on some architectures and virtualized
+     * systems. Keep the snapshot useful when no clock source is available. */
+    info->current_frequency_mhz = -1.0f;
+  }
+  info->frequency_mhz = info->current_frequency_mhz;
+  cpu_clear_last_error();
+  return info;
+}
+
 void cpu_free_info(cpu_info_t *info) { free(info); }
 
 cpu_error_t cpu_get_last_error_code(void) { return last_error_code; }
