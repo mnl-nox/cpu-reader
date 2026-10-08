@@ -221,13 +221,20 @@ static void *worker_read_missing_cpuinfo(void *argument) {
 }
 
 static int test_error_snapshot_survives_later_success(void) {
-  char missing_path[] = "/tmp/cpu-reader-no-such-cpuinfo-file";
+  char missing_path[] = "/tmp/cpu-reader-missing-explicit-XXXXXX";
   char valid_path[] = "/tmp/cpu-reader-cpuinfo-valid-XXXXXX";
   const char *valid_fixture = "processor : 0\nProcessor : Test CPU\n";
   cpu_error_info_t error;
   cpu_info_t *info;
+  int missing_fd = mkstemp(missing_path);
   int fd = mkstemp(valid_path);
 
+  if (missing_fd < 0) {
+    perror("mkstemp missing explicit error path");
+    return -1;
+  }
+  close(missing_fd);
+  unlink(missing_path);
   if (fd < 0) {
     perror("mkstemp explicit error fixture");
     return -1;
