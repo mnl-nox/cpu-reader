@@ -86,6 +86,51 @@ cleanup:
   return result;
 }
 
+static int test_unreadable_cpuinfo_file(void) {
+  char path[] = "/tmp/cpu-reader-unreadable-XXXXXX";
+  int fd = mkstemp(path);
+  cpu_info_t *info;
+
+  if (fd < 0) {
+    perror("mkstemp unreadable cpuinfo");
+    return -1;
+  }
+  close(fd);
+  if (chmod(path, 0000) != 0) {
+    unlink(path);
+    perror("chmod unreadable cpuinfo");
+    return -1;
+  }
+
+  setenv("CPU_READER_CPUINFO_PATH", path, 1);
+  info = cpu_get_info();
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  chmod(path, 0600);
+  unlink(path);
+  if (info != NULL || cpu_get_last_error_code() != CPU_ERROR_FILE_OPEN) {
+    cpu_free_info(info);
+    fprintf(stderr, "unreadable cpuinfo should report file-open failure\n");
+    return -1;
+  }
+  return 0;
+}
+
+static int test_missing_thermal_sysfs_root(void) {
+  float temperature;
+
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  setenv("CPU_READER_THERMAL_PATH",
+         "/tmp/cpu-reader-missing-thermal-root", 1);
+  temperature = cpu_get_temperature();
+  unsetenv("CPU_READER_THERMAL_PATH");
+  if (temperature != -1.0f ||
+      cpu_get_last_error_code() != CPU_ERROR_FILE_OPEN) {
+    fprintf(stderr, "missing thermal sysfs root should be reported\n");
+    return -1;
+  }
+  return 0;
+}
+
 static int test_topology_with_and_without_ids(void) {
   char path[] = "/tmp/cpu-reader-topology-XXXXXX";
   const char *with_ids =
@@ -307,6 +352,8 @@ static int test_error_state_is_thread_local(void) {
 
 int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
+      test_unreadable_cpuinfo_file() != 0 ||
+      test_missing_thermal_sysfs_root() != 0 ||
       test_topology_with_and_without_ids() != 0 ||
       test_topology_grows_beyond_online_count() != 0 ||
       test_error_snapshot_survives_later_success() != 0 ||
