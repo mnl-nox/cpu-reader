@@ -5,6 +5,7 @@
 
 #include <stddef.h>
 
+cpu_info_t *cpu_read_info(void);
 void cpu_clear_last_error(void);
 void cpu_set_last_error(cpu_error_t code, const char *format, ...);
 /* Strict conversions shared by every /proc and sysfs reader. */

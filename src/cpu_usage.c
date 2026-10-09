@@ -44,7 +44,7 @@ static int sum_cpu_counters(const unsigned long long counters[8],
  */
 static int parse_cpu_stat_line(char *line,
                                unsigned long long counters[8]) {
-  char *token;
+  const char *token;
   char *save = NULL;
   int index;
 

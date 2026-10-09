@@ -8,11 +8,11 @@ SECURITY_LDFLAGS ?= -Wl,-z,relro,-z,now -pie
 
 LIBRARY = libcpu.a
 CORE_OBJECT = build/cpu.o
-CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_usage.o
+CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usage.o
 MONITOR = build/cpu-monitor
 
 .PHONY: all core monitor test test-portable test-sanitize test-security \
-	telemetry clean
+	telemetry benchmark clean
 
 all: core monitor
 
@@ -33,7 +33,7 @@ test: build/test_cpu build/test_platform
 
 test-portable:
 	$(MAKE) clean
-	$(MAKE) CFLAGS="$(CFLAGS) -DCPU_READER_DISABLE_ASM" test
+	$(MAKE) CFLAGS="$(CFLAGS)" test
 
 test-sanitize:
 	$(MAKE) clean
@@ -44,6 +44,13 @@ test-security:
 	$(MAKE) clean
 	$(MAKE) CFLAGS="$(CFLAGS) $(SECURITY_CFLAGS)" \
 		LDFLAGS="$(LDFLAGS) $(SECURITY_LDFLAGS)" test
+
+benchmark: build/bench_cpu
+	./build/bench_cpu
+
+build/bench_cpu: bench/bench_cpu.c $(LIBRARY)
+	@mkdir -p build
+	$(CC) $(CFLAGS) -D_POSIX_C_SOURCE=200809L -o $@ $< -L. -lcpu $(LDFLAGS)
 
 telemetry: test
 	@mkdir -p build
@@ -64,6 +71,10 @@ build/cpu.o: src/cpu.c include/cpu.h src/cpu_internal.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 build/cpu_info.o: src/cpu_info.c include/cpu.h src/cpu_internal.h
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/cpu_telemetry.o: src/cpu_telemetry.c include/cpu.h src/cpu_internal.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 

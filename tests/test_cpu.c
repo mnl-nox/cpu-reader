@@ -344,6 +344,81 @@ static int expect_usage_rejects_invalid_extra_counter(void) {
   return 0;
 }
 
+static int expect_info_rejects_invalid_frequency(void) {
+  char path[] = "/tmp/cpu-reader-cpuinfo-frequency-invalid-XXXXXX";
+
+  if (make_temp_file(path, "processor : 0\ncpu MHz : 1200junk\n") != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_CPUINFO_PATH", path, 1);
+  if (cpu_get_info() != NULL ||
+      expect_last_error(CPU_ERROR_PARSE, "Frequencia invalida") != 0) {
+    unsetenv("CPU_READER_CPUINFO_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  unlink(path);
+  return 0;
+}
+
+static int expect_temperature_rejects_negative(void) {
+  char path[] = "/tmp/cpu-reader-temp-negative-XXXXXX";
+
+  if (make_temp_file(path, "-1\n") != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_CPU_TEMP_PATH", path, 1);
+  if (cpu_get_temperature() != -1.0f ||
+      expect_last_error(CPU_ERROR_PARSE, "temperatura") != 0) {
+    unsetenv("CPU_READER_CPU_TEMP_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  unlink(path);
+  return 0;
+}
+
+static int expect_loadavg_rejects_trailing_tokens(void) {
+  char path[] = "/tmp/cpu-reader-loadavg-extra-XXXXXX";
+
+  if (make_temp_file(path, "0.1 0.2 0.3 1/10 100 extra\n") != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_LOADAVG_PATH", path, 1);
+  if (cpu_get_active_processes() != -1 ||
+      expect_last_error(CPU_ERROR_PARSE, "processos ativos") != 0) {
+    unsetenv("CPU_READER_LOADAVG_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_LOADAVG_PATH");
+  unlink(path);
+  return 0;
+}
+
+static int expect_usage_rejects_counter_overflow(void) {
+  char path[] = "/tmp/cpu-reader-stat-overflow-XXXXXX";
+  cpu_usage_context_t context;
+
+  if (make_temp_file(path,
+                     "cpu 18446744073709551615 0 5 20 0 0 0 0\n") != 0 ||
+      cpu_usage_context_init(&context) != 0) {
+    return -1;
+  }
+  setenv("CPU_READER_PROC_STAT_PATH", path, 1);
+  if (cpu_get_usage_context(&context) != -1.0f ||
+      expect_last_error(CPU_ERROR_PARSE, "Overflow") != 0) {
+    unsetenv("CPU_READER_PROC_STAT_PATH");
+    unlink(path);
+    return -1;
+  }
+  unsetenv("CPU_READER_PROC_STAT_PATH");
+  unlink(path);
+  return 0;
+}
+
 int main(void) {
   cpu_info_t *info = cpu_get_info();
   cpu_usage_context_t first_context;
@@ -379,15 +454,19 @@ int main(void) {
 
   if (expect_info_failure_for_missing_file() != 0 ||
       expect_info_failure_for_invalid_content() != 0 ||
+      expect_info_rejects_invalid_frequency() != 0 ||
       expect_usage_failure_for_missing_file(&fixture_context) != 0 ||
       expect_usage_failure_for_invalid_content(&fixture_context) != 0 ||
       expect_temperature_success() != 0 || expect_temperature_failure() != 0 ||
+      expect_temperature_rejects_negative() != 0 ||
       expect_clock_speed_success() != 0 || expect_clock_speed_failure() != 0 ||
       expect_clock_speed_rejects_trailing_data() != 0 ||
       expect_active_processes_success() != 0 ||
       expect_active_processes_failure() != 0 ||
+      expect_loadavg_rejects_trailing_tokens() != 0 ||
       expect_usage_rejects_truncated_line() != 0 ||
-      expect_usage_rejects_invalid_extra_counter() != 0) {
+      expect_usage_rejects_invalid_extra_counter() != 0 ||
+      expect_usage_rejects_counter_overflow() != 0) {
     cpu_free_info(info);
     return 1;
   }

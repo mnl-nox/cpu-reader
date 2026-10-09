@@ -14,14 +14,14 @@ Usar C99 como padrão de linguagem obrigatório.
 
 **Justificativa:**
 
-- C99 é suportado por todos os compiladores modernos (GCC, Clang, MSVC)
-- Evita recursos C11+ que reduzem portabilidade
+- GCC e Clang, nas versões usadas pelo CI Linux, oferecem suporte a C99 e à extensão `__thread` usada para compatibilidade com o diagnóstico legado
+- Mantém o padrão de linguagem em C99; algumas extensões de compilador e APIs POSIX ainda limitam toolchains/hosts suportados
 - Mantém compatibilidade com sistemas legados
 - Simples compilação com `gcc -std=c99`
 
 **Consequências:**
 
-- Máxima portabilidade
+- Portabilidade dentro do alvo Linux/GCC/Clang validado
 - Mínimo overhead de compilação
 - Sem alguns recursos modernos (threads nativas, atomic ops)
 - Thread-safety manual
@@ -243,99 +243,55 @@ Núcleo (`libcpu.a`) sem ncurses; monitor é aplicação separada em `examples/m
 
 ---
 
-## ADR-0007: Assembly Inline Limitado a Trecho Aritmético
+## ADR-0007: Implementação C portátil para contadores
 
-**Status:** ACEITO | **Data:** 2026 | **Modificado:** Não
+**Status:** SUBSTITUÍDO | **Data:** 2026-10-08
 
-**Contexto:**
-A soma dos 8 contadores de CPU em `/proc/stat` pode ser otimizada com assembly. O tradeoff é portabilidade vs performance.
+**Contexto:** A documentação histórica afirmava que a soma dos contadores de
+`/proc/stat` usava assembly inline em x86_64. A implementação atual não contém
+um caminho assembly: a soma é C e o macro `CPU_READER_DISABLE_ASM` não seleciona
+uma implementação diferente.
 
-**Decisão:**
-Em x86_64 com GCC/Clang, usar inline assembly para somar contadores; preservar fallback C idêntico para outras arquiteturas/compiladores.
+**Decisão:** Manter a implementação C como única implementação até que um
+benchmark reproduzível demonstre uma melhoria material e sustentável que
+justifique código específico de arquitetura. Não anunciar otimização assembly
+nem usar o modo `test-portable` como evidência de dois caminhos distintos.
 
-**Justificativa:**
-
-- Performance marginal em ponto quente
-- Fallback C garante portabilidade
-- Código verificável (ambas as versões podem ser comparadas)
-- Manutenção viável (código é pequeno)
-- Assembly específico de arquitetura
-- Complexidade extra (dois caminhos de código)
-
-**Alternativas Consideradas:**
-
-1. Apenas C em todas as arquiteturas
- - Máxima portabilidade
- - Sem otimização
-2. Intrinsics SIMD generalizados
- - Portável entre compiladores
- - Nem sempre disponível em C99
-3. Deixar para otimizador (compiler -O3)
- - Simples
- - Menos controle
-
-**Consequências:**
-
-- Compilação diferente em x86_64 vs outras arquiteturas
-- Testes devem validar ambos os caminhos
-- Documentação deve mencionar otimização
-- CI deve testar em x86_64 e pelo menos um ARM
-
-**Referências:**
-
-- D-007: Assembly limitado ao trecho aritmético
-- RF-012: Soma otimizada (x86_64)
+**Consequências:** `make test-portable` permanece temporariamente como alias
+compatível para a suíte C portátil. `make benchmark` fornece medições locais
+informativas, sem limiar rígido de CI. Uma otimização futura deve ter
+implementação comparável, teste de equivalência e resultados documentados.
 
 ---
 
-## ADR-0008: Relatório Global de Falhas (vs Por-Contexto)
+## ADR-0008: Diagnóstico de erro legado e snapshots explícitos
 
-**Status:** ACEITO | **Data:** 2026 | **Modificado:** Sim, 2026-09-04
+**Status:** ACEITO COM COMPATIBILIDADE LEGADA | **Data:** 2026-10-08
 
-**Contexto:**
-Quando operações falham, a API deve expor informações de erro. A escolha é: retorno de erro por contexto (thread-local ou estrutura), ou global.
+**Contexto:** A API original `cpu_get_last_error_code()` /
+`cpu_get_last_error()` expõe apenas o "último erro". Estado global permitia
+diagnósticos cruzados entre threads e a mensagem podia ser apagada por uma
+operação posterior.
 
-**Decisão:**
-Manter variáveis estáticas globais para código e mensagem de erro; `cpu_get_last_error_code()` e `cpu_get_last_error()` acessam-nas.
+**Decisão:** Manter a API antiga com armazenamento local à thread em GCC/Clang.
+Adicionar `cpu_error_info_t`, `cpu_error_info_clear()` e variantes `*_ex` para
+as operações fallíveis: cada variante copia código e mensagem para um objeto
+pertencente ao chamador. O snapshot permanece estável até que o próprio
+chamador o limpe ou sobrescreva.
 
-**Justificativa (2026-01):**
+**Limites:** O armazenamento interno da API legada continua local à thread; o
+snapshot explícito evita que o consumidor dependa dele depois do retorno.
+Contextos de uso explícitos continuam sendo propriedade do consumidor e não são
+seguros para acesso concorrente sem sincronização. Variáveis de ambiente de
+override devem ser configuradas antes de iniciar threads.
 
-- Simples de implementar
-- Compatible com C99
-- Sem necessidade de passar contexto de erro por todas as funções
-- Não thread-safe
-- Estado compartilhado entre threads
+**Consequências:** Novas APIs fallíveis devem preferir uma saída de erro explícita.
+A família antiga permanece por compatibilidade, mas deve ser considerada legada.
+O contrato de ownership e o ciclo de vida do snapshot são documentados em
+`include/cpu.h`.
 
-**Revisão (2026-09-04):**
-Esta decisão é **aceitável** para versão 0.x, mas deve ser reconsiderada para 1.0 se thread-safety se tornar requisito.
-
-**Futuro (ADR-0009):**
-Adicionar modo thread-safe opcional com `thread_local` em C11+.
-
-**Alternativas:**
-
-1. Thread-local storage (C11)
- - Thread-safe
- - Requer C11+
-2. Contexto de erro separado passado por argumento
- - Explícito
- - Muda toda a API
-3. Ignorar erros, retornar valores especiais apenas
- - Sem estado
- - Menos informativo
-
-**Consequências:**
-
-- Aplicações multi-thread devem usar `cpu_usage_context_t` por thread
-- Relatório de erro é global (sobrescrito por chamada seguinte)
-- Documentação deve alertar sobre uso concorrente
-- Futura versão pode adicionar `cpu_get_last_error_thread_local()`
-
-**Referências:**
-
-- D-008: Relatório global de falhas
-- RF-010: Relatório de falhas
-- ADR-0009 (futuro): Thread-safety
+**Validação:** testes verificam isolamento entre threads e que um snapshot de
+erro continua válido depois de uma chamada bem-sucedida posterior.
 
 ---
 
@@ -525,25 +481,49 @@ Criar/expandir `doc/design.md` com seções: Visão, Componentes, Padrões, Trad
 | ADR-0004 | Alocação Explícita | ACEITO | 2026-01 | ALTA |
 | ADR-0005 | Deltas de Uso | ACEITO | 2026-01 | ALTA |
 | ADR-0006 | Monitor Separado | ACEITO | 2026-01 | MÉDIA |
-| ADR-0007 | Assembly x86_64 | ACEITO | 2026-01 | BAIXA |
-| ADR-0008 | Erro Global | ACEITO | 2026-01 | MÉDIA |
+| ADR-0007 | C portátil para contadores | SUBSTITUÍDO | 2026-10-08 | BAIXA |
+| ADR-0008 | Diagnóstico legado por thread | PARCIAL/TRANSITÓRIO | 2026-10-08 | MÉDIA |
 | ADR-0009 | Versionamento | ACEITO | 2026-01 | MÉDIA |
 | ADR-0010 | Injeção Teste | ACEITO | 2026-01 | BAIXA |
 | ADR-0011 | RNFs Formalizados | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0012 | RFs Consolidadas | PROPOSTO | 2026-09-04 | MÉDIA |
 | ADR-0013 | Design Estruturado | PROPOSTO | 2026-09-04 | BAIXA |
+| ADR-0014 | Separação de módulos | ACEITO | 2026-10-08 | MÉDIA |
+| ADR-0015 | Revisão final da API de erros explícitos | PROPOSTO | 2026-10-08 | MÉDIA |
+
+---
+
+## ADR-0014: Separação dos módulos de domínio e telemetria
+
+**Status:** ACEITO | **Data:** 2026-10-08
+
+**Contexto:** `src/cpu_info.c` acumulava parsing de topologia, temperatura,
+frequência e `loadavg`, aumentando o acoplamento entre domínios.
+
+**Decisão:** Separar parsing de CPU/topologia em `src/cpu_info.c`, telemetria de
+`sysfs` e `/proc/loadavg` em `src/cpu_telemetry.c`, cálculo de uso em
+`src/cpu_usage.c` e wrappers/contratos comuns em `src/cpu.c`. O contrato
+interno permanece em `src/cpu_internal.h`; consumidores dependem apenas de
+`include/cpu.h`.
+
+**Consequências:** Cada módulo tem responsabilidade mais clara, fixtures podem
+testar cada fonte de dados e a biblioteca principal continua sem ncurses. Não
+foi adicionada uma camada de plugins sem necessidade demonstrada.
+
+**Validação:** GCC/Clang, sanitizers, hardening e runtime ARM64 no CI; benchmark
+local informativo sem limiar rígido.
 
 ---
 
 ## Próximas ADRs Esperadas (Backlog)
 
-- **ADR-0014:** Thread-safety com thread_local (C11)
-- **ADR-0015:** Caching de resultados
-- **ADR-0016:** Suporte a múltiplas distribuições
-- **ADR-0017:** API bindings (Python, Node.js)
-- **ADR-0018:** Logging estruturado
-- **ADR-0019:** Otimizações SIMD
-- **ADR-0020:** Integração contínua e release automation
+- **ADR-0015:** Revisão final da API de erros explícitos e compatibilidade ABI antes da versão 1.0
+- **ADR-0016:** Caching de resultados
+- **ADR-0017:** Suporte a múltiplas distribuições
+- **ADR-0018:** API bindings (Python, Node.js)
+- **ADR-0019:** Logging estruturado
+- **ADR-0020:** Otimizações SIMD
+- **ADR-0021:** Integração contínua e release automation
 
 ---
 

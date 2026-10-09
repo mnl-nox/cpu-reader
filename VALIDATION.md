@@ -12,7 +12,8 @@ O teste integrado cobre os fluxos principais da API pública:
 - temperatura
 - clock atual
 - contagem de processos ativos
-- relatório de erros
+- isolamento de diagnóstico legado por thread
+- topologia completa, incompleta e ausente
 - caminhos injetáveis por variáveis de ambiente
 
 Execute:
@@ -22,6 +23,7 @@ make test
 make test-portable
 make test-sanitize
 make test-security
+make benchmark
 make telemetry
 ```
 
@@ -46,9 +48,10 @@ make telemetry
 - Biblioteca principal: validada pelo teste integrado
 - Monitor ncurses: compilável com ncurses de desenvolvimento instalado
 - Overrides de teste: cobertos pelos testes automatizados
-- Fallback C para arquiteturas não x86_64: validado por `make test-portable`
+- Implementação C: validada em x86_64 com GCC/Clang, em runtime nativo aarch64/arm64 e sob QEMU para ARMv7; a emulação não substitui hardware ARMv7 nativo. `make test-portable` é um alias de compatibilidade, não uma implementação distinta.
 - Memória e comportamento indefinido: validados por `make test-sanitize`
 - Hardening de compilação e linkedição: validado por `make test-security`
+- Microbenchmark: `make benchmark`, resultado local informativo sem limiar rígido
 - Telemetria local: validada pela geração de `build/telemetry.json`
 
 ## Execução com Docker
@@ -72,6 +75,6 @@ enviam dados para serviços externos.
 
 | Plataforma | Núcleo | Monitor | Implementação |
 | --- | --- | --- | --- |
-| Linux x86_64 | Suportado | Opcional | Assembly otimizado ou C |
-| Linux aarch64/arm64 | Suportado | Opcional | C portátil |
-| Linux armv7 | Suportado | Opcional | C portátil |
+| Linux x86_64 | Validado em CI | Opcional | C |
+| Linux aarch64/arm64 | Validado em runtime na CI | Opcional | C |
+| Linux armv7 (32-bit) | Testado sob QEMU; não hardware nativo | Opcional | C |
