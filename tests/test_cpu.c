@@ -258,6 +258,43 @@ static int expect_clock_speed_rejects_trailing_data(void) {
   return 0;
 }
 
+static int expect_clock_speed_fallback_rejects_truncated_cpuinfo_line(void) {
+  char freq_path[] = "/tmp/cpu-reader-freq-missing-XXXXXX";
+  char cpuinfo_path[] = "/tmp/cpu-reader-cpuinfo-truncated-XXXXXX";
+  char long_line[1400];
+  int index;
+
+  for (index = 0; index < (int)sizeof(long_line) - 1; index++) {
+    long_line[index] = '1';
+  }
+  long_line[sizeof(long_line) - 1] = '\0';
+  memcpy(long_line, "cpu MHz : 12", strlen("cpu MHz : 12"));
+
+  if (make_temp_file(freq_path, "1\n") != 0 ||
+      make_temp_file(cpuinfo_path, "processor : 0\n") != 0 ||
+      write_file(freq_path, "") != 0 || write_file(cpuinfo_path, long_line) != 0) {
+    unlink(freq_path);
+    unlink(cpuinfo_path);
+    return -1;
+  }
+
+  setenv("CPU_READER_CPU_FREQ_PATH", freq_path, 1);
+  setenv("CPU_READER_CPUINFO_PATH", cpuinfo_path, 1);
+  if (cpu_get_clock_speed() != -1.0f ||
+      expect_last_error(CPU_ERROR_FILE_OPEN, "Nao foi possivel abrir") != 0) {
+    unsetenv("CPU_READER_CPU_FREQ_PATH");
+    unsetenv("CPU_READER_CPUINFO_PATH");
+    unlink(freq_path);
+    unlink(cpuinfo_path);
+    return -1;
+  }
+  unsetenv("CPU_READER_CPU_FREQ_PATH");
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  unlink(freq_path);
+  unlink(cpuinfo_path);
+  return 0;
+}
+
 static int expect_active_processes_success(void) {
   char path[] = "/tmp/cpu-reader-loadavg-XXXXXX";
   int active_processes;
@@ -461,6 +498,7 @@ int main(void) {
       expect_temperature_rejects_negative() != 0 ||
       expect_clock_speed_success() != 0 || expect_clock_speed_failure() != 0 ||
       expect_clock_speed_rejects_trailing_data() != 0 ||
+      expect_clock_speed_fallback_rejects_truncated_cpuinfo_line() != 0 ||
       expect_active_processes_success() != 0 ||
       expect_active_processes_failure() != 0 ||
       expect_loadavg_rejects_trailing_tokens() != 0 ||
