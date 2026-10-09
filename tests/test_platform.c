@@ -131,6 +131,48 @@ static int test_missing_thermal_sysfs_root(void) {
   return 0;
 }
 
+static int test_invalid_cpu_sensor_is_not_masked_by_fallback(void) {
+  char root[] = "/tmp/cpu-reader-thermal-invalid-cpu-XXXXXX";
+  float temperature;
+  int result = -1;
+
+  if (mkdtemp(root) == NULL) {
+    perror("mkdtemp invalid cpu thermal root");
+    return -1;
+  }
+  if (make_zone(root, "thermal_zone0", "acpitz\n", "33000\n") != 0 ||
+      make_zone(root, "thermal_zone1", "Package id 0\n", "invalid\n") != 0) {
+    goto cleanup;
+  }
+
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  setenv("CPU_READER_THERMAL_PATH", root, 1);
+  temperature = cpu_get_temperature();
+  unsetenv("CPU_READER_THERMAL_PATH");
+  if (temperature != -1.0f || cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    fprintf(stderr, "invalid CPU sensor must fail parsing deterministically\n");
+    goto cleanup;
+  }
+  result = 0;
+
+cleanup:
+  {
+    char path[512];
+    const char *zones[] = {"thermal_zone0", "thermal_zone1"};
+    size_t index;
+    for (index = 0; index < sizeof(zones) / sizeof(zones[0]); index++) {
+      snprintf(path, sizeof(path), "%s/%s/type", root, zones[index]);
+      unlink(path);
+      snprintf(path, sizeof(path), "%s/%s/temp", root, zones[index]);
+      unlink(path);
+      snprintf(path, sizeof(path), "%s/%s", root, zones[index]);
+      rmdir(path);
+    }
+  }
+  rmdir(root);
+  return result;
+}
+
 static int test_topology_with_and_without_ids(void) {
   char path[] = "/tmp/cpu-reader-topology-XXXXXX";
   const char *with_ids =
@@ -356,6 +398,7 @@ int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
       test_unreadable_cpuinfo_file() != 0 ||
       test_missing_thermal_sysfs_root() != 0 ||
+      test_invalid_cpu_sensor_is_not_masked_by_fallback() != 0 ||
       test_topology_with_and_without_ids() != 0 ||
       test_topology_grows_beyond_online_count() != 0 ||
       test_error_snapshot_survives_later_success() != 0 ||

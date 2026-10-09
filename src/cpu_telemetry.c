@@ -135,6 +135,11 @@ static float parse_frequency_from_cpuinfo(void) {
   while (fgets(line, sizeof(line), file) != NULL) {
     char *separator = strchr(line, ':');
 
+    if (strchr(line, '\n') == NULL && !feof(file)) {
+      fclose(file);
+      return -1.0f;
+    }
+
     if (separator == NULL) {
       continue;
     }
@@ -151,6 +156,11 @@ static float parse_frequency_from_cpuinfo(void) {
       }
       return -1.0f;
     }
+  }
+
+  if (ferror(file)) {
+    fclose(file);
+    return -1.0f;
   }
 
   fclose(file);
@@ -249,6 +259,15 @@ static float read_temperature_auto(int report_errors) {
 
     temperature = read_temperature_from_path(path, 0);
     if (temperature < 0.0f) {
+      if (is_cpu_sensor) {
+        closedir(directory);
+        if (report_errors) {
+          cpu_set_last_error(CPU_ERROR_PARSE,
+                             "Nao foi possivel interpretar a temperatura em %s",
+                             path);
+        }
+        return -1.0f;
+      }
       continue;
     }
     if (is_cpu_sensor) {
@@ -371,4 +390,3 @@ int cpu_read_active_processes(int report_errors) {
 
   return running;
 }
-
