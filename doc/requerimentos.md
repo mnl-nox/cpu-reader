@@ -8,11 +8,16 @@ Este documento descreve o escopo implementado atualmente. Recursos futuros estã
 
 `cpu_get_info()` deve ler `/proc/cpuinfo` e preencher:
 
-- quantidade de entradas `processor` em `cores`;
-- processadores lógicos online em `threads`;
-- primeiro `model name` em `model`;
-- primeiro `cpu MHz` em `frequency_mhz`;
+- quantidade de entradas `processor` em `logical_processors`;
+- núcleos físicos distintos em `physical_cores`, contados por pares únicos
+  `physical id`/`core id` (quando ausentes ou incompletos, o valor deve ficar
+  em `0`, significando topologia física desconhecida);
+- primeiro `model name` (ou campos equivalentes da arquitetura) em `model`;
+- primeiro `cpu MHz` em `current_frequency_mhz`;
 - primeiro `flags` em `flags`.
+
+Os campos `cores`, `threads` e `frequency_mhz` permanecem por compatibilidade
+pré-1.0, mas não devem ser usados como nomenclatura semântica principal.
 
 Também deve tentar complementar a estrutura com:
 
