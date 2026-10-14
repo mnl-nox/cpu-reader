@@ -52,13 +52,13 @@ Para compilar o monitor de terminal, instale também <code>libncurses-dev</code>
 int main(void) {
     cpu_info_t *info = cpu_get_info();
     if (info == NULL) {
-        fprintf(stderr, "Não foi possível consultar a CPU\\n");
+        fprintf(stderr, "Não foi possível consultar a CPU\n");
         return 1;
     }
 
-    printf("Modelo: %s\\n", info->model);
-    printf("Núcleos físicos: %d\\n", info->physical_cores);
-    printf("Processadores lógicos: %d\\n", info->logical_processors);
+    printf("Modelo: %s\n", info->model);
+    printf("Núcleos físicos: %d\n", info->physical_cores);
+    printf("Processadores lógicos: %d\n", info->logical_processors);
     cpu_free_info(info);
     return 0;
 }
