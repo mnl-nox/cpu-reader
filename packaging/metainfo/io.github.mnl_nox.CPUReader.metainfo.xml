@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.mnl_nox.CPUReader</id>
+  <name>CPU Reader</name>
+  <summary>Monitor de CPU para Linux</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>Monitora utilização total, topologia, temperatura e frequência atual da CPU usando interfaces locais do kernel Linux.</p>
+  </description>
+  <launchable type="desktop-id">cpu-reader.desktop</launchable>
+  <url type="homepage">https://github.com/mnl-nox/cpu-reader</url>
+</component>
