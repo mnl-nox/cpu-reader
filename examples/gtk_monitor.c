@@ -149,7 +149,7 @@ static void on_activate(GtkApplication *app, gpointer data) {
     d->usage_value = value_label("—");
     d->usage_bar = gtk_progress_bar_new();
     gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(d->usage_bar), TRUE);
-    gtk_progress_bar_set_hexpand(GTK_PROGRESS_BAR(d->usage_bar), TRUE);
+    gtk_widget_set_hexpand(d->usage_bar, TRUE);
     gtk_box_append(GTK_BOX(usage_box), d->usage_value);
     gtk_box_append(GTK_BOX(usage_box), d->usage_bar);
     gtk_grid_attach(GTK_GRID(grid), card("USO TOTAL DA CPU", usage_box), 0, 1, 2, 1);
