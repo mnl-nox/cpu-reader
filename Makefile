@@ -38,7 +38,7 @@ package-deb: $(DEB_PACKAGE)
 $(GTK_APP): examples/gtk_monitor.c $(LIBRARY)
 	@pkg-config --exists gtk4 || { echo "GTK4 development files missing; install libgtk-4-dev and pkg-config." >&2; exit 1; }
 	@mkdir -p build
-	$(CC) $(CFLAGS) $(pkg-config --cflags gtk4) -o $@ $< -L. -lcpu $(pkg-config --libs gtk4) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(pkg-config --cflags gtk4) -DAPP_VERSION='\\"$(PACKAGE_VERSION)\\"' -o $@ $< -L. -lcpu $(pkg-config --libs gtk4) $(LDFLAGS)
 
 $(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/cpu-reader.svg packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml README.md LICENSE
 	@command -v dpkg-deb >/dev/null || { echo "dpkg-deb is required to build Debian packages." >&2; exit 1; }
@@ -60,7 +60,8 @@ $(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/c
 		'Description: GTK4 desktop CPU monitor for Linux' \
 		' CPU usage, CPU topology, temperature and current frequency dashboard.' \
 		> $(DEB_ROOT)/DEBIAN-control
-	mv $(DEB_ROOT)/DEBIAN-control $(DEB_ROOT)/DEBIAN
+	mkdir -p $(DEB_ROOT)/DEBIAN
+	mv $(DEB_ROOT)/DEBIAN-control $(DEB_ROOT)/DEBIAN/control
 	dpkg-deb --root-owner-group --build $(DEB_ROOT) $(DEB_PACKAGE)
 
 $(MONITOR): examples/monitor.c $(LIBRARY)
