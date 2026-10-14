@@ -78,12 +78,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install GTK4 and packaging dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libgtk-4-dev dpkg-dev desktop-file-utils
+        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libgtk-4-dev dpkg-dev desktop-file-utils xvfb
       - name: Build desktop application and Debian package
         run: |
           make clean
           make test
           make test-gtk
+          make test-gtk-ui
           make package-deb
       - name: Validate desktop entry and package metadata
         run: |
@@ -95,6 +96,7 @@ jobs:
           sudo apt-get install -y ./build/cpu-reader_*.deb
           cpu-reader --version
           cpu-reader --help
+          sh tests/test_gtk_ui.sh cpu-reader
       - name: Upload Debian package artifact
         uses: actions/upload-artifact@v4
         with:
