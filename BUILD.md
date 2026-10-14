@@ -6,6 +6,8 @@ Este repositório usa `make` para compilar a biblioteca, o monitor e os testes.
 
 - Compilador C99, como `gcc` ou `clang`
 - GNU Make
+- `pkg-config` e `libgtk-4-dev` para a interface GTK4
+- `dpkg-deb`/`dpkg-dev` para gerar o pacote Debian
 - ncurses de desenvolvimento para compilar `examples/monitor.c` (opcional)
 
 ## Alvos disponíveis
@@ -14,6 +16,9 @@ Este repositório usa `make` para compilar a biblioteca, o monitor e os testes.
 make       # compila libcpu.a e o monitor
 make core  # compila apenas libcpu.a
 make monitor
+make gtk-monitor # compila o frontend GTK4
+make test-gtk # smoke test de --version e --help
+make package-deb # gera um .deb para a arquitetura atual
 make test  # compila e executa os testes
 make test-portable # testa o fallback C sem assembly x86_64
 make test-sanitize # executa AddressSanitizer e UndefinedBehaviorSanitizer
@@ -26,6 +31,8 @@ make clean # remove build/ e libcpu.a
 
 - `libcpu.a` - biblioteca estática do núcleo
 - `build/cpu-monitor` - monitor ncurses de exemplo
+- `build/cpu-reader-gtk` - aplicação desktop GTK4
+- `build/cpu-reader_*.deb` - pacote Debian instalável
 - `build/test_cpu` - binário de testes
 
 ## Flags padrão
