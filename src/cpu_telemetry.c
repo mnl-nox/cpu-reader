@@ -224,7 +224,6 @@ static float read_temperature_auto(int report_errors) {
   const char *root = thermal_root_path();
   DIR *directory = opendir(root);
   const struct dirent *entry;
-  float fallback_temperature = -1.0f;
 
   if (directory == NULL) {
     if (report_errors) {
@@ -257,32 +256,25 @@ static float read_temperature_auto(int report_errors) {
       is_cpu_sensor = is_cpu_thermal_type(type);
     }
 
-    temperature = read_temperature_from_path(path, 0);
-    if (temperature < 0.0f) {
-      if (is_cpu_sensor) {
-        closedir(directory);
-        if (report_errors) {
-          cpu_set_last_error(CPU_ERROR_PARSE,
-                             "Nao foi possivel interpretar a temperatura em %s",
-                             path);
-        }
-        return -1.0f;
-      }
+    /* Never report an unrelated thermal zone as CPU temperature. */
+    if (!is_cpu_sensor) {
       continue;
     }
-    if (is_cpu_sensor) {
+    temperature = read_temperature_from_path(path, 0);
+    if (temperature < 0.0f) {
       closedir(directory);
-      return temperature;
+      if (report_errors) {
+        cpu_set_last_error(CPU_ERROR_PARSE,
+                           "Nao foi possivel interpretar a temperatura em %s",
+                           path);
+      }
+      return -1.0f;
     }
-    if (fallback_temperature < 0.0f) {
-      fallback_temperature = temperature;
-    }
+    closedir(directory);
+    return temperature;
   }
 
   closedir(directory);
-  if (fallback_temperature >= 0.0f) {
-    return fallback_temperature;
-  }
   if (report_errors) {
     cpu_set_last_error(CPU_ERROR_UNSUPPORTED,
                        "Nao foi possivel localizar um sensor de temperatura");
