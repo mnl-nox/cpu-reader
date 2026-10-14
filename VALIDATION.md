@@ -14,7 +14,7 @@ No Debian/Ubuntu:
 
 ```sh
 sudo apt update
-sudo apt install -y git build-essential gcc clang make cppcheck libncurses-dev
+sudo apt install -y git build-essential gcc clang make cppcheck libncurses-dev pkg-config libgtk-4-dev dpkg-dev desktop-file-utils
 ```
 
 ## Primeiro teste (clone limpo)
@@ -69,3 +69,23 @@ Use os overrides documentados no README para direcionar o leitor a fixtures em a
 ## CI e release
 
 Pull requests executam a validação do projeto. Para o fluxo de tags e criação de releases, consulte [RELEASING.md](RELEASING.md). A CI testa x86_64 e aarch64 nativamente, e ARMv7 sob QEMU; emulação não equivale a teste em hardware ARMv7 nativo.
+
+## Frontend GTK4 e pacote .deb
+
+~~~sh
+make clean
+make test
+make test-gtk
+make package-deb
+desktop-file-validate packaging/debian/cpu-reader.desktop
+dpkg-deb --info build/cpu-reader_*.deb
+dpkg-deb --contents build/cpu-reader_*.deb
+sudo apt install ./build/cpu-reader_*.deb
+cpu-reader --version
+cpu-reader --help
+~~~
+
+O smoke test não exige servidor gráfico. A validação visual da janela GTK4 deve
+ser realizada em uma sessão desktop Linux; em máquinas headless, execute os
+testes de compilação e do pacote sem iniciar a janela. O workflow de CI gera um
+artefato temporário .deb, sem publicar tags ou GitHub Releases.
