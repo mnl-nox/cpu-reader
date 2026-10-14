@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  pull_request:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Release validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential cppcheck libncurses-dev
+      - name: Functional tests
+        run: make test
+      - name: Sanitizers
+        run: make test-sanitize
+      - name: Compiler/linker hardening
+        run: make test-security
+      - name: Static analysis
+        run: cppcheck --enable=warning,style,performance,portability --error-exitcode=1 --inline-suppr --std=c99 -Iinclude src tests examples bench
+
+  publish:
+    name: Publish GitHub Release
+    needs: validate
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create release notes from tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" --generate-notes
