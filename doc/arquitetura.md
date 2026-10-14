@@ -101,7 +101,8 @@ cpu_info.c            cpu_usage.c          cpu_telemetry.c
 2. O estado por thread não torna um mesmo `cpu_usage_context_t` seguro para
    uso concorrente, nem torna chamadas simultâneas a `setenv()/unsetenv()`
    seguras.
-3. A temperatura é escolhida pelo nome do tipo do sensor; quando não há um
-   sensor reconhecível como CPU/package, o comportamento de fallback é usar o
-   primeiro sensor válido encontrado. O nome/origem do sensor ainda não é
-   exposto na API.
+3. A temperatura é escolhida pelo nome do tipo do sensor. Sensores não
+   reconhecidos como CPU/package são ignorados; se nenhum sensor CPU/package
+   válido estiver disponível, a API retorna `-1.0f` em vez de reportar
+   silenciosamente a temperatura de outro componente. O nome/origem do sensor
+   ainda não é exposto na API.
