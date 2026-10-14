@@ -71,3 +71,34 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cppcheck
       - name: Analyze source and tests
         run: cppcheck --enable=warning,style,performance,portability --error-exitcode=1 --inline-suppr --std=c99 -Iinclude src tests examples bench
+
+  deb-package:
+    name: GTK4 Debian package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GTK4 and packaging dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libgtk-4-dev dpkg-dev desktop-file-utils
+      - name: Build desktop application and Debian package
+        run: |
+          make clean
+          make test
+          make test-gtk
+          make package-deb
+      - name: Validate desktop entry and package metadata
+        run: |
+          desktop-file-validate packaging/debian/cpu-reader.desktop
+          dpkg-deb --info build/cpu-reader_*.deb
+          dpkg-deb --contents build/cpu-reader_*.deb
+      - name: Install package and smoke-test installed binary
+        run: |
+          sudo apt-get install -y ./build/cpu-reader_*.deb
+          cpu-reader --version
+          cpu-reader --help
+      - name: Upload Debian package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-reader-deb
+          path: build/cpu-reader_*.deb
+          if-no-files-found: error
+          retention-days: 14
