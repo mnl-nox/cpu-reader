@@ -14,7 +14,7 @@ No Debian/Ubuntu:
 
 ```sh
 sudo apt update
-sudo apt install -y git build-essential gcc clang make cppcheck libncurses-dev pkg-config libgtk-4-dev dpkg-dev desktop-file-utils
+sudo apt install -y git build-essential gcc clang make cppcheck libncurses-dev pkg-config libgtk-4-dev dpkg-dev desktop-file-utils xvfb
 ```
 
 ## Primeiro teste (clone limpo)
@@ -76,6 +76,7 @@ Pull requests executam a validação do projeto. Para o fluxo de tags e criaçã
 make clean
 make test
 make test-gtk
+make test-gtk-ui
 make package-deb
 desktop-file-validate packaging/debian/cpu-reader.desktop
 dpkg-deb --info build/cpu-reader_*.deb
@@ -83,6 +84,7 @@ dpkg-deb --contents build/cpu-reader_*.deb
 sudo apt install ./build/cpu-reader_*.deb
 cpu-reader --version
 cpu-reader --help
+sh tests/test_gtk_ui.sh cpu-reader
 ~~~
 
 O smoke test não exige servidor gráfico. A validação visual da janela GTK4 deve
