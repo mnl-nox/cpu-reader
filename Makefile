@@ -18,7 +18,7 @@ PACKAGE_VERSION ?= 0.1.0+git$(shell git rev-parse --short HEAD 2>/dev/null || ec
 DEB_PACKAGE = build/cpu-reader_$(PACKAGE_VERSION)_$(DEB_ARCH).deb
 DEB_ROOT = build/deb-root
 
-.PHONY: all core monitor gtk-monitor test test-gtk package-deb test-portable test-sanitize test-security \
+.PHONY: all core monitor gtk-monitor test test-gtk test-gtk-ui package-deb test-portable test-sanitize test-security \
 	telemetry benchmark clean
 
 all: core monitor
@@ -34,6 +34,9 @@ gtk-monitor: $(GTK_APP)
 
 test-gtk: $(GTK_APP)
 	sh tests/test_gtk_app.sh $(GTK_APP)
+
+test-gtk-ui: $(GTK_APP)
+	sh tests/test_gtk_ui.sh $(GTK_APP)
 
 package-deb: $(DEB_PACKAGE)
 
