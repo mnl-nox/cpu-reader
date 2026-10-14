@@ -51,7 +51,7 @@ $(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/c
 	install -Dm644 packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml $(DEB_ROOT)/usr/share/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml
 	install -Dm644 README.md $(DEB_ROOT)/usr/share/doc/cpu-reader/README.md
 	install -Dm644 LICENSE $(DEB_ROOT)/usr/share/doc/cpu-reader/copyright
-	printf '%s\\n' \
+	printf '%s\n' \
 		'Package: cpu-reader' \
 		'Version: $(PACKAGE_VERSION)' \
 		'Section: utils' \
