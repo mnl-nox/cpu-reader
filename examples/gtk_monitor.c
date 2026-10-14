@@ -42,9 +42,16 @@ static GtkWidget *card(const char *title, GtkWidget *value) {
 static void update_dashboard(Dashboard *d) {
     cpu_info_t *info = cpu_get_info();
     float usage = cpu_get_usage();
-    float temperature = cpu_get_temperature();
-    float frequency = cpu_get_clock_speed();
+    char usage_error[256] = "";
+    float temperature;
+    float frequency;
     char text[320];
+
+    if (usage < 0.0f) {
+        snprintf(usage_error, sizeof(usage_error), "%s", cpu_get_last_error());
+    }
+    temperature = cpu_get_temperature();
+    frequency = cpu_get_clock_speed();
 
     if (info != NULL) {
         set_value(d->model, info->model[0] ? info->model : "Modelo indisponível");
@@ -80,7 +87,7 @@ static void update_dashboard(Dashboard *d) {
     else snprintf(text, sizeof(text), "Indisponível");
     set_value(d->frequency, text);
     if (usage < 0.0f) {
-        snprintf(text, sizeof(text), "Uso da CPU indisponível: %s", cpu_get_last_error());
+        snprintf(text, sizeof(text), "Uso da CPU indisponível: %s", usage_error);
         set_value(d->status, text);
     } else {
         set_value(d->status, "Atualização automática a cada segundo · dados fornecidos pelo kernel Linux");
