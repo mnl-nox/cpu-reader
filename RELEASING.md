@@ -22,7 +22,7 @@ make test-security
 cppcheck --enable=warning,style,performance,portability --error-exitcode=1 --inline-suppr --std=c99 -Iinclude src tests examples bench
 ```
 
-The GitHub Actions release workflow repeats the functional tests, sanitizers, hardening build, and static analysis. A GitHub Release is published only after those checks pass for a pushed `v*.*.*` tag.
+The GitHub Actions release workflow repeats the functional tests, sanitizers, hardening build, and static analysis. A GitHub Release is published only after those checks pass for a pushed `v*.*.*` tag. A CI `.deb` artifact and a GitHub Pages website deployment are separate from a versioned software release. The website workflow deploys `site/` from `main` when Pages is enabled.
 
 ## Release procedure
 

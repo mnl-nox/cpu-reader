@@ -5,9 +5,11 @@ módulo de telemetria.
 
 ## Componentes
 
+A arquitetura inclui três produtos distintos: biblioteca C, monitor ncurses e monitor desktop GTK4. O pacote Debian e o site são camadas de distribuição/documentação; não fazem parte do núcleo da biblioteca.
+
 ```mermaid
 flowchart TD
-    APP[Aplicação consumidora / monitor ncurses]
+    APP[Aplicação consumidora / monitor ncurses / frontend GTK4]
     API[include/cpu.h — API pública]
     FACADE[src/cpu.c — wrappers, parsing comum e estado legado por thread]
     INFO[src/cpu_info.c — modelo e topologia]
