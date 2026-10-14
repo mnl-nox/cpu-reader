@@ -86,6 +86,45 @@ cleanup:
   return result;
 }
 
+
+static int test_non_cpu_sensor_is_not_reported_as_cpu_temperature(void) {
+  char root[] = "/tmp/cpu-reader-thermal-noncpu-XXXXXX";
+  float temperature;
+  int result = -1;
+
+  if (mkdtemp(root) == NULL) {
+    perror("mkdtemp non-CPU thermal root");
+    return -1;
+  }
+  if (make_zone(root, "thermal_zone0", "acpitz\\n", "33000\\n") != 0) {
+    goto cleanup;
+  }
+
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  setenv("CPU_READER_THERMAL_PATH", root, 1);
+  temperature = cpu_get_temperature();
+  unsetenv("CPU_READER_THERMAL_PATH");
+  if (temperature != -1.0f ||
+      cpu_get_last_error_code() != CPU_ERROR_UNSUPPORTED) {
+    fprintf(stderr, "non-CPU thermal zone must not be reported as CPU temperature\\n");
+    goto cleanup;
+  }
+  result = 0;
+
+cleanup:
+  {
+    char path[512];
+    snprintf(path, sizeof(path), "%s/thermal_zone0/type", root);
+    unlink(path);
+    snprintf(path, sizeof(path), "%s/thermal_zone0/temp", root);
+    unlink(path);
+    snprintf(path, sizeof(path), "%s/thermal_zone0", root);
+    rmdir(path);
+  }
+  rmdir(root);
+  return result;
+}
+
 static int test_unreadable_cpuinfo_file(void) {
   char path[] = "/tmp/cpu-reader-unreadable-XXXXXX";
   int fd = mkstemp(path);
@@ -396,6 +435,7 @@ static int test_error_state_is_thread_local(void) {
 
 int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
+      test_non_cpu_sensor_is_not_reported_as_cpu_temperature() != 0 ||
       test_unreadable_cpuinfo_file() != 0 ||
       test_missing_thermal_sysfs_root() != 0 ||
       test_invalid_cpu_sensor_is_not_masked_by_fallback() != 0 ||
