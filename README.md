@@ -198,3 +198,45 @@ Execute `make benchmark` para medir o custo local de `cpu_get_info()` e `cpu_get
 ## Licença
 
 MIT. Consulte [LICENSE](LICENSE).
+
+
+## Aplicativo desktop GTK4 e pacote Debian
+
+O projeto inclui um frontend GTK4 em C que exibe uso total da CPU, topologia
+(núcleos físicos e processadores lógicos), temperatura disponível e frequência
+atual. As métricas são consultadas localmente e atualizadas a cada segundo;
+sensores indisponíveis são apresentados como tal.
+
+Dependências de compilação no Debian/Ubuntu:
+
+~~~sh
+sudo apt update
+sudo apt install -y build-essential pkg-config libgtk-4-dev dpkg-dev desktop-file-utils
+~~~
+
+Compilar e executar a interface:
+
+~~~sh
+make gtk-monitor
+./build/cpu-reader-gtk
+~~~
+
+Gerar um pacote instalável para a arquitetura atual:
+
+~~~sh
+make package-deb
+sudo apt install ./build/cpu-reader_*.deb
+cpu-reader
+~~~
+
+Remover o aplicativo:
+
+~~~sh
+sudo apt remove cpu-reader
+~~~
+
+O pacote inclui o executável, entrada no menu de aplicativos, ícone SVG,
+metadados AppStream e documentação. A CI executa testes da biblioteca, um smoke
+test de CLI, valida o pacote e testa sua instalação. O artefato .deb fica
+disponível como artefato temporário do workflow por 14 dias; nenhuma release ou
+tag é publicada automaticamente por esse job.
