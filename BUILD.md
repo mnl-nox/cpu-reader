@@ -18,6 +18,7 @@ make core  # compila apenas libcpu.a
 make monitor
 make gtk-monitor # compila o frontend GTK4
 make test-gtk # smoke test de --version e --help
+make test-gtk-ui # testa inicialização da janela via Xvfb
 make package-deb # gera um .deb para a arquitetura atual
 make test  # compila e executa os testes
 make test-portable # testa o fallback C sem assembly x86_64
