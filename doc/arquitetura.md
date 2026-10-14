@@ -3,8 +3,8 @@
 ## Objetivo e limites
 
 CPU Reader é uma biblioteca C99 para Linux que lê métricas do sistema em
-`/proc` e `sysfs`, além de um monitor opcional em ncurses. O núcleo não depende
-de ncurses nem de bibliotecas de terceiros. O projeto usa extensões de
+`/proc` e `sysfs`, além de um monitor opcional em ncurses e uma interface desktop GTK4. O núcleo não depende
+de ncurses, GTK4 nem de bibliotecas de interface. O projeto usa extensões de
 armazenamento local à thread de GCC/Clang para manter compatibilidade com a API
 legada enquanto permanece compilável em modo C99.
 
@@ -24,8 +24,11 @@ legada enquanto permanece compilável em modo C99.
 - **Uso — `src/cpu_usage.c`:** lê os oito primeiros contadores agregados da
   linha `cpu` em `/proc/stat`, valida todos os tokens adicionais e calcula o
   delta entre amostras por contexto.
-- **Aplicação — `examples/monitor.c`:** interface ncurses; consome a API pública
+- **Frontend terminal — `examples/monitor.c`:** interface ncurses; consome a API pública
   e libera cada snapshot.
+- **Frontend desktop — `examples/gtk_monitor.c`:** dashboard GTK4 que atualiza as métricas periodicamente.
+- **Pacote Debian — `packaging/` e alvo `make package-deb`:** executável, launcher, ícone e metadados AppStream.
+- **Site e manual — `site/` e `wiki/`:** guia de instalação, tutorial ilustrado e referência técnica.
 - **Validação — `tests/` e `bench/`:** fixtures determinísticas, testes de
   concorrência/portabilidade e microbenchmark informativo.
 

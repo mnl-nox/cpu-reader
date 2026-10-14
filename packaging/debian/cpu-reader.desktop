@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=CPU Reader
+GenericName=Monitor de CPU
+Comment=Monitore uso, topologia, temperatura e frequência da CPU
+Exec=cpu-reader
+Icon=cpu-reader
+Terminal=false
+Categories=System;Monitor;Utility;
+StartupNotify=true

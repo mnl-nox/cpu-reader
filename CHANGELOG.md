@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+- GTK4 desktop monitor with periodic CPU metrics refresh and Debian package target.
+- Versioned project wiki with installation, tutorial, API, architecture, metrics, testing and troubleshooting guides.
+- Minimal responsive project website with installation tutorial and an illustrative dashboard preview.
+- GitHub Pages workflow for deployment of the static site.
+
+### Removed
+- Tracked generated library binary `libcpu.a`; the build recreates it locally.
+- Redundant legacy software requirements specification consolidated into functional and non-functional requirements.
+
+
 ### Changed
 - Reorganized the repository documentation to match the current file structure
 - Added dedicated build and validation guides at the repository root

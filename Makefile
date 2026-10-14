@@ -10,8 +10,15 @@ LIBRARY = libcpu.a
 CORE_OBJECT = build/cpu.o
 CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usage.o
 MONITOR = build/cpu-monitor
+GTK_APP = build/cpu-reader-gtk
+GTK_CFLAGS = $(shell pkg-config --cflags gtk4)
+GTK_LIBS = $(shell pkg-config --libs gtk4)
+DEB_ARCH ?= $(shell dpkg --print-architecture)
+PACKAGE_VERSION ?= 0.1.0+git$(shell git rev-parse --short HEAD 2>/dev/null || echo local)
+DEB_PACKAGE = build/cpu-reader_$(PACKAGE_VERSION)_$(DEB_ARCH).deb
+DEB_ROOT = build/deb-root
 
-.PHONY: all core monitor test test-portable test-sanitize test-security \
+.PHONY: all core monitor gtk-monitor test test-gtk test-gtk-ui package-deb test-portable test-sanitize test-security \
 	telemetry benchmark clean
 
 all: core monitor
@@ -22,6 +29,45 @@ $(LIBRARY): $(CORE_OBJECTS)
 	ar rcs $@ $^
 
 monitor: $(MONITOR)
+
+gtk-monitor: $(GTK_APP)
+
+test-gtk: $(GTK_APP)
+	sh tests/test_gtk_app.sh $(GTK_APP)
+
+test-gtk-ui: $(GTK_APP)
+	sh tests/test_gtk_ui.sh $(GTK_APP)
+
+package-deb: $(DEB_PACKAGE)
+
+$(GTK_APP): examples/gtk_monitor.c $(LIBRARY)
+	@pkg-config --exists gtk4 || { echo "GTK4 development files missing; install libgtk-4-dev and pkg-config." >&2; exit 1; }
+	@mkdir -p build
+	$(CC) $(CFLAGS) $(GTK_CFLAGS) -DAPP_VERSION=\"$(PACKAGE_VERSION)\" -o $@ $< -L. -lcpu $(GTK_LIBS) $(LDFLAGS)
+
+$(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/cpu-reader.svg packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml README.md LICENSE
+	@command -v dpkg-deb >/dev/null || { echo "dpkg-deb is required to build Debian packages." >&2; exit 1; }
+	rm -rf $(DEB_ROOT)
+	install -Dm755 $(GTK_APP) $(DEB_ROOT)/usr/bin/cpu-reader
+	install -Dm644 packaging/debian/cpu-reader.desktop $(DEB_ROOT)/usr/share/applications/cpu-reader.desktop
+	install -Dm644 packaging/icons/cpu-reader.svg $(DEB_ROOT)/usr/share/icons/hicolor/scalable/apps/cpu-reader.svg
+	install -Dm644 packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml $(DEB_ROOT)/usr/share/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml
+	install -Dm644 README.md $(DEB_ROOT)/usr/share/doc/cpu-reader/README.md
+	install -Dm644 LICENSE $(DEB_ROOT)/usr/share/doc/cpu-reader/copyright
+	printf '%s\n' \
+		'Package: cpu-reader' \
+		'Version: $(PACKAGE_VERSION)' \
+		'Section: utils' \
+		'Priority: optional' \
+		'Architecture: $(DEB_ARCH)' \
+		'Maintainer: CPU Reader contributors <maintainers@users.noreply.github.com>' \
+		'Depends: libgtk-4-1, libglib2.0-0 | libglib2.0-0t64, libc6' \
+		'Description: GTK4 desktop CPU monitor for Linux' \
+		' CPU usage, CPU topology, temperature and current frequency dashboard.' \
+		> $(DEB_ROOT)/DEBIAN-control
+	mkdir -p $(DEB_ROOT)/DEBIAN
+	mv $(DEB_ROOT)/DEBIAN-control $(DEB_ROOT)/DEBIAN/control
+	dpkg-deb --root-owner-group --build $(DEB_ROOT) $(DEB_PACKAGE)
 
 $(MONITOR): examples/monitor.c $(LIBRARY)
 	@mkdir -p build

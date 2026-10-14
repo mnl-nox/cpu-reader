@@ -1,49 +1,30 @@
-# Índice de Documentação - CPU Reader
+# Índice da documentação técnica
 
-Este diretório reúne a documentação técnica consolidada do projeto.
+A documentação é organizada por tarefa: instalação, uso, arquitetura, requisitos e processo de desenvolvimento.
 
-## Comece aqui
+## Comece por aqui
 
-- [../README.md](../README.md) - visão geral do projeto, build e uso
-- [../BUILD.md](../BUILD.md) - instruções de compilação
-- [../VALIDATION.md](../VALIDATION.md) - guia de validação
-- [../SECURITY.md](../SECURITY.md) - controles de segurança e relato
+- [README do projeto](../README.md) — resumo, compilação e API.
+- [Guia de build](../BUILD.md) — dependências e comandos Make.
+- [Guia de validação](../VALIDATION.md) — testes locais e critérios de aceitação.
+- [Wiki](../wiki/Home.md) — manual completo e tutoriais.
+- [Site](../site/index.html) — página introdutória com tutorial ilustrado.
 
-## Requisitos e especificação
+## Especificação técnica
 
-- [requerimentos.md](requerimentos.md) - requisitos funcionais implementados e planejados
-- [requisitos-nao-funcionais.md](requisitos-nao-funcionais.md) - requisitos não funcionais
-- [software-requirements-specification.md](software-requirements-specification.md) - SRS formal
+- [Arquitetura](arquitetura.md)
+- [Requisitos funcionais](requerimentos.md)
+- [Requisitos não funcionais](requisitos-nao-funcionais.md)
+- [Registros de decisões arquiteturais (ADRs)](architecture-decision-records.md)
+- [Diagramas UML](uml-diagrams.md)
 
-## Arquitetura e design
+## Operação e contribuição
 
-- [arquitetura.md](arquitetura.md) - visão arquitetural do núcleo e do monitor
-- [architecture-decision-records.md](architecture-decision-records.md) - ADRs formalizadas
-- [uml-diagrams.md](uml-diagrams.md) - diagramas UML em Mermaid
+- [Segurança](../SECURITY.md)
+- [Política de release](../RELEASING.md)
+- [Histórico de alterações](../CHANGELOG.md)
+- [Como contribuir](../wiki/Contributing.md)
 
-## Referência histórica
+## Fonte de verdade
 
-- [requerimentos.md](requerimentos.md) - documentação funcional consolidada
-- [arquitetura.md](arquitetura.md) - documentação arquitetural consolidada
-
-## Estrutura atual da documentação
-
-```text
-README.md
-BUILD.md
-VALIDATION.md
-doc/
-  README.md
-  arquitetura.md
-  architecture-decision-records.md
-
-  requerimentos.md
-  requisitos-nao-funcionais.md
-  software-requirements-specification.md
-  uml-diagrams.md
-```
-
-## Observação
-
-O escopo Beta atual é Linux. A CI valida x86_64 e aarch64/arm64. ARMv7 é um
-alvo pretendido pelo fallback C, mas ainda não tem runtime dedicado validado.
+O código em <code>include/</code> e <code>src/</code>, os testes em <code>tests/</code> e o Makefile são a referência para o comportamento implementado. Documentos antigos de especificação que repetiam requisitos foram consolidados no documento de requisitos funcionais e no documento de requisitos não funcionais. Recursos planejados não devem ser descritos como já disponíveis.

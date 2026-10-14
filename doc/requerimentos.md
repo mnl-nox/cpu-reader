@@ -46,7 +46,7 @@ Quando `CPU_READER_PROC_STAT_PATH` estiver definida, `cpu_get_usage()` e `cpu_ge
 
 ### RF-006: Relatório de falhas
 
-Após uma operação que falhar, a aplicação deve poder consultar `cpu_get_last_error_code()` e `cpu_get_last_error()` para obter, respectivamente, a categoria e uma mensagem descritiva. Uma chamada bem-sucedida limpa o relatório. O relatório é global e não possui garantia de segurança para múltiplas threads.
+Após uma operação que falhar, a aplicação pode consultar `cpu_get_last_error_code()` e `cpu_get_last_error()` para obter a categoria e a mensagem. Esse relatório legado é mantido por thread em GCC/Clang. As variantes `*_ex` recebem um `cpu_error_info_t` pertencente ao chamador e fornecem um snapshot estável por operação.
 
 ### RF-007: Temperatura da CPU
 
@@ -60,15 +60,22 @@ Após uma operação que falhar, a aplicação deve poder consultar `cpu_get_las
 
 `cpu_get_active_processes()` deve retornar a contagem de processos em execução a partir de `/proc/loadavg`. Em falha, retorna `-1`.
 
-### RF-010: Soma otimizada dos contadores de uso
+### RF-010: Cálculo portátil dos contadores de uso
 
-Em `x86_64` compilado com GCC ou Clang, a soma dos oito contadores da linha `cpu` de `/proc/stat` deve usar assembly inline. Em outras arquiteturas ou compiladores, o mesmo cálculo deve usar a implementação C equivalente.
+O cálculo dos deltas dos contadores da linha agregada `cpu` em `/proc/stat` deve usar a implementação C portátil. A versão atual não depende de assembly inline e pode ser compilada em arquiteturas suportadas pelo ambiente Linux e pelo compilador.
+
+### RF-011: Monitor desktop GTK4
+
+A aplicação desktop deve apresentar uso agregado, modelo da CPU, topologia, processos em execução, temperatura e frequência quando disponíveis. A interface atualiza periodicamente e indica explicitamente métricas indisponíveis.
+
+### RF-012: Empacotamento Debian
+
+O alvo `make package-deb` deve gerar um pacote para a arquitetura de build, declarar as dependências de runtime e instalar o executável, launcher desktop, ícone e metadados AppStream.
 
 ## Recursos planejados
 
 - métricas individuais por núcleo;
-- sincronização automática para chamadas concorrentes no mesmo contexto;
-- instalação da biblioteca e documentação de API mais extensa.
+- sincronização automática para chamadas concorrentes no mesmo contexto.
 
 ## Requerimentos não funcionais
 

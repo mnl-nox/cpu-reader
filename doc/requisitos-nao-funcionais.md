@@ -8,7 +8,7 @@
 
 - Compilação sem erros com `gcc -std=c99 -Wall -Wextra -Wpedantic`
 - Compilação sem erros com `clang -std=c99 -Wall -Wextra -Wpedantic`
-- Sem uso de extensões C11, C17 ou propriedades de compilador específicas (exceto inline assembly controlado)
+- Sem dependência de recursos posteriores ao C99 no núcleo
 
 **Prioridade:** ALTA | **Status:** Implementado
 
@@ -32,13 +32,13 @@
 
 ## RNF-003: Sem dependências externas no núcleo
 
-**Descrição:** O núcleo da biblioteca (`libcpu.a`) deve depender apenas de libc. Ncurses é opcional, apenas para a aplicação de exemplo.
+**Descrição:** O núcleo da biblioteca (`libcpu.a`) deve depender apenas de libc. Ncurses é opcional para o monitor de terminal; GTK4 é opcional para o frontend desktop.
 
 **Critérios de Aceitação:**
 
 - Compilação sem dependências de ncurses, ncursesw ou bibliotecas gráficas
 - Todas as funções de leitura usam apenas chamadas POSIX
-- O monitor é um consumidor separado da API
+- Os monitores de terminal e desktop são consumidores separados da API
 
 **Prioridade:** ALTA | **Status:** Implementado
 
@@ -50,11 +50,11 @@
 
 **Critérios de Aceitação:**
 
-- Fallback C funcionando para arquiteturas que não têm assembly inline
+- Implementação C portátil compilável nas arquiteturas suportadas pelo toolchain
 - Testes passando em pelo menos x86_64 e arm64
 - Sem suposições sobre endianness ou tamanho de tipos
 
-**Prioridade:** MÉDIA | **Status:** ️ Parcialmente implementado (x86_64 otimizado, fallback em outras)
+**Prioridade:** MÉDIA | **Status:** Implementado com caminho C portátil; x86_64 e arm64 testados em CI, ARMv7 sob QEMU
 
 ---
 
@@ -80,11 +80,11 @@
 **Critérios de Aceitação:**
 
 - Sem erros detectáveis por AddressSanitizer
-- Sem erros detectáveis por Valgrind
+- Sanitizers executados na CI; Valgrind não é critério obrigatório atual
 - Buffers de tamanho fixo (`model[256]`, `flags[512]`) com parsing defensivo
 - Testes com `-fsanitize=address -fsanitize=undefined`
 
-**Prioridade:** ALTA | **Status:** ️ Implementado, sem CI formalmente configurada
+**Prioridade:** ALTA | **Status:** Sanitizers integrados à CI
 
 ---
 
@@ -95,7 +95,7 @@
 **Critérios de Aceitação:**
 
 - Valores de retorno bem definidos: `NULL`, `-1.0f` ou `-1` conforme o tipo
-- Sistema de erro global (`cpu_get_last_error_code()` e `cpu_get_last_error()`)
+- Relatório legado por thread e variantes `*_ex` com snapshot pertencente ao chamador
 - Mensagens de erro descritivas em inglês
 
 **Prioridade:** ALTA | **Status:** Implementado
@@ -123,7 +123,7 @@
 **Critérios de Aceitação:**
 
 - README com instruções de compilação e uso
-- Exemplos em `examples/monitor.c`
+- Exemplos em `examples/monitor.c` e `examples/gtk_monitor.c`; documentação de instalação, tutorial e site
 - Testes ilustrando cada função em `tests/test_cpu.c`
 - Comentários em funções públicas
 - Documentação de design em `doc/`
@@ -142,7 +142,7 @@
 - Teste básico executável com `make test`
 - Cobertura de testes > 80% (aspiração)
 
-**Prioridade:** MÉDIA | **Status:** Implementado (cobertura ainda a medir)
+**Prioridade:** MÉDIA | **Status:** Testes integrados à CI; cobertura percentual ainda não medida
 
 ---
 
@@ -157,7 +157,7 @@
 - Commits `fix`, `bugfix`, `refactor` incrementam PATCH
 - Primeiro release é `v0.1.0`
 
-**Prioridade:** MÉDIA | **Status:** Implementado (primeiro release `v0.0.0` em breve)
+**Prioridade:** MÉDIA | **Status:** Processo documentado em `RELEASING.md`; releases só após aprovação de CI
 
 ---
 
