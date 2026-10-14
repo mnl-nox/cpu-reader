@@ -54,7 +54,7 @@
 - Testes passando em pelo menos x86_64 e arm64
 - Sem suposições sobre endianness ou tamanho de tipos
 
-**Prioridade:** MÉDIA | **Status:** ️ Parcialmente implementado (x86_64 otimizado, fallback em outras)
+**Prioridade:** MÉDIA | **Status:** Implementado com caminho C portátil; x86_64 e arm64 testados em CI, ARMv7 sob QEMU
 
 ---
 
@@ -84,7 +84,7 @@
 - Buffers de tamanho fixo (`model[256]`, `flags[512]`) com parsing defensivo
 - Testes com `-fsanitize=address -fsanitize=undefined`
 
-**Prioridade:** ALTA | **Status:** ️ Implementado, sem CI formalmente configurada
+**Prioridade:** ALTA | **Status:** Sanitizers integrados à CI
 
 ---
 
@@ -142,7 +142,7 @@
 - Teste básico executável com `make test`
 - Cobertura de testes > 80% (aspiração)
 
-**Prioridade:** MÉDIA | **Status:** Implementado (cobertura ainda a medir)
+**Prioridade:** MÉDIA | **Status:** Testes integrados à CI; cobertura percentual ainda não medida
 
 ---
 

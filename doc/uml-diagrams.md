@@ -16,12 +16,16 @@ flowchart TD
     TELEMETRY[src/cpu_telemetry.c — temperatura, clock e loadavg]
     USAGE[src/cpu_usage.c — deltas de /proc/stat]
     INTERNAL[src/cpu_internal.h — contratos internos]
+    GTK[examples/gtk_monitor.c — interface GTK4]
+    TERM[examples/monitor.c — interface ncurses]
     PROCINFO[/proc/cpuinfo]
     PROCSTAT[/proc/stat]
     LOADAVG[/proc/loadavg]
     SYSFS[sysfs — thermal e cpufreq]
 
     APP --> API
+    GTK --> API
+    TERM --> API
     API --> FACADE
     FACADE --> INFO
     FACADE --> TELEMETRY
