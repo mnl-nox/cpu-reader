@@ -17,9 +17,9 @@ Biblioteca C99 para consultar informações da CPU em Linux, incluindo uso agreg
 processos ativos, temperatura e velocidade de clock. O repositório também inclui
 um monitor de terminal baseado em ncurses como exemplo de consumo da API.
 
-> Biblioteca Beta pronta para uso em Linux, com testes funcionais, validação
-> portátil, sanitizers, hardening, análise estática e execução reproduzível com
-> Docker Compose.
+> Biblioteca em estágio Beta. Execute a matriz de validação antes de integrar
+> em aplicações críticas; sensores e topologia dependem das interfaces expostas
+> pelo kernel e pela plataforma.
 
 ## Visão geral
 
@@ -137,6 +137,7 @@ As variáveis abaixo permitem redirecionar leituras sem recompilar:
 
 - [BUILD.md](BUILD.md) - instruções de compilação
 - [VALIDATION.md](VALIDATION.md) - validação e testes
+- [RELEASING.md](RELEASING.md) - versionamento, tags e publicação após CI
 - [doc/README.md](doc/README.md) - índice da documentação técnica
 - [doc/arquitetura.md](doc/arquitetura.md) - visão arquitetural
 - [doc/requerimentos.md](doc/requerimentos.md) - requisitos funcionais
@@ -167,8 +168,7 @@ para fora do ambiente.
 
 ## Status
 
-`v1.0.0-beta.1`: biblioteca Beta pronta para uso em Linux, com suporte ao
-fallback C portátil e testes automatizados da API pública.
+`v1.0.0-beta.1`: versão Beta existente. Uma nova versão não deve ser marcada como validada até que os testes obrigatórios e a análise estática passem no CI. Consulte [RELEASING.md](RELEASING.md).
 
 ## Semântica das métricas
 
