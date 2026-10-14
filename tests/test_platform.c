@@ -96,7 +96,7 @@ static int test_non_cpu_sensor_is_not_reported_as_cpu_temperature(void) {
     perror("mkdtemp non-CPU thermal root");
     return -1;
   }
-  if (make_zone(root, "thermal_zone0", "acpitz\\n", "33000\\n") != 0) {
+  if (make_zone(root, "thermal_zone0", "acpitz\n", "33000\n") != 0) {
     goto cleanup;
   }
 
@@ -106,7 +106,7 @@ static int test_non_cpu_sensor_is_not_reported_as_cpu_temperature(void) {
   unsetenv("CPU_READER_THERMAL_PATH");
   if (temperature != -1.0f ||
       cpu_get_last_error_code() != CPU_ERROR_UNSUPPORTED) {
-    fprintf(stderr, "non-CPU thermal zone must not be reported as CPU temperature\\n");
+    fprintf(stderr, "non-CPU thermal zone must not be reported as CPU temperature\n");
     goto cleanup;
   }
   result = 0;
