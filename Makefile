@@ -11,6 +11,8 @@ CORE_OBJECT = build/cpu.o
 CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usage.o
 MONITOR = build/cpu-monitor
 GTK_APP = build/cpu-reader-gtk
+GTK_CFLAGS = $(shell pkg-config --cflags gtk4)
+GTK_LIBS = $(shell pkg-config --libs gtk4)
 DEB_ARCH ?= $(shell dpkg --print-architecture)
 PACKAGE_VERSION ?= 0.1.0+git$(shell git rev-parse --short HEAD 2>/dev/null || echo local)
 DEB_PACKAGE = build/cpu-reader_$(PACKAGE_VERSION)_$(DEB_ARCH).deb
@@ -38,7 +40,7 @@ package-deb: $(DEB_PACKAGE)
 $(GTK_APP): examples/gtk_monitor.c $(LIBRARY)
 	@pkg-config --exists gtk4 || { echo "GTK4 development files missing; install libgtk-4-dev and pkg-config." >&2; exit 1; }
 	@mkdir -p build
-	$(CC) $(CFLAGS) $(pkg-config --cflags gtk4) -DAPP_VERSION='\\"$(PACKAGE_VERSION)\\"' -o $@ $< -L. -lcpu $(pkg-config --libs gtk4) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(GTK_CFLAGS) -DAPP_VERSION=\"$(PACKAGE_VERSION)\" -o $@ $< -L. -lcpu $(GTK_LIBS) $(LDFLAGS)
 
 $(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/cpu-reader.svg packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml README.md LICENSE
 	@command -v dpkg-deb >/dev/null || { echo "dpkg-deb is required to build Debian packages." >&2; exit 1; }
