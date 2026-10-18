@@ -27,7 +27,7 @@ sudo apt install -y dpkg-dev desktop-file-utils xvfb  # pacote e smoke tests
 | <code>make core</code> | Compila somente a biblioteca estática |
 | <code>make monitor</code> | Compila o monitor ncurses |
 | <code>make gtk-monitor</code> | Compila a aplicação GTK4 |
-| <code>make test</code> | Executa os testes funcionais e de plataforma |
+| <code>make test</code> | Executa os testes funcionais, de plataforma, diagnóstico e concorrência |\n| <code>make test-diagnostics</code> | Testa status e valores do relatório de diagnóstico |
 | <code>make test-gtk</code> | Verifica <code>--version</code> e <code>--help</code> |
 | <code>make test-gtk-ui</code> | Verifica a inicialização da janela via Xvfb |
 | <code>make test-sanitize</code> | Executa os testes com ASan e UBSan |
@@ -46,7 +46,7 @@ make core
 make test
 ~~~
 
-A saída da biblioteca é <code>libcpu.a</code>. Para compilar uma aplicação que use a API pública, inclua <code>include/cpu.h</code> e vincule a biblioteca estática. Consulte [wiki/API.md](wiki/API.md).
+A saída da biblioteca é <code>libcpu.a</code>. Para compilar uma aplicação que use a API pública, inclua <code>include/cpu.h</code> e vincule a biblioteca estática. Consulte [wiki/API.md](wiki/API.md) e [wiki/Diagnostic-API.md](wiki/Diagnostic-API.md).
 
 ## Interface de terminal
 
