@@ -45,10 +45,16 @@ $(GTK_APP): examples/gtk_monitor.c $(LIBRARY)
 	@mkdir -p build
 	$(CC) $(CFLAGS) $(GTK_CFLAGS) -DAPP_VERSION=\"$(PACKAGE_VERSION)\" -o $@ $< -L. -lcpu $(GTK_LIBS) $(LDFLAGS)
 
-$(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/cpu-reader.svg packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml README.md LICENSE
+$(DEB_PACKAGE): $(GTK_APP) libcpu.a include/cpu.h include/cpu_diagnostics.h packaging/cpu-reader.pc.in packaging/debian/cpu-reader.desktop packaging/icons/cpu-reader.svg packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml README.md LICENSE
 	@command -v dpkg-deb >/dev/null || { echo "dpkg-deb is required to build Debian packages." >&2; exit 1; }
 	rm -rf $(DEB_ROOT)
 	install -Dm755 $(GTK_APP) $(DEB_ROOT)/usr/bin/cpu-reader
+	install -Dm644 libcpu.a $(DEB_ROOT)/usr/lib/$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)/libcpu.a
+	install -Dm644 include/cpu.h $(DEB_ROOT)/usr/include/cpu-reader/cpu.h
+	install -Dm644 include/cpu_diagnostics.h $(DEB_ROOT)/usr/include/cpu-reader/cpu_diagnostics.h
+	install -Dm644 packaging/cpu-reader.pc.in $(DEB_ROOT)/usr/lib/$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig/cpu-reader.pc.in
+	sed -e 's|@VERSION@|$(PACKAGE_VERSION)|g' -e 's|@MULTIARCH@|$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)|g' $(DEB_ROOT)/usr/lib/$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig/cpu-reader.pc.in > $(DEB_ROOT)/usr/lib/$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig/cpu-reader.pc
+	rm $(DEB_ROOT)/usr/lib/$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig/cpu-reader.pc.in
 	install -Dm644 packaging/debian/cpu-reader.desktop $(DEB_ROOT)/usr/share/applications/cpu-reader.desktop
 	install -Dm644 packaging/icons/cpu-reader.svg $(DEB_ROOT)/usr/share/icons/hicolor/scalable/apps/cpu-reader.svg
 	install -Dm644 packaging/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml $(DEB_ROOT)/usr/share/metainfo/io.github.mnl_nox.CPUReader.metainfo.xml
@@ -62,8 +68,8 @@ $(DEB_PACKAGE): $(GTK_APP) packaging/debian/cpu-reader.desktop packaging/icons/c
 		'Architecture: $(DEB_ARCH)' \
 		'Maintainer: CPU Reader contributors <maintainers@users.noreply.github.com>' \
 		'Depends: libgtk-4-1, libglib2.0-0 | libglib2.0-0t64, libc6' \
-		'Description: GTK4 desktop CPU monitor for Linux' \
-		' CPU usage, CPU topology, temperature and current frequency dashboard.' \
+		'Description: Linux CPU monitor and development library' \
+		' GTK4 monitor plus a static C library for Linux CPU telemetry and diagnostics.' \
 		> $(DEB_ROOT)/DEBIAN-control
 	mkdir -p $(DEB_ROOT)/DEBIAN
 	mv $(DEB_ROOT)/DEBIAN-control $(DEB_ROOT)/DEBIAN/control
