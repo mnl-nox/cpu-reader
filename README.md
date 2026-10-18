@@ -2,7 +2,7 @@
 
 Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um monitor de terminal opcional e uma interface desktop GTK4 empacotável em Debian.
 
-[Documentação completa](doc/README.md) · [Wiki do projeto](wiki/Home.md) · [Site](site/index.html) · [Build](BUILD.md) · [Validação](VALIDATION.md) · [Segurança](SECURITY.md)
+[Matriz de suporte Linux](doc/support-matrix.md) · [Documentação completa](doc/README.md) · [Wiki do projeto](wiki/Home.md) · [Site](site/index.html) · [Build](BUILD.md) · [Validação](VALIDATION.md) · [Segurança](SECURITY.md)
 
 ## O que o projeto faz
 

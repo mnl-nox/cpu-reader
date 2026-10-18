@@ -1,0 +1,52 @@
+name: Linux distribution audit
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: distro-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  distro:
+    name: "${{ matrix.distro }} / core tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu
+            image: ubuntu:24.04
+          - distro: fedora
+            image: fedora:latest
+          - distro: alpine
+            image: alpine:latest
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Install dependencies (Ubuntu)
+        if: matrix.distro == 'ubuntu'
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git gcc make libc6-dev
+      - name: Install dependencies (Fedora)
+        if: matrix.distro == 'fedora'
+        run: |
+          dnf -y install git gcc make glibc-devel
+          dnf clean all
+      - name: Install dependencies (Alpine)
+        if: matrix.distro == 'alpine'
+        run: |
+          apk add --no-cache git build-base linux-headers make
+      - uses: actions/checkout@v4
+      - name: Build and run core tests
+        run: |
+          make clean
+          make test

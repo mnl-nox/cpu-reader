@@ -58,3 +58,9 @@ O teste de UI deve ser executado em ambiente com servidor gráfico ou Xvfb. A in
 O workflow CI valida compilação e testes em mais de uma arquitetura, além do frontend GTK4 e do pacote quando o runner fornece as dependências necessárias. A execução sob QEMU é validação por emulação, não um teste em hardware nativo.
 
 O artefato temporário de Actions não é uma release. Para publicar uma versão, siga [RELEASING.md](RELEASING.md) e confirme que o CI correspondente passou antes de criar uma tag.
+
+## Matriz de suporte por distribuição
+
+Consulte [doc/support-matrix.md](doc/support-matrix.md) para separar ambientes efetivamente executados na CI de ambientes apenas esperados. A matriz não implica suporte certificado a todo kernel, hardware ou variante de distribuição.
+
+O workflow `.github/workflows/distro-audit.yml` executa o núcleo e os testes funcionais em Ubuntu, Fedora e Alpine/musl. Falhas de build/teste devem ser corrigidas ou explicitamente justificadas antes de declarar uma plataforma suportada. Não use apenas o sucesso da compilação como evidência de funcionamento correto.
