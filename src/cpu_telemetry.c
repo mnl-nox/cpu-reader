@@ -281,6 +281,9 @@ static float read_temperature_auto(int report_errors) {
     if (read_first_line(type_path, type, sizeof(type)) == 0) {
       type[strcspn(type, "\r\n")] = '\0';
       is_cpu_sensor = is_cpu_thermal_type(type);
+      if (is_cpu_sensor) {
+        snprintf(last_temperature_type, sizeof(last_temperature_type), "%s", type);
+      }
     }
 
     /* Never report an unrelated thermal zone as CPU temperature. */
@@ -314,6 +317,10 @@ float cpu_read_temperature(int report_errors) {
   float temperature;
 
   last_temperature_source[0] = '\0';
+  last_temperature_type[0] = '\0';
+  if (path != NULL) {
+    snprintf(last_temperature_type, sizeof(last_temperature_type), "%s", "explicit override");
+  }
   temperature = path != NULL ? read_temperature_from_path(path, report_errors)
                              : read_temperature_auto(report_errors);
   if (temperature >= 0.0f && report_errors) {
