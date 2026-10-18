@@ -1,18 +1,174 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f8fa"><meta name="description" content="CPU Reader: biblioteca C99 e monitor de CPU para Linux. Guia de instalação e tutorial ilustrado."><title>CPU Reader — Monitor de CPU para Linux</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"></head>
-<body><header class="topbar"><a class="brand" href="#inicio"><span class="brand-mark">C</span><span>CPU Reader</span></a><button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button><nav id="nav-links" class="nav-links" aria-label="Navegação principal"><a href="#recursos">Recursos</a><a href="#tutorial">Tutorial</a><a href="#instalacao">Instalação</a><a href="#auditoria">Auditoria</a><a href="#documentacao">Documentação</a></nav><a class="nav-cta" href="https://github.com/mnl-nox/cpu-reader" target="_blank" rel="noreferrer">Ver no GitHub ↗</a></header>
-<main><section class="hero section-wrap" id="inicio"><div class="hero-copy"><p class="eyebrow"><span class="status-dot"></span> C99 · Linux · Código aberto</p><h1>Entenda o que a sua CPU está fazendo.</h1><p class="lead">Uma biblioteca C leve e um monitor desktop para acompanhar uso, topologia, temperatura e frequência — quando o sistema disponibiliza essas métricas.</p><div class="hero-actions"><a class="button primary" href="#instalacao">Instalar CPU Reader →</a><a class="button secondary" href="#tutorial">Ver tutorial</a></div><div class="hero-meta"><span>Licença MIT</span><span>·</span><span>Interface GTK4</span><span>·</span><span>Pacote .deb</span></div></div><div class="hero-art"><div class="art-glow"></div><img src="assets/dashboard-preview.svg" alt="Prévia ilustrativa do painel CPU Reader com valores fictícios"><p class="image-note">Prévia ilustrativa · valores demonstrativos, não são leituras reais</p></div></section>
-<section class="feature-strip section-wrap"><div><strong>01</strong><span>Biblioteca C99</span></div><div><strong>02</strong><span>Monitor GTK4</span></div><div><strong>03</strong><span>Instalador Debian</span></div><div><strong>04</strong><span>Testes automatizados</span></div></section>
-<section class="section section-wrap" id="recursos"><div class="section-heading"><p class="eyebrow">FEITO PARA LINUX</p><h2>Métricas úteis, sem esconder as limitações.</h2><p>O CPU Reader lê interfaces do kernel e trata sensores opcionais como opcionais. Quando um dado não existe, ele deve aparecer como indisponível — não como zero.</p></div><div class="feature-grid"><article class="feature-card"><span class="feature-icon">↗</span><h3>Uso agregado</h3><p>Calcula a utilização da CPU comparando amostras sucessivas de <code>/proc/stat</code>.</p></article><article class="feature-card"><span class="feature-icon">▦</span><h3>Topologia</h3><p>Mostra modelo, núcleos físicos identificados e processadores lógicos visíveis ao sistema.</p></article><article class="feature-card"><span class="feature-icon">◉</span><h3>Sensores</h3><p>Consulta temperatura e frequência quando drivers e interfaces do sistema fornecem leituras.</p></article><article class="feature-card"><span class="feature-icon">⌘</span><h3>API em C</h3><p>Integre a biblioteca em aplicações Linux sem adicionar dependência de interface gráfica ao núcleo.</p></article></div></section>
-<section class="tutorial-section" id="tutorial"><div class="section-wrap tutorial-layout"><div class="tutorial-intro"><p class="eyebrow">TUTORIAL RÁPIDO</p><h2>Do clone ao primeiro painel.</h2><p>Compile o pacote, instale-o e abra o monitor. Os comandos são executados no terminal do Debian ou Ubuntu.</p><a class="text-link" href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/Tutorial.md">Abrir tutorial completo ↗</a></div><div class="steps"><article class="step"><span class="step-number">01</span><div><h3>Instale as dependências</h3><pre><code>sudo apt update
-sudo apt install git build-essential pkg-config libgtk-4-dev dpkg-dev</code></pre></div></article><article class="step"><span class="step-number">02</span><div><h3>Baixe o código e gere o pacote</h3><pre><code>git clone https://github.com/mnl-nox/cpu-reader.git
-cd cpu-reader
-make package-deb</code></pre></div></article><article class="step"><span class="step-number">03</span><div><h3>Instale e abra</h3><pre><code>sudo apt install ./build/cpu-reader_*.deb
-cpu-reader</code></pre></div></article><article class="step"><span class="step-number">04</span><div><h3>Valide os comandos</h3><pre><code>cpu-reader --version
-cpu-reader --help
-make test</code></pre></div></article></div></div></section>
-<section class="section section-wrap" id="instalacao"><div class="section-heading"><p class="eyebrow">INSTALAÇÃO</p><h2>Escolha como quer usar.</h2><p>O pacote Debian é o caminho mais direto para abrir o aplicativo. A biblioteca também pode ser compilada separadamente.</p></div><div class="install-grid"><article class="install-card featured"><div class="card-label">DESKTOP</div><h3>Aplicação GTK4</h3><p>Monitor gráfico com atualização periódica e integração ao menu de aplicativos.</p><ul><li>Debian e Ubuntu compatíveis</li><li>Pacote <code>.deb</code> local</li><li>Launcher e ícone incluídos</li></ul><a class="button primary full" href="https://github.com/mnl-nox/cpu-reader/actions" target="_blank" rel="noreferrer">Ver builds no GitHub ↗</a></article><article class="install-card"><div class="card-label">DESENVOLVIMENTO</div><h3>Biblioteca C</h3><p>Compile somente o núcleo se pretende integrar a API em outro programa.</p><ul><li>Interface pública em <code>include/cpu.h</code></li><li>Biblioteca estática <code>libcpu.a</code></li><li>Testes funcionais disponíveis</li></ul><a class="button secondary full" href="https://github.com/mnl-nox/cpu-reader/blob/main/BUILD.md">Ler guia de build ↗</a></article></div><p class="notice"><strong>Importante:</strong> um pacote gerado localmente ou baixado de um artefato temporário do CI não é uma release estável. Consulte a página de releases antes de usar em ambientes críticos.</p></section>
-<section class="section section-wrap" id="auditoria"><div class="section-heading"><p class="eyebrow">COMPATIBILIDADE E AUDITORIA</p><h2>Dados rastreáveis. Limites explícitos.</h2><p>O CPU Reader observa interfaces do Linux. A disponibilidade de métricas depende do kernel, do hardware, dos drivers e das restrições do ambiente — ausência de dados não significa zero.</p></div><div class="feature-grid"><article class="feature-card"><span class="feature-icon">✓</span><h3>Validação por plataforma</h3><p>Workflows verificam compilação e testes em múltiplas distribuições. Consulte a <a class="text-link" href="https://github.com/mnl-nox/cpu-reader/blob/main/doc/support-matrix.md">matriz de suporte</a> para distinguir testes nativos de emulação.</p></article><article class="feature-card"><span class="feature-icon">⌁</span><h3>Métricas opcionais</h3><p>Temperatura e frequência podem estar indisponíveis em VMs, containers ou sistemas sem interfaces de sensores acessíveis. Não converta sentinelas em valores reais.</p></article><article class="feature-card"><span class="feature-icon">◇</span><h3>Limites de confiança</h3><p>Os dados são observações fornecidas pelo sistema operacional, não atestação da integridade do kernel, firmware ou hardware.</p></article><article class="feature-card"><span class="feature-icon">↗</span><h3>Relatórios reproduzíveis</h3><p>Registre timestamp, versão da biblioteca, arquitetura, unidade, estado da métrica e origem conhecida. Consulte o <a class="text-link" href="https://github.com/mnl-nox/cpu-reader/blob/main/SECURITY.md">guia de segurança</a>.</p></article></div><p class="notice"><strong>Para auditorias:</strong> valide a execução real dos workflows antes de declarar uma distribuição ou arquitetura como suportada. O status de um workflow e o histórico de execuções são a evidência operacional.</p><div class="hero-actions"><a class="button secondary" href="https://github.com/mnl-nox/cpu-reader/actions" target="_blank" rel="noreferrer">Ver status dos workflows ↗</a><a class="button secondary" href="https://github.com/mnl-nox/cpu-reader/issues" target="_blank" rel="noreferrer">Issues e limitações ↗</a></div></section>
-<section class="section section-wrap docs-section" id="documentacao"><div class="section-heading"><p class="eyebrow">DOCUMENTAÇÃO</p><h2>Do primeiro uso aos detalhes internos.</h2><p>Guias curtos para começar e documentos técnicos para entender a implementação.</p></div><div class="docs-list"><a href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/Home.md"><span class="doc-symbol">↗</span><span><strong>Wiki do projeto</strong><small>Visão geral, instalação, tutorial, FAQ e contribuição</small></span><span class="arrow">→</span></a><a href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/API.md"><span class="doc-symbol">{ }</span><span><strong>Referência da API</strong><small>Funções, retornos, memória e concorrência</small></span><span class="arrow">→</span></a><a href="https://github.com/mnl-nox/cpu-reader/blob/main/doc/arquitetura.md"><span class="doc-symbol">⌘</span><span><strong>Arquitetura</strong><small>Camadas, módulos e fontes do kernel</small></span><span class="arrow">→</span></a><a href="https://github.com/mnl-nox/cpu-reader/blob/main/VALIDATION.md"><span class="doc-symbol">✓</span><span><strong>Testes e validação</strong><small>Testes locais, sanitizers e pacote Debian</small></span><span class="arrow">→</span></a><a href="https://github.com/mnl-nox/cpu-reader/blob/main/SECURITY.md"><span class="doc-symbol">◇</span><span><strong>Segurança</strong><small>Escopo, limites e relato responsável</small></span><span class="arrow">→</span></a></div></section>
-<section class="closing"><div class="section-wrap closing-inner"><div><p class="eyebrow">CPU READER</p><h2>Simples de compilar. Fácil de inspecionar.</h2><p>Explore o código, confira os testes e contribua com melhorias.</p></div><a class="button light" href="https://github.com/mnl-nox/cpu-reader" target="_blank" rel="noreferrer">Abrir repositório ↗</a></div></section></main>
-<footer class="footer section-wrap"><a class="brand" href="#inicio"><span class="brand-mark">C</span><span>CPU Reader</span></a><span>Projeto Beta · Licença MIT</span><a href="https://github.com/mnl-nox/cpu-reader" target="_blank" rel="noreferrer">GitHub ↗</a></footer><script src="script.js"></script></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="CPU Reader: biblioteca C e ferramentas de diagnóstico de CPU para Linux. Instalação, tutoriais, API, suporte e limites de confiança.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CPU Reader — diagnóstico de CPU para Linux">
+  <meta property="og:description" content="Biblioteca C aberta para métricas e diagnóstico de CPU no Linux, com documentação e limites explícitos.">
+  <meta property="og:image" content="assets/cpu-reader-logo.svg">
+  <meta name="color-scheme" content="light">
+  <title>CPU Reader — diagnóstico de CPU para Linux</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="CPU Reader, início">
+      <img class="brand-logo" src="assets/cpu-reader-logo.svg" width="34" height="34" alt="">
+      <span>CPU <em>Reader</em></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    <nav id="nav-links" class="nav-links" aria-label="Navegação principal">
+      <a href="#recursos">Recursos</a>
+      <a href="#tutorial">Tutorial</a>
+      <a href="#instalacao">Instalação</a>
+      <a href="#faq">FAQ</a>
+      <a href="#documentacao">Documentação</a>
+    </nav>
+    <a class="nav-cta" href="https://github.com/mnl-nox/cpu-reader" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero section-wrap" id="inicio" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> C · Linux · Código aberto</p>
+        <h1 id="hero-title">Diagnóstico de CPU com <span>limites explícitos.</span></h1>
+        <p class="lead">Biblioteca C e ferramentas para observar uso, topologia, temperatura e frequência a partir das interfaces do Linux — quando o sistema disponibiliza essas métricas.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#instalacao">Começar agora <span aria-hidden="true">→</span></a>
+          <a class="button secondary" href="https://github.com/mnl-nox/cpu-reader" target="_blank" rel="noopener noreferrer">Ver código no GitHub</a>
+        </div>
+        <div class="hero-meta" aria-label="Informações do projeto"><span>Licença MIT</span><span aria-hidden="true">·</span><span>API C</span><span aria-hidden="true">·</span><span>GTK4 opcional</span><span aria-hidden="true">·</span><span>Projeto Beta</span></div>
+      </div>
+      <div class="hero-art">
+        <div class="art-glow" aria-hidden="true"></div>
+        <img src="assets/dashboard-preview.svg" alt="Ilustração de um painel de monitoramento com gráficos e valores demonstrativos">
+        <p class="image-note">Ilustração de interface. Valores fictícios, não são leituras deste dispositivo.</p>
+      </div>
+    </section>
+
+    <section class="feature-strip section-wrap" aria-label="Características principais">
+      <div><strong>01</strong><span>Biblioteca C</span></div>
+      <div><strong>02</strong><span>Relatório por métrica</span></div>
+      <div><strong>03</strong><span>Testes automatizados</span></div>
+      <div><strong>04</strong><span>Documentação aberta</span></div>
+    </section>
+
+    <section class="section section-wrap" id="recursos" aria-labelledby="features-title">
+      <div class="section-heading">
+        <p class="eyebrow">CAPACIDADES</p>
+        <h2 id="features-title">Informação útil, sem transformar ausência em zero.</h2>
+        <p>O projeto lê interfaces do kernel e mantém explícitos os estados de cada observação. A disponibilidade e o significado dos dados dependem do hardware, dos drivers e do ambiente.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">↗</span><h3>Uso da CPU</h3><p>Calcula utilização agregada comparando amostras de <code>/proc/stat</code>. A primeira amostra estabelece o baseline.</p></article>
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">▦</span><h3>Topologia</h3><p>Consulta modelo, flags e contagem de processadores lógicos e núcleos físicos identificáveis.</p></article>
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">◉</span><h3>Temperatura e frequência</h3><p>Lê interfaces expostas pelo kernel. Sensores ausentes, erros e leituras implausíveis não devem ser interpretados como valores reais.</p></article>
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">{ }</span><h3>API de diagnóstico</h3><p>Relatório C com status, erro, mensagem e origem disponível por métrica para consumidores da biblioteca.</p></article>
+      </div>
+    </section>
+
+    <section class="tutorial-section" id="tutorial" aria-labelledby="tutorial-title">
+      <div class="section-wrap tutorial-layout">
+        <div class="tutorial-intro">
+          <p class="eyebrow">TUTORIAL DE INÍCIO</p>
+          <h2 id="tutorial-title">Do clone ao primeiro build.</h2>
+          <p>Os comandos abaixo geram um pacote Debian local. Para compilar apenas a biblioteca, use o caminho simplificado na seção de instalação.</p>
+          <a class="text-link" href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/Tutorial.md">Ler o tutorial completo <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="steps">
+          <article class="step"><span class="step-number">01</span><div><h3>Instale as dependências</h3><pre><code>sudo apt update
+sudo apt install -y git build-essential gcc make pkg-config libgtk-4-dev dpkg-dev</code></pre></div></article>
+          <article class="step"><span class="step-number">02</span><div><h3>Obtenha o código</h3><pre><code>git clone https://github.com/mnl-nox/cpu-reader.git
+cd cpu-reader</code></pre></div></article>
+          <article class="step"><span class="step-number">03</span><div><h3>Gere e instale o pacote local</h3><pre><code>make package-deb
+sudo apt install ./build/cpu-reader_*.deb</code></pre></div></article>
+          <article class="step"><span class="step-number">04</span><div><h3>Execute e teste</h3><pre><code>cpu-reader
+make test</code></pre></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-wrap" id="instalacao" aria-labelledby="install-title">
+      <div class="section-heading"><p class="eyebrow">INSTALAÇÃO</p><h2 id="install-title">Use o componente que você precisa.</h2><p>A biblioteca não exige GTK4 nem ncurses. Essas dependências pertencem apenas às interfaces correspondentes.</p></div>
+      <div class="install-grid">
+        <article class="install-card featured">
+          <div class="card-label">BIBLIOTECA C</div><h3>Somente núcleo e testes</h3>
+          <p>Ideal para desenvolver uma aplicação que consome a API pública.</p>
+          <pre class="install-command"><code>make core
+make test</code></pre>
+          <ul><li>Gera <code>libcpu.a</code></li><li>Não requer interface gráfica</li><li>GCC ou Clang e GNU Make</li></ul>
+          <a class="button primary full" href="https://github.com/mnl-nox/cpu-reader/blob/main/BUILD.md">Guia de compilação <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="install-card">
+          <div class="card-label">APLICATIVO DESKTOP</div><h3>Monitor GTK4 e pacote Debian</h3>
+          <p>Gera o executável, o launcher desktop e um pacote local para a arquitetura de build.</p>
+          <pre class="install-command"><code>make package-deb
+ls -lh build/cpu-reader_*.deb</code></pre>
+          <ul><li>Debian e Ubuntu compatíveis</li><li>GTK4 e ferramentas Debian</li><li>Pacote local não é release oficial</li></ul>
+          <a class="button secondary full" href="https://github.com/mnl-nox/cpu-reader/releases">Releases oficiais <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+      <p class="notice"><strong>Nota de compatibilidade:</strong> confira a <a href="https://github.com/mnl-nox/cpu-reader/blob/main/doc/support-matrix.md">matriz de suporte</a>. Um teste de compilação em uma distribuição não garante que todos os sensores funcionem em cada máquina dessa distribuição.</p>
+    </section>
+
+    <section class="section section-wrap" id="auditoria" aria-labelledby="audit-title">
+      <div class="section-heading"><p class="eyebrow">CONFIANÇA E AUDITORIA</p><h2 id="audit-title">Origem conhecida. Limites documentados.</h2><p>O CPU Reader reporta observações fornecidas pelo sistema operacional. Não verifica de forma criptográfica a integridade do host nem a calibração física dos sensores.</p></div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">✓</span><h3>Status por métrica</h3><p>Distinga dado válido, baseline, indisponibilidade e erro em vez de presumir que toda leitura é válida.</p></article>
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">⌁</span><h3>Ambientes limitados</h3><p>VMs e containers podem ocultar interfaces ou expor uma visão parcial do hardware do host.</p></article>
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">◇</span><h3>Validação reproduzível</h3><p>Use SHA do commit, logs do workflow e arquitetura do runner para contextualizar resultados de CI.</p></article>
+        <article class="feature-card"><span class="feature-icon" aria-hidden="true">!</span><h3>Proteção de dados</h3><p>Relatórios podem revelar modelo, flags, topologia e caminhos de sensores. Redija informações do host antes de compartilhar.</p></article>
+      </div>
+      <div class="hero-actions">
+        <a class="button secondary" href="https://github.com/mnl-nox/cpu-reader/blob/main/doc/diagnostico-hardware.md">Modelo de confiança</a>
+        <a class="button secondary" href="https://github.com/mnl-nox/cpu-reader/actions">Histórico de CI <span aria-hidden="true">↗</span></a>
+        <a class="button secondary" href="https://github.com/mnl-nox/cpu-reader/blob/main/SECURITY.md">Segurança <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <section class="section section-wrap faq-section" id="faq" aria-labelledby="faq-title">
+      <div class="section-heading"><p class="eyebrow">PERGUNTAS FREQUENTES</p><h2 id="faq-title">Respostas para começar.</h2><p>Se a sua dúvida não estiver aqui, consulte o manual ou abra uma issue sem incluir dados sensíveis da máquina.</p></div>
+      <div class="faq-list">
+        <details><summary>O CPU Reader funciona em Windows ou macOS?</summary><p>Não. O projeto depende de interfaces do Linux, principalmente <code>/proc</code> e <code>/sys</code>.</p></details>
+        <details><summary>Por que a temperatura ou frequência não aparece?</summary><p>O kernel precisa expor uma interface compatível e legível. A cobertura automática de temperatura é limitada às zonas térmicas suportadas pela implementação; a ausência de leitura não significa temperatura segura.</p></details>
+        <details><summary>Preciso executar como root?</summary><p>Não para as operações normais. Execute com permissões elevadas somente quando um caso específico de diagnóstico justificar isso e compreenda o risco adicional.</p></details>
+        <details><summary>Por que a primeira amostra de uso não representa uma porcentagem?</summary><p>O uso é calculado a partir da diferença entre amostras sucessivas de <code>/proc/stat</code>. A primeira leitura estabelece o baseline; colete outra depois de um intervalo.</p></details>
+        <details><summary>O pacote .deb funciona em qualquer distribuição Linux?</summary><p>Não. Ele é destinado a Debian e distribuições derivadas compatíveis com as dependências declaradas, e é gerado para a arquitetura local. Consulte a matriz de suporte antes de distribuir.</p></details>
+        <details><summary>O projeto envia telemetria do meu computador?</summary><p>O site é estático e não possui formulário de envio de dados. A biblioteca lê interfaces locais do Linux; ainda assim, os relatórios que você copiar para issues podem conter detalhes identificáveis do host. Revise-os antes de publicar.</p></details>
+        <details><summary>Os relatórios provam que o hardware é íntegro?</summary><p>Não. Eles são observações fornecidas pelo kernel e pelos drivers. Não constituem atestação de firmware, kernel ou hardware e não substituem ferramentas especializadas de auditoria.</p></details>
+        <details><summary>Como reporto um bug ou contribuo?</summary><p>Leia <a href="https://github.com/mnl-nox/cpu-reader/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>, procure uma issue existente e abra um relato reproduzível. Para questões sensíveis, siga a <a href="https://github.com/mnl-nox/cpu-reader/blob/main/SECURITY.md">política de segurança</a>.</p></details>
+      </div>
+      <p class="faq-more">Mais respostas: <a href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/FAQ.md">FAQ completa no repositório <span aria-hidden="true">↗</span></a></p>
+    </section>
+
+    <section class="section section-wrap docs-section" id="documentacao" aria-labelledby="docs-title">
+      <div class="section-heading"><p class="eyebrow">DOCUMENTAÇÃO</p><h2 id="docs-title">Do primeiro uso aos detalhes internos.</h2><p>Manuais versionados junto com o código para que cada orientação possa ser revisada e reproduzida.</p></div>
+      <div class="docs-list">
+        <a href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/Home.md"><span class="doc-symbol" aria-hidden="true">↗</span><span><strong>Manual e tutoriais</strong><small>Instalação, exemplos e solução de problemas</small></span><span class="arrow" aria-hidden="true">→</span></a>
+        <a href="https://github.com/mnl-nox/cpu-reader/blob/main/wiki/API.md"><span class="doc-symbol" aria-hidden="true">{ }</span><span><strong>Referência da API C</strong><small>Retornos, ciclo de vida, memória e concorrência</small></span><span class="arrow" aria-hidden="true">→</span></a>
+        <a href="https://github.com/mnl-nox/cpu-reader/blob/main/doc/arquitetura.md"><span class="doc-symbol" aria-hidden="true">⌘</span><span><strong>Arquitetura</strong><small>Módulos, contratos e decisões técnicas</small></span><span class="arrow" aria-hidden="true">→</span></a>
+        <a href="https://github.com/mnl-nox/cpu-reader/blob/main/doc/support-matrix.md"><span class="doc-symbol" aria-hidden="true">✓</span><span><strong>Matriz de suporte</strong><small>Distribuições, arquiteturas e evidências de CI</small></span><span class="arrow" aria-hidden="true">→</span></a>
+        <a href="https://github.com/mnl-nox/cpu-reader/blob/main/VALIDATION.md"><span class="doc-symbol" aria-hidden="true">⌁</span><span><strong>Testes e validação</strong><small>Testes locais, sanitizers, hardening e empacotamento</small></span><span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <section class="privacy-band" aria-labelledby="privacy-title">
+      <div class="section-wrap privacy-inner"><div><p class="eyebrow">PRIVACIDADE POR PADRÃO</p><h2 id="privacy-title">Compartilhe evidências, não dados desnecessários.</h2><p>Ao abrir uma issue, envie versões, arquitetura, passos para reproduzir e logs redigidos. Remova nomes de host, caminhos pessoais, identificadores e qualquer informação que não seja necessária.</p></div><a class="button secondary" href="https://github.com/mnl-nox/cpu-reader/issues">Ver issues <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="closing"><div class="section-wrap closing-inner"><div><p class="eyebrow">CÓDIGO ABERTO</p><h2>Simples de compilar. Fácil de inspecionar.</h2><p>Leia o código, confira os testes e proponha melhorias.</p></div><a class="button light" href="https://github.com/mnl-nox/cpu-reader" target="_blank" rel="noopener noreferrer">Explorar repositório <span aria-hidden="true">↗</span></a></div></section>
+  </main>
+
+  <footer class="footer section-wrap">
+    <a class="brand" href="#inicio"><img class="brand-logo" src="assets/cpu-reader-logo.svg" width="28" height="28" alt=""><span>CPU <em>Reader</em></span></a>
+    <span>Beta · Licença MIT · Linux</span>
+    <div class="footer-links"><a href="https://github.com/mnl-nox/cpu-reader/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/mnl-nox/cpu-reader/blob/main/CONTRIBUTING.md">Contribuir</a><a href="https://github.com/mnl-nox/cpu-reader">GitHub <span aria-hidden="true">↗</span></a></div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
