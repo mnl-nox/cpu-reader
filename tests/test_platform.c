@@ -56,7 +56,8 @@ static int test_thermal_sensor_preference(void) {
   }
   /* Put a non-CPU sensor first lexically; selection must still prefer CPU. */
   if (make_zone(root, "thermal_zone0", "acpitz\n", "33000\n") != 0 ||
-      make_zone(root, "thermal_zone1", "Package id 0\n", "55000\n") != 0) {
+      make_zone(root, "thermal_zone1", "Package id 0\n", "55000\n") != 0 ||
+      make_zone(root, "thermal_zone2", "cpu-thermal\n", "44000\n") != 0) {
     perror("create thermal fixture");
     goto cleanup;
   }
@@ -84,7 +85,7 @@ static int test_thermal_sensor_preference(void) {
 cleanup:
   {
     char path[512];
-    const char *zones[] = {"thermal_zone0", "thermal_zone1"};
+    const char *zones[] = {"thermal_zone0", "thermal_zone1", "thermal_zone2"};
     size_t index;
     for (index = 0; index < sizeof(zones) / sizeof(zones[0]); index++) {
       snprintf(path, sizeof(path), "%s/%s/type", root, zones[index]);
