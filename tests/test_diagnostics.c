@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include "cpu_diagnostics.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 int main(void) {
@@ -24,7 +25,8 @@ int main(void) {
   unlink(path);
   if (report.temperature_c.status != CPU_DIAG_OK ||
       report.temperature_c.value != 42.5 ||
-      report.temperature_c.error_code != CPU_ERROR_NONE) {
+      report.temperature_c.error_code != CPU_ERROR_NONE ||
+      strcmp(report.temperature_c.source, path) != 0) {
     fprintf(stderr, "temperature diagnostic did not preserve the fixture value\n"); return 1;
   }
   if (report.usage_percent.status != CPU_DIAG_BASELINE) {
