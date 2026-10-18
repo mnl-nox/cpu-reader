@@ -19,13 +19,13 @@ static __thread char last_frequency_source[4096];
 #endif
 
 void cpu_get_temperature_source(char *destination, size_t size) {
-  if (destination != NULL && size > 0) {
+  if (destination != NULL && size > 0 && last_temperature_source[0] != '\0') {
     snprintf(destination, size, "%s", last_temperature_source);
   }
 }
 
 void cpu_get_temperature_type(char *destination, size_t size) {
-  if (destination != NULL && size > 0) {
+  if (destination != NULL && size > 0 && last_temperature_type[0] != '\0') {
     snprintf(destination, size, "%s", last_temperature_type);
   }
 }
