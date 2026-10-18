@@ -14,7 +14,7 @@ typedef struct {
   cpu_diagnostic_status_t status;
   double value;
   cpu_error_t error_code;
-  char source[160];
+  char source[4096];
   char sensor_type[128];
   char message[256];
 } cpu_diagnostic_metric_t;
