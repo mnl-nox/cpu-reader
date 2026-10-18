@@ -8,7 +8,7 @@ A API de diagnóstico (include/cpu_diagnostics.h) agrega uma fotografia de CPU e
 - CPU_DIAG_BASELINE: a leitura de uso agregado estabeleceu apenas a referência inicial; não é uma medição útil de utilização. Faça outra amostra após um intervalo usando um contexto persistente para calcular uso.
 - CPU_DIAG_UNAVAILABLE: fonte não fornecida pelo kernel/ambiente ou sensor não suportado.
 - CPU_DIAG_ERROR: a leitura falhou ou os dados não passaram na validação. Examine error_code e message.
-- source descreve a família de fontes usada/tentada, não constitui atestação criptográfica nem garante que o sensor físico representa todo o pacote da CPU.
+- source informa o caminho sysfs/procfs efetivamente lido quando disponível; no fallback de frequência, registra o caminho de /proc/cpuinfo. Se nenhuma fonte for selecionada, a string pode ficar vazia. O caminho identifica a interface lida, não constitui atestação criptográfica nem garante que o sensor físico representa todo o pacote da CPU.
 
 A chamada retorna sucesso quando o relatório foi montado, mesmo se alguns campos não estiverem disponíveis. info_available e info_error descrevem a leitura da identificação/topologia; cada métrica tem seu próprio status, mensagem e código de erro.
 
