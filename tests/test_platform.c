@@ -531,7 +531,8 @@ int main(void) {
       test_topology_with_and_without_ids() != 0 ||
       test_topology_grows_beyond_online_count() != 0 ||
       test_error_snapshot_survives_later_success() != 0 ||
-      test_error_state_is_thread_local() != 0 ||\n      test_implausible_telemetry_is_rejected() != 0) {
+      test_error_state_is_thread_local() != 0 ||
+      test_implausible_telemetry_is_rejected() != 0) {
     return 1;
   }
   return 0;
