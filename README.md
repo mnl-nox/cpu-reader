@@ -44,7 +44,11 @@ make test-security
 
 Para compilar o monitor de terminal, instale também <code>libncurses-dev</code> e execute <code>make monitor</code>. Para compilar e validar a interface GTK4, consulte [BUILD.md](BUILD.md).
 
-## Exemplo de API de diagnóstico\n\nO cabeçalho `cpu_diagnostics.h` fornece status e erros independentes para cada métrica. A chamada pode retornar um relatório parcial quando sensores não existem; consulte [a referência da API de diagnóstico](wiki/Diagnostic-API.md) e [os limites de confiança](doc/diagnostico-hardware.md).\n\n## Exemplo de API
+## Exemplo de API de diagnóstico
+
+O cabeçalho `cpu_diagnostics.h` fornece status e erros independentes para cada métrica. A chamada pode retornar um relatório parcial quando sensores não existem; consulte [a referência da API de diagnóstico](wiki/Diagnostic-API.md) e [os limites de confiança](doc/diagnostico-hardware.md).
+
+## Exemplo de API
 
 ~~~c
 #include <stdio.h>
