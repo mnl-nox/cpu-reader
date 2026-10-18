@@ -16,5 +16,7 @@ int cpu_parse_float(const char *text, float *value);
 float cpu_read_temperature(int report_errors);
 float cpu_read_clock_speed(int report_errors);
 int cpu_read_active_processes(int report_errors);
+void cpu_get_temperature_source(char *destination, size_t size);
+void cpu_get_frequency_source(char *destination, size_t size);
 
 #endif
