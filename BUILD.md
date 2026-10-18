@@ -81,7 +81,7 @@ cpu-reader --version
 cpu-reader --help
 ~~~
 
-O pacote instala o executável em <code>/usr/bin/cpu-reader</code>, um launcher desktop, o ícone e os metadados AppStream. Para remover:
+O pacote instala o executável em <code>/usr/bin/cpu-reader</code>, a biblioteca estática em <code>/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/libcpu.a</code>, os cabeçalhos em <code>/usr/include/cpu-reader/</code>, o arquivo <code>pkg-config</code>, um launcher desktop, o ícone e os metadados AppStream. Consumidores podem usar <code>pkg-config --cflags --libs cpu-reader</code>. Para remover:
 
 ~~~sh
 sudo apt remove cpu-reader
