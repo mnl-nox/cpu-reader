@@ -337,6 +337,7 @@ float cpu_read_clock_speed(int report_errors) {
 
   last_frequency_source[0] = '\0';
   if (read_first_line(path, buffer, sizeof(buffer)) != 0) {
+    int source_errno = errno;
     float fallback_frequency = parse_frequency_from_cpuinfo();
     if (fallback_frequency > 0.0f) {
       snprintf(last_frequency_source, sizeof(last_frequency_source), "%s (cpu MHz)", cpuinfo_path());
@@ -348,7 +349,7 @@ float cpu_read_clock_speed(int report_errors) {
 
     snprintf(last_frequency_source, sizeof(last_frequency_source), "%s; fallback %s", path, cpuinfo_path());
     if (report_errors) {
-      if (errno == EOVERFLOW) {
+      if (source_errno == EOVERFLOW) {
         cpu_set_last_error(CPU_ERROR_PARSE,
                            "Linha de frequencia truncada em %s", path);
       } else {
