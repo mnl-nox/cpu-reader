@@ -35,7 +35,7 @@ jobs:
         if: matrix.distro == 'ubuntu'
         run: |
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git gcc make libc6-dev
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git gcc make libc6-dev ca-certificates
       - name: Install dependencies (Fedora)
         if: matrix.distro == 'fedora'
         run: |
