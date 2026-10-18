@@ -2,7 +2,7 @@
 
 Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um monitor de terminal opcional e uma interface desktop GTK4 empacotável em Debian.
 
-[Matriz de suporte Linux](doc/support-matrix.md) · [Documentação completa](doc/README.md) · [Wiki do projeto](wiki/Home.md) · [Site](site/index.html) · [Build](BUILD.md) · [Validação](VALIDATION.md) · [Segurança](SECURITY.md)
+[Diagnóstico e confiança das métricas](doc/diagnostico-hardware.md) · [Matriz de suporte Linux](doc/support-matrix.md) · [Documentação completa](doc/README.md) · [Wiki do projeto](wiki/Home.md) · [Site](site/index.html) · [Build](BUILD.md) · [Validação](VALIDATION.md) · [Segurança](SECURITY.md)
 
 ## O que o projeto faz
 
@@ -11,6 +11,7 @@ Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um m
 - Consulta temperatura e frequência quando o kernel expõe sensores compatíveis.
 - Conta processos em execução por meio de <code>/proc/loadavg</code>.
 - Fornece snapshots de erro explícitos por meio das funções da família <code>*_ex</code>.
+- Oferece uma API aditiva de diagnóstico por métrica em <code>include/cpu_diagnostics.h</code>, com status, origem provável e erro independente.
 - Inclui um exemplo de terminal e uma aplicação GTK4 com atualização automática.
 - Gera um pacote <code>.deb</code> para a arquitetura da máquina de build.
 
@@ -64,7 +65,7 @@ int main(void) {
 }
 ~~~
 
-Consulte [wiki/API.md](wiki/API.md) para o ciclo de vida da API, semântica dos retornos e tratamento de erros.
+Consulte [wiki/API.md](wiki/API.md) para o ciclo de vida da API, semântica dos retornos e tratamento de erros. Para um relatório parcial que preserve a validade individual de cada métrica, use [a API de diagnóstico](wiki/Diagnostic-API.md).
 
 ## Estrutura do projeto
 
