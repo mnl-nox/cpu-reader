@@ -26,7 +26,8 @@ int main(void) {
   if (report.temperature_c.status != CPU_DIAG_OK ||
       report.temperature_c.value != 42.5 ||
       report.temperature_c.error_code != CPU_ERROR_NONE ||
-      strcmp(report.temperature_c.source, path) != 0) {
+      strcmp(report.temperature_c.source, path) != 0 ||
+      strcmp(report.temperature_c.sensor_type, "explicit override") != 0) {
     fprintf(stderr, "temperature diagnostic did not preserve the fixture value\n"); return 1;
   }
   if (report.usage_percent.status != CPU_DIAG_BASELINE) {
