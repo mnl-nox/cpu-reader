@@ -14,7 +14,9 @@ typedef struct {
   cpu_diagnostic_status_t status;
   double value;
   cpu_error_t error_code;
+  /* Selected procfs/sysfs path, or source-family fallback if none was selected. */
   char source[4096];
+  /* Thermal-zone type or explicit override; empty for non-thermal metrics. */
   char sensor_type[128];
   char message[256];
 } cpu_diagnostic_metric_t;
