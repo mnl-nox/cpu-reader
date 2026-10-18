@@ -15,4 +15,8 @@
 Uma métrica indisponível não equivale a zero. Os retornos negativos indicam ausência ou falha conforme a função. A frequência pode variar rapidamente por gerenciamento dinâmico de energia. A temperatura apresentada depende do sensor escolhido pelo kernel e pode não representar todos os componentes do processador.
 
 Em containers, VMs ou ambientes com namespaces, as informações visíveis podem refletir a visão do kernel exposta ao processo e não necessariamente o hardware físico completo.
-\n\n## Filtros de plausibilidade\n\nLeituras térmicas em sysfs fora de 0–250 °C e frequências fora de 0–20.000 MHz são rejeitadas como dados inválidos. Esses limites detectam valores corrompidos ou sentinelas comuns; não substituem limites térmicos oficiais nem certificam a calibração do sensor.\n
+
+
+## Filtros de plausibilidade
+
+Leituras térmicas em sysfs fora de 0–250 °C e frequências fora de 0–20.000 MHz são rejeitadas como dados inválidos. Esses limites detectam valores corrompidos ou sentinelas comuns; não substituem limites térmicos oficiais nem certificam a calibração do sensor.
