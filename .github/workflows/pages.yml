@@ -26,20 +26,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate static site and local references
+      - name: Validate static site, accessibility basics and local references
         run: |
+          set -eu
           test -s site/index.html
           test -s site/styles.css
           test -s site/script.js
           test -s site/assets/dashboard-preview.svg
+          test -s site/assets/cpu-reader-logo.svg
+          test -s site/assets/favicon.svg
           grep -q 'lang="pt-BR"' site/index.html
+          grep -q 'class="skip-link" href="#conteudo"' site/index.html
+          grep -q 'id="faq"' site/index.html
           python3 - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
           from urllib.parse import urlsplit
           import sys
 
-          root = Path("site")
+          root = Path("site").resolve()
           page = root / "index.html"
           source = page.read_text(encoding="utf-8")
 
@@ -47,18 +52,31 @@ jobs:
               def __init__(self):
                   super().__init__(convert_charrefs=True)
                   self.ids = set()
+                  self.duplicates = set()
                   self.refs = []
-                  self.images_without_alt = 0
+                  self.images_without_alt = []
                   self.has_title = False
+                  self.has_main = False
+                  self.has_h1 = False
+                  self.details_count = 0
 
               def handle_starttag(self, tag, attrs):
                   attrs = dict(attrs)
-                  if attrs.get("id"):
-                      self.ids.add(attrs["id"])
+                  identifier = attrs.get("id")
+                  if identifier:
+                      if identifier in self.ids:
+                          self.duplicates.add(identifier)
+                      self.ids.add(identifier)
                   if tag == "title":
                       self.has_title = True
+                  if tag == "main":
+                      self.has_main = True
+                  if tag == "h1":
+                      self.has_h1 = True
+                  if tag == "details":
+                      self.details_count += 1
                   if tag == "img" and "alt" not in attrs:
-                      self.images_without_alt += 1
+                      self.images_without_alt.append(attrs.get("src", "(sem src)"))
                   for attr in ("href", "src"):
                       value = attrs.get(attr)
                       if value:
@@ -69,25 +87,33 @@ jobs:
           errors = []
           if not audit.has_title:
               errors.append("missing <title>")
+          if not audit.has_main:
+              errors.append("missing <main>")
+          if not audit.has_h1:
+              errors.append("missing <h1>")
           if audit.images_without_alt:
-              errors.append(f"{audit.images_without_alt} image(s) missing alt attribute")
+              errors.append("images missing alt: " + ", ".join(audit.images_without_alt))
+          if audit.duplicates:
+              errors.append("duplicate IDs: " + ", ".join(sorted(audit.duplicates)))
+          if audit.details_count < 5:
+              errors.append("FAQ must contain at least five native details/summary entries")
 
           for tag, attr, value in audit.refs:
               parsed = urlsplit(value)
-              if parsed.scheme or value.startswith("//"):
-                  continue
               if value.startswith("#"):
                   if value[1:] and value[1:] not in audit.ids:
                       errors.append(f"broken anchor: {value}")
                   continue
+              if parsed.scheme or value.startswith("//") or not parsed.path:
+                  continue
               target = (root / parsed.path).resolve()
-              if not target.is_relative_to(root.resolve()) or not target.is_file():
+              if not target.is_relative_to(root) or not target.is_file():
                   errors.append(f"missing or unsafe local reference: {value} ({tag}[{attr}])")
 
           if errors:
               print("\n".join(f"ERROR: {item}" for item in errors))
               sys.exit(1)
-          print(f"Site validation passed: {len(audit.refs)} references checked.")
+          print(f"Site validation passed: {len(audit.refs)} references checked; FAQ, landmarks and image alternatives present.")
           PY
       - name: Configure Pages
         if: github.event_name != 'pull_request'

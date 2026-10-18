@@ -13,7 +13,7 @@ MONITOR = build/cpu-monitor
 GTK_APP = build/cpu-reader-gtk
 GTK_CFLAGS = $(shell pkg-config --cflags gtk4)
 GTK_LIBS = $(shell pkg-config --libs gtk4)
-DEB_ARCH ?= $(shell dpkg --print-architecture)
+DEB_ARCH ?= $(shell dpkg --print-architecture 2>/dev/null || uname -m)
 PACKAGE_VERSION ?= 0.1.0+git$(shell git rev-parse --short HEAD 2>/dev/null || echo local)
 DEB_PACKAGE = build/cpu-reader_$(PACKAGE_VERSION)_$(DEB_ARCH).deb
 DEB_ROOT = build/deb-root
@@ -139,7 +139,7 @@ build/cpu_usage.o: src/cpu_usage.c include/cpu.h src/cpu_internal.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-build/cpu_diagnostics.o: src/cpu_diagnostics.c include/cpu_diagnostics.h include/cpu.h
+build/cpu_diagnostics.o: src/cpu_diagnostics.c include/cpu_diagnostics.h include/cpu.h src/cpu_internal.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 

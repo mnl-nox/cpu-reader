@@ -2,24 +2,40 @@
 
 ## O CPU Reader funciona no Windows ou macOS?
 
-Não. O projeto usa interfaces do Linux, principalmente <code>/proc</code> e <code>/sys</code>.
+Não. A implementação é direcionada ao Linux e consulta interfaces como `/proc` e `/sys`.
 
-## Por que temperatura não aparece?
+## Por que temperatura ou frequência estão indisponíveis?
 
-O kernel precisa expor um sensor compatível. Algumas máquinas não oferecem essa leitura ao usuário ou usam drivers específicos.
+O kernel e o driver precisam expor uma interface compatível. Máquinas virtuais e containers também podem ocultar sensores. A ausência de uma leitura não significa que a temperatura seja normal nem que a frequência seja zero. Nesta versão, a descoberta automática de temperatura cobre zonas em `/sys/class/thermal`; a varredura automática de `/sys/class/hwmon` ainda não está implementada.
 
-## Por que a primeira leitura de uso é zero?
+## Preciso de root?
 
-O cálculo compara duas amostras. A primeira estabelece o baseline; as próximas calculam a variação.
+Não para as operações normais. Não execute como root sem uma necessidade específica e compreendida. Permissões adicionais não fazem um sensor indisponível tornar-se confiável.
 
-## O .deb funciona em qualquer distribuição?
+## Por que a primeira leitura de uso é baseline?
 
-O pacote foi pensado para distribuições Debian e derivadas compatíveis com suas dependências. Ele é gerado para a arquitetura local e não é um pacote universal para todas as distribuições.
+O uso é calculado comparando contadores de `/proc/stat` entre amostras. A primeira chamada estabelece a referência; faça outra leitura depois de um intervalo para obter a variação.
 
-## Existe release estável?
+## Posso interpretar valores ausentes como zero?
 
-Consulte a página de releases e o histórico do projeto. Um artefato temporário de CI não é uma release oficial.
+Não. Valores sentinela e status de indisponibilidade ou erro devem ser preservados. Consulte [a API de diagnóstico](Diagnostic-API.md).
 
-## Onde encontro a referência da API?
+## O pacote Debian funciona em qualquer distribuição?
 
-Em [API C](API.md) e no cabeçalho público <code>include/cpu.h</code>.
+Não. Ele é gerado para a arquitetura local e destina-se a Debian e derivados compatíveis com as dependências declaradas. Use a [matriz de suporte](../doc/support-matrix.md) para entender a evidência disponível.
+
+## O projeto prova que o hardware é íntegro?
+
+Não. O CPU Reader observa dados fornecidos pelo sistema operacional. Não atesta criptograficamente a integridade de firmware, kernel ou hardware nem garante calibração física do sensor. Consulte [os limites de confiança](../doc/diagnostico-hardware.md).
+
+## O site ou a biblioteca enviam telemetria?
+
+O site é estático e não tem formulário de envio de dados. A biblioteca lê interfaces locais do Linux. Porém, relatórios e logs copiados manualmente para issues podem revelar modelo, flags, topologia ou caminhos de sensores; revise-os e redija dados desnecessários antes de publicar.
+
+## Como reporto um bug ou uma vulnerabilidade?
+
+Para bugs comuns, abra uma [issue](https://github.com/mnl-nox/cpu-reader/issues) com passos reproduzíveis, versão, arquitetura e saída redigida. Para relatos sensíveis, siga [SECURITY.md](../SECURITY.md) e evite publicar detalhes exploráveis numa issue pública.
+
+## Onde encontro a API e como contribuo?
+
+Consulte [API C](API.md), [guia de compilação](../BUILD.md) e [CONTRIBUTING.md](../CONTRIBUTING.md). Execute `make test` antes de enviar uma alteração e informe quais verificações foram realmente executadas.
