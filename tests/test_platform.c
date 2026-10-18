@@ -54,7 +54,7 @@ static int test_thermal_sensor_preference(void) {
     perror("mkdtemp thermal root");
     return -1;
   }
-  /* Put a non-CPU sensor first lexically; selection must still prefer CPU. */
+  /* Prefer package temperature over generic CPU and non-CPU zones. */
   if (make_zone(root, "thermal_zone0", "acpitz\n", "33000\n") != 0 ||
       make_zone(root, "thermal_zone1", "Package id 0\n", "55000\n") != 0 ||
       make_zone(root, "thermal_zone2", "cpu-thermal\n", "44000\n") != 0) {
