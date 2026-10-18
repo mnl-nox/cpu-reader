@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include "cpu_diagnostics.h"
+#include "cpu_internal.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -61,9 +62,11 @@ int cpu_get_diagnostic_report(cpu_diagnostic_report_t *report, cpu_error_info_t 
   cpu_error_info_clear(&operation_error);
   value = cpu_get_temperature_ex(&operation_error);
   metric_capture(&report->temperature_c, value, value < 0.0f, &operation_error);
+  cpu_get_temperature_source(report->temperature_c.source, sizeof(report->temperature_c.source));
   cpu_error_info_clear(&operation_error);
   value = cpu_get_clock_speed_ex(&operation_error);
   metric_capture(&report->frequency_mhz, value, value < 0.0f, &operation_error);
+  cpu_get_frequency_source(report->frequency_mhz.source, sizeof(report->frequency_mhz.source));
   cpu_error_info_clear(&operation_error);
   {
     int processes = cpu_get_active_processes_ex(&operation_error);
