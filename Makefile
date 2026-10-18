@@ -8,7 +8,7 @@ SECURITY_LDFLAGS ?= -Wl,-z,relro,-z,now -pie
 
 LIBRARY = libcpu.a
 CORE_OBJECT = build/cpu.o
-CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usage.o
+CORE_OBJECTS = build/cpu.o build/cpu_info.o build/cpu_telemetry.o build/cpu_usage.o build/cpu_diagnostics.o
 MONITOR = build/cpu-monitor
 GTK_APP = build/cpu-reader-gtk
 GTK_CFLAGS = $(shell pkg-config --cflags gtk4)
@@ -18,7 +18,7 @@ PACKAGE_VERSION ?= 0.1.0+git$(shell git rev-parse --short HEAD 2>/dev/null || ec
 DEB_PACKAGE = build/cpu-reader_$(PACKAGE_VERSION)_$(DEB_ARCH).deb
 DEB_ROOT = build/deb-root
 
-.PHONY: all core monitor gtk-monitor test test-gtk test-gtk-ui package-deb test-portable test-sanitize test-security \
+.PHONY: all core monitor gtk-monitor test test-diagnostics test-gtk test-gtk-ui package-deb test-portable test-sanitize test-security \
 	telemetry benchmark clean
 
 all: core monitor
@@ -73,9 +73,13 @@ $(MONITOR): examples/monitor.c $(LIBRARY)
 	@mkdir -p build
 	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu -lncurses $(LDFLAGS)
 
-test: build/test_cpu build/test_platform
+test: build/test_cpu build/test_platform build/test_diagnostics
 	./build/test_cpu
 	./build/test_platform
+	./build/test_diagnostics
+
+test-diagnostics: build/test_diagnostics
+	./build/test_diagnostics
 
 test-portable:
 	$(MAKE) clean
@@ -130,3 +134,7 @@ build/cpu_usage.o: src/cpu_usage.c include/cpu.h src/cpu_internal.h
 
 clean:
 	rm -rf build $(LIBRARY)
+
+build/test_diagnostics: tests/test_diagnostics.c $(LIBRARY)
+	@mkdir -p build
+	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu $(LDFLAGS)
