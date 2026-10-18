@@ -66,20 +66,28 @@ static const char *thermal_root_path(void) {
   return path != NULL && path[0] != '\0' ? path : "/sys/class/thermal";
 }
 
-static int is_cpu_thermal_type(const char *type) {
+static int thermal_sensor_priority(const char *type) {
   char normalized[128];
   size_t index;
 
   if (type == NULL) {
     return 0;
   }
-  for (index = 0; index + 1 < sizeof(normalized) && type[index] != '\0'; index++) {
+  for (index = 0; index + 1 < sizeof(normalized) && type[index] != '\0';
+       index++) {
     normalized[index] = (char)tolower((unsigned char)type[index]);
   }
   normalized[index] = '\0';
-  return strstr(normalized, "cpu") != NULL ||
-         strstr(normalized, "pkg_temp") != NULL ||
-         strstr(normalized, "package") != NULL;
+
+  /* Package sensors are more representative than generic CPU zones. */
+  if (strstr(normalized, "pkg_temp") != NULL ||
+      strstr(normalized, "package") != NULL) {
+    return 3;
+  }
+  if (strstr(normalized, "cpu") != NULL) {
+    return 2;
+  }
+  return 0;
 }
 
 static const char *cpu_freq_path(void) {
@@ -251,6 +259,10 @@ static float read_temperature_auto(int report_errors) {
   const char *root = thermal_root_path();
   DIR *directory = opendir(root);
   const struct dirent *entry;
+  char best_path[PATH_MAX] = "";
+  char best_zone[256] = "";
+  char best_type[128] = "";
+  int best_priority = 0;
 
   if (directory == NULL) {
     if (report_errors) {
@@ -265,51 +277,50 @@ static float read_temperature_auto(int report_errors) {
     char path[PATH_MAX];
     char type_path[PATH_MAX];
     char type[128];
-    float temperature;
-    int is_cpu_sensor = 0;
+    int priority;
 
     if (strncmp(entry->d_name, "thermal_zone", 12) != 0) {
       continue;
     }
-
     if (snprintf(path, sizeof(path), "%s/%s/temp", root, entry->d_name) >=
             (int)sizeof(path) ||
         snprintf(type_path, sizeof(type_path), "%s/%s/type", root,
                  entry->d_name) >= (int)sizeof(type_path)) {
       continue;
     }
-    if (read_first_line(type_path, type, sizeof(type)) == 0) {
-      type[strcspn(type, "\r\n")] = '\0';
-      is_cpu_sensor = is_cpu_thermal_type(type);
-      if (is_cpu_sensor) {
-        snprintf(last_temperature_type, sizeof(last_temperature_type), "%s", type);
-      }
-    }
-
-    /* Never report an unrelated thermal zone as CPU temperature. */
-    if (!is_cpu_sensor) {
+    if (read_first_line(type_path, type, sizeof(type)) != 0) {
       continue;
     }
-    temperature = read_temperature_from_path(path, 0);
-    if (temperature < 0.0f) {
-      closedir(directory);
-      if (report_errors) {
-        cpu_set_last_error(CPU_ERROR_PARSE,
-                           "Nao foi possivel interpretar a temperatura em %s",
-                           path);
-      }
-      return -1.0f;
+    type[strcspn(type, "\r\n")] = '\0';
+    priority = thermal_sensor_priority(type);
+    if (priority == 0) {
+      continue;
     }
-    closedir(directory);
-    return temperature;
+
+    /* Prefer package sensors; break ties by zone name, never readdir order. */
+    if (priority > best_priority ||
+        (priority == best_priority &&
+         (best_zone[0] == '\0' || strcmp(entry->d_name, best_zone) < 0))) {
+      best_priority = priority;
+      snprintf(best_path, sizeof(best_path), "%s", path);
+      snprintf(best_zone, sizeof(best_zone), "%s", entry->d_name);
+      snprintf(best_type, sizeof(best_type), "%s", type);
+    }
+  }
+  closedir(directory);
+
+  if (best_priority == 0) {
+    if (report_errors) {
+      cpu_set_last_error(CPU_ERROR_UNSUPPORTED,
+                         "Nao foi possivel localizar um sensor de temperatura");
+    }
+    return -1.0f;
   }
 
-  closedir(directory);
-  if (report_errors) {
-    cpu_set_last_error(CPU_ERROR_UNSUPPORTED,
-                       "Nao foi possivel localizar um sensor de temperatura");
-  }
-  return -1.0f;
+  snprintf(last_temperature_type, sizeof(last_temperature_type), "%s",
+           best_type);
+  /* If the zone disappears after enumeration, preserve the actual I/O error. */
+  return read_temperature_from_path(best_path, report_errors);
 }
 
 float cpu_read_temperature(int report_errors) {
