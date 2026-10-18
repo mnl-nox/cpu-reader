@@ -6,7 +6,7 @@
 | Modelo | <code>/proc/cpuinfo</code> | texto | formato varia por arquitetura |
 | Núcleos físicos | campos de topologia disponíveis | contagem estimada | pode ser desconhecida |
 | Processadores lógicos | processadores visíveis no sistema | contagem | pode refletir limites do ambiente |
-| Temperatura | interfaces térmicas em <code>/sys</code> | °C | sensor/driver opcional |
+| Temperatura | <code>/sys/class/thermal/thermal_zone*/type,temp</code> | °C | sensor/driver opcional; hwmon ainda não é descoberto automaticamente |
 | Frequência | sysfs, com fallback documentado | MHz | política de frequência pode variar |
 | Processos em execução | <code>/proc/loadavg</code> | contagem em execução | snapshot momentâneo |
 
@@ -15,3 +15,8 @@
 Uma métrica indisponível não equivale a zero. Os retornos negativos indicam ausência ou falha conforme a função. A frequência pode variar rapidamente por gerenciamento dinâmico de energia. A temperatura apresentada depende do sensor escolhido pelo kernel e pode não representar todos os componentes do processador.
 
 Em containers, VMs ou ambientes com namespaces, as informações visíveis podem refletir a visão do kernel exposta ao processo e não necessariamente o hardware físico completo.
+
+
+## Filtros de plausibilidade
+
+Leituras térmicas em sysfs fora de 0–250 °C e frequências fora de 0–20.000 MHz são rejeitadas como dados inválidos. Esses limites detectam valores corrompidos ou sentinelas comuns; não substituem limites térmicos oficiais nem certificam a calibração do sensor.

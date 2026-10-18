@@ -34,3 +34,4 @@ Para instalar somente a biblioteca para desenvolvimento, execute <code>make core
 O projeto está em Beta. Uso agregado, modelo e topologia são lidos de interfaces Linux. Temperatura e frequência dependem de sensores e drivers expostos pelo sistema. Quando uma métrica não está disponível, ela deve ser tratada como desconhecida, não como zero.
 
 O diretório <code>wiki/</code> contém páginas Markdown versionadas no repositório. Elas também podem ser copiadas para uma GitHub Wiki se esse recurso for habilitado no projeto.
+\n\n## Diagnóstico e auditoria\n\n- [API de diagnóstico por métrica](Diagnostic-API.md)\n- [Confiança e limites da telemetria](../doc/diagnostico-hardware.md)\n

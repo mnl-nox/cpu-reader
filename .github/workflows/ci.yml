@@ -96,6 +96,10 @@ jobs:
           sudo apt-get install -y ./build/cpu-reader_*.deb
           cpu-reader --version
           cpu-reader --help
+          pkg-config --modversion cpu-reader
+          printf '#include <stdio.h>\n#include "cpu_diagnostics.h"\nint main(void) { cpu_diagnostic_report_t r; cpu_error_info_t e; return cpu_get_diagnostic_report(&r, &e); }\n' > /tmp/cpu-reader-consumer.c
+          cc $(pkg-config --cflags cpu-reader) /tmp/cpu-reader-consumer.c $(pkg-config --libs cpu-reader) -o /tmp/cpu-reader-consumer
+          /tmp/cpu-reader-consumer
           sh tests/test_gtk_ui.sh cpu-reader
       - name: Upload Debian package artifact
         uses: actions/upload-artifact@v4

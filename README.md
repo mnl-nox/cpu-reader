@@ -2,15 +2,16 @@
 
 Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um monitor de terminal opcional e uma interface desktop GTK4 empacotável em Debian.
 
-[Matriz de suporte Linux](doc/support-matrix.md) · [Documentação completa](doc/README.md) · [Wiki do projeto](wiki/Home.md) · [Site](site/index.html) · [Build](BUILD.md) · [Validação](VALIDATION.md) · [Segurança](SECURITY.md)
+[Diagnóstico e confiança das métricas](doc/diagnostico-hardware.md) · [Matriz de suporte Linux](doc/support-matrix.md) · [Documentação completa](doc/README.md) · [Wiki do projeto](wiki/Home.md) · [Site](site/index.html) · [Build](BUILD.md) · [Validação](VALIDATION.md) · [Segurança](SECURITY.md)
 
 ## O que o projeto faz
 
 - Lê modelo, topologia lógica/física e flags da CPU.
 - Calcula uso agregado da CPU a partir de <code>/proc/stat</code>.
-- Consulta temperatura e frequência quando o kernel expõe sensores compatíveis.
+- Consulta temperatura e frequência quando o kernel expõe sensores compatíveis; rejeita valores fora das faixas de plausibilidade documentadas.
 - Conta processos em execução por meio de <code>/proc/loadavg</code>.
 - Fornece snapshots de erro explícitos por meio das funções da família <code>*_ex</code>.
+- Oferece uma API aditiva de diagnóstico por métrica em <code>include/cpu_diagnostics.h</code>, com status, origem provável e erro independente.
 - Inclui um exemplo de terminal e uma aplicação GTK4 com atualização automática.
 - Gera um pacote <code>.deb</code> para a arquitetura da máquina de build.
 
@@ -18,7 +19,7 @@ Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um m
 
 ## Instalação rápida — Debian/Ubuntu
 
-Para compilar localmente, instale os requisitos e gere o pacote:
+Para compilar localmente, instale os requisitos e gere o pacote. Para usar somente a biblioteca, GTK4 não é necessário; veja os alvos `make core` e `make test`:
 
 ~~~sh
 sudo apt update
@@ -30,7 +31,7 @@ sudo apt install ./build/cpu-reader_*.deb
 cpu-reader
 ~~~
 
-O pacote inclui o monitor desktop GTK4. O pacote de build é gerado para a arquitetura local; não é uma release oficial por si só.
+O pacote inclui o monitor GTK4, a biblioteca estática `libcpu.a`, os cabeçalhos públicos e metadados `pkg-config` para consumidores C. O pacote de build é gerado para a arquitetura local; não é uma release oficial por si só.
 
 ## Compilar e testar a biblioteca
 
@@ -42,6 +43,10 @@ make test-security
 ~~~
 
 Para compilar o monitor de terminal, instale também <code>libncurses-dev</code> e execute <code>make monitor</code>. Para compilar e validar a interface GTK4, consulte [BUILD.md](BUILD.md).
+
+## Exemplo de API de diagnóstico
+
+O cabeçalho `cpu_diagnostics.h` fornece status e erros independentes para cada métrica. A chamada pode retornar um relatório parcial quando sensores não existem; consulte [a referência da API de diagnóstico](wiki/Diagnostic-API.md) e [os limites de confiança](doc/diagnostico-hardware.md).
 
 ## Exemplo de API
 
@@ -64,7 +69,7 @@ int main(void) {
 }
 ~~~
 
-Consulte [wiki/API.md](wiki/API.md) para o ciclo de vida da API, semântica dos retornos e tratamento de erros.
+Consulte [wiki/API.md](wiki/API.md) para o ciclo de vida da API, semântica dos retornos e tratamento de erros. Para um relatório parcial que preserve a validade individual de cada métrica, use [a API de diagnóstico](wiki/Diagnostic-API.md).
 
 ## Estrutura do projeto
 

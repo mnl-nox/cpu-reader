@@ -45,7 +45,7 @@ O teste de UI deve ser executado em ambiente com servidor gráfico ou Xvfb. A in
 
 ## Critérios de aceitação
 
-- A API retorna dados válidos ou valores de erro documentados.
+- A API retorna dados válidos ou valores de erro documentados.\n- O relatório de diagnóstico distingue valor válido, baseline, indisponibilidade e falha por métrica.\n- O teste concorrente usa contextos independentes; compartilhar um contexto entre threads exige sincronização externa.
 - Snapshots retornados por <code>cpu_get_info()</code> são liberados com <code>cpu_free_info()</code>.
 - Uso da CPU fica entre 0 e 100; a primeira amostra estabelece baseline.
 - Temperatura e frequência ausentes retornam <code>-1.0f</code>.

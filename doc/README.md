@@ -18,7 +18,7 @@ A documentação é organizada por tarefa: instalação, uso, arquitetura, requi
 - [Registros de decisões arquiteturais (ADRs)](architecture-decision-records.md)
 - [Diagramas UML](uml-diagrams.md)
 
-## Operação e contribuição
+## Diagnóstico e auditoria\n\n- [Diagnóstico de hardware e confiança das métricas](diagnostico-hardware.md)\n- [API pública de diagnóstico](../wiki/Diagnostic-API.md)\n- [Matriz de suporte Linux](support-matrix.md)\n\n## Operação e contribuição
 
 - [Segurança](../SECURITY.md)
 - [Política de release](../RELEASING.md)

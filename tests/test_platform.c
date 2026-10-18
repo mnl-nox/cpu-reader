@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "cpu.h"
+#include "cpu_diagnostics.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -46,32 +47,45 @@ static int test_thermal_sensor_preference(void) {
   char root[] = "/tmp/cpu-reader-thermal-XXXXXX";
   float temperature;
   int result = -1;
+  cpu_diagnostic_report_t report;
+  char expected_source[512];
 
   if (mkdtemp(root) == NULL) {
     perror("mkdtemp thermal root");
     return -1;
   }
-  /* Put a non-CPU sensor first lexically; selection must still prefer CPU. */
+  /* Prefer package temperature over generic CPU and non-CPU zones. */
   if (make_zone(root, "thermal_zone0", "acpitz\n", "33000\n") != 0 ||
-      make_zone(root, "thermal_zone1", "Package id 0\n", "55000\n") != 0) {
+      make_zone(root, "thermal_zone1", "Package id 0\n", "55000\n") != 0 ||
+      make_zone(root, "thermal_zone2", "cpu-thermal\n", "44000\n") != 0) {
     perror("create thermal fixture");
     goto cleanup;
   }
 
   setenv("CPU_READER_THERMAL_PATH", root, 1);
   temperature = cpu_get_temperature();
-  unsetenv("CPU_READER_THERMAL_PATH");
   if (temperature != 55.0f) {
+    unsetenv("CPU_READER_THERMAL_PATH");
     fprintf(stderr, "expected CPU/package sensor 55 C, got %.2f C\n",
             temperature);
     goto cleanup;
   }
+  if (cpu_get_diagnostic_report(&report, NULL) != 0 ||
+      snprintf(expected_source, sizeof(expected_source),
+               "%s/thermal_zone1/temp", root) >= (int)sizeof(expected_source) ||
+      strcmp(report.temperature_c.source, expected_source) != 0 ||
+      strcmp(report.temperature_c.sensor_type, "Package id 0") != 0) {
+    unsetenv("CPU_READER_THERMAL_PATH");
+    fprintf(stderr, "diagnostic report lost thermal source path/type\n");
+    goto cleanup;
+  }
+  unsetenv("CPU_READER_THERMAL_PATH");
   result = 0;
 
 cleanup:
   {
     char path[512];
-    const char *zones[] = {"thermal_zone0", "thermal_zone1"};
+    const char *zones[] = {"thermal_zone0", "thermal_zone1", "thermal_zone2"};
     size_t index;
     for (index = 0; index < sizeof(zones) / sizeof(zones[0]); index++) {
       snprintf(path, sizeof(path), "%s/%s/type", root, zones[index]);
@@ -443,6 +457,71 @@ static int test_error_state_is_thread_local(void) {
   return 0;
 }
 
+
+static int test_implausible_telemetry_is_rejected(void) {
+  char temperature_path[] = "/tmp/cpu-reader-temp-range-XXXXXX";
+  char frequency_path[] = "/tmp/cpu-reader-freq-range-XXXXXX";
+  char cpuinfo_path[] = "/tmp/cpu-reader-cpuinfo-range-XXXXXX";
+  int temperature_fd = mkstemp(temperature_path);
+  int frequency_fd = mkstemp(frequency_path);
+  int cpuinfo_fd = mkstemp(cpuinfo_path);
+  cpu_info_t *info;
+  int result = -1;
+
+  if (temperature_fd < 0 || frequency_fd < 0 || cpuinfo_fd < 0) {
+    if (temperature_fd >= 0) { close(temperature_fd); unlink(temperature_path); }
+    if (frequency_fd >= 0) { close(frequency_fd); unlink(frequency_path); }
+    if (cpuinfo_fd >= 0) { close(cpuinfo_fd); unlink(cpuinfo_path); }
+    return -1;
+  }
+  close(temperature_fd);
+  close(frequency_fd);
+  close(cpuinfo_fd);
+  if (write_text(temperature_path, "999999\n") != 0 ||
+      write_text(frequency_path, "999999999\n") != 0 ||
+      write_text(cpuinfo_path,
+                 "processor : 0\nProcessor : Test CPU\ncpu MHz : 99999\n") != 0) {
+    goto cleanup;
+  }
+
+  setenv("CPU_READER_CPU_TEMP_PATH", temperature_path, 1);
+  if (cpu_get_temperature() != -1.0f ||
+      cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    fprintf(stderr, "implausible temperature must be rejected\n");
+    unsetenv("CPU_READER_CPU_TEMP_PATH");
+    goto cleanup;
+  }
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+
+  setenv("CPU_READER_CPU_FREQ_PATH", frequency_path, 1);
+  if (cpu_get_clock_speed() != -1.0f ||
+      cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    fprintf(stderr, "implausible frequency must be rejected\n");
+    unsetenv("CPU_READER_CPU_FREQ_PATH");
+    goto cleanup;
+  }
+  unsetenv("CPU_READER_CPU_FREQ_PATH");
+
+  setenv("CPU_READER_CPUINFO_PATH", cpuinfo_path, 1);
+  info = cpu_get_info();
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  if (info != NULL || cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    cpu_free_info(info);
+    fprintf(stderr, "implausible cpu MHz must be rejected in CPU snapshots\n");
+    goto cleanup;
+  }
+
+  result = 0;
+cleanup:
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  unsetenv("CPU_READER_CPU_FREQ_PATH");
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  unlink(temperature_path);
+  unlink(frequency_path);
+  unlink(cpuinfo_path);
+  return result;
+}
+
 int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
       test_non_cpu_sensor_is_not_reported_as_cpu_temperature() != 0 ||
@@ -452,7 +531,7 @@ int main(void) {
       test_topology_with_and_without_ids() != 0 ||
       test_topology_grows_beyond_online_count() != 0 ||
       test_error_snapshot_survives_later_success() != 0 ||
-      test_error_state_is_thread_local() != 0) {
+      test_error_state_is_thread_local() != 0 ||\n      test_implausible_telemetry_is_rejected() != 0) {
     return 1;
   }
   return 0;
