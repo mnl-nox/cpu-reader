@@ -182,7 +182,8 @@ cpu_info_t *cpu_read_info(void) {
     } else if (strcmp(line, "cpu MHz") == 0 &&
                info->current_frequency_mhz == 0.0f) {
       if (cpu_parse_float(separator, &info->current_frequency_mhz) != 0 ||
-          info->current_frequency_mhz <= 0.0f) {
+          info->current_frequency_mhz <= 0.0f ||
+          info->current_frequency_mhz > 20000.0f) {
         free(physical_ids);
         free(core_ids);
         fclose(file);
