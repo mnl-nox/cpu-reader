@@ -29,7 +29,7 @@ O workflow `.github/workflows/distro-audit.yml` mantém os smoke tests de distri
 
 O núcleo não deve exigir privilégios de root para as operações normais. A disponibilidade de sensores depende das interfaces e permissões expostas pelo host.
 
-## Semântica de métricas ausentes
+## API de diagnóstico\n\nA API aditiva `include/cpu_diagnostics.h` registra status individual para uso agregado, temperatura, frequência e processos executáveis. `CPU_DIAG_BASELINE` não deve ser interpretado como utilização medida. A origem registrada é a família de interfaces consultada, não uma prova de sensor físico, calibração ou integridade do host. Consulte [diagnóstico de hardware](diagnostico-hardware.md).\n\n## Semântica de métricas ausentes
 
 - Temperatura e frequência indisponíveis: `-1.0f`, conforme a API legada.
 - Processos indisponíveis: `-1`, conforme a API legada.
