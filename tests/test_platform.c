@@ -127,6 +127,16 @@ cleanup:
 
 static int test_unreadable_cpuinfo_file(void) {
   char path[] = "/tmp/cpu-reader-unreadable-XXXXXX";
+
+  /*
+   * Root can read mode-000 files on Linux. This test verifies permission
+   * denial, so skip it when the test process has privilege to bypass mode
+   * bits; missing-path failures are covered independently.
+   */
+  if (geteuid() == 0) {
+    fprintf(stderr, "SKIP: unreadable cpuinfo permission test (running as root)\n");
+    return 0;
+  }
   int fd = mkstemp(path);
   cpu_info_t *info;
 

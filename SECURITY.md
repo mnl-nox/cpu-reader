@@ -30,3 +30,16 @@ status dos testes. O arquivo não deve ser enviado automaticamente.
 Para relatar uma vulnerabilidade, abra uma issue privada ou entre em contato
 com os mantenedores antes de publicar detalhes exploráveis. Inclua versão,
 plataforma, passos para reproduzir e impacto observado.
+
+## Checklist de auditoria de máquina
+
+Antes de usar os resultados para inventário, conformidade ou decisões operacionais:
+
+- Trate métricas opcionais como desconhecidas quando o retorno for `-1.0f` (temperatura/frequência) ou `-1` (processos), conforme a função.
+- Não interprete `physical_cores == 0` como zero núcleos: significa que a topologia física não pôde ser determinada.
+- Registre a versão da biblioteca, arquitetura, kernel e origem de cada métrica no sistema consumidor. A API atual não expõe a proveniência térmica estruturada; consulte [issue #37](https://github.com/mnl-nox/cpu-reader/issues/37).
+- Não execute o coletor como root apenas para tentar obter sensores; respeite as permissões e a visibilidade disponibilizadas pelo kernel/contêiner.
+- Não trate uma única amostra como evidência histórica. Para auditoria, persista timestamp, unidade, estado de disponibilidade e contexto da coleta na aplicação chamadora.
+- Use o checklist como orientação técnica, não como certificação de segurança ou garantia de integridade do host.
+
+A biblioteca é um coletor local de métricas; não é uma raiz de confiança e não prova que o kernel, o firmware ou os dados expostos pelo host são íntegros.

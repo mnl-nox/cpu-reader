@@ -535,3 +535,24 @@ local informativo sem limiar rígido.
 4. **Aceitar/Rejeitar:** Merge quando consenso for atingido
 5. **Documentar:** Adicionar a este arquivo
 6. **Reverter se necessário:** Marcar como REVERTIDO com nova ADR (ex: ADR-0008-v2)
+
+## ADR-0008: Evolução aditiva da telemetria e separação por camadas
+
+**Status:** PROPOSTO
+
+**Contexto:** A API existente expõe métricas legadas por valores escalares e sentinelas. Consumidores precisam de metadados de origem/validade, mas alterar estruturas públicas ou semântica de funções existentes pode quebrar ABI e aplicações já compiladas.
+
+**Decisão proposta:**
+- Preservar símbolos, layouts públicos e semântica legada.
+- Introduzir novas funções/estruturas versionáveis para resultados estruturados (valor, unidade, estado e proveniência), sem obrigar frontends a conhecer caminhos de `sysfs`.
+- Manter parsing e seleção de fonte em módulos internos específicos por métrica.
+- Manter UI, empacotamento e documentação de frontend fora do núcleo.
+- Definir explicitamente quais operações são independentes por thread e quais exigem sincronização do chamador.
+
+**Consequências:**
+- Migração gradual sem quebra deliberada de compatibilidade.
+- Pequeno custo de API duplicada durante o período de transição.
+- Necessidade de testes de contrato e política explícita de ABI para releases.
+- A API legada permanece disponível até existir uma política de descontinuação formal.
+
+**Trabalho relacionado:** issues #37, #38 e #39.

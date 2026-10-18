@@ -109,3 +109,17 @@ cpu_info.c            cpu_usage.c          cpu_telemetry.c
    válido estiver disponível, a API retorna `-1.0f` em vez de reportar
    silenciosamente a temperatura de outro componente. O nome/origem do sensor
    ainda não é exposto na API.
+
+## Regras para evolução sem acoplamento
+
+- O núcleo não deve depender de GTK, ncurses, systemd, ferramentas de distribuição ou serviços externos.
+- Cada leitor de `/proc` ou `sysfs` deve permanecer atrás de uma interface interna pequena; os frontends consomem exclusivamente a API pública.
+- Novas métricas devem preferir uma API aditiva e estruturas de resultado com status explícito. Não alterar o layout de `cpu_info_t` nem o significado dos retornos legados numa alteração compatível.
+- Os leitores não devem inventar valores: ausência, erro de I/O e conteúdo inválido são estados diferentes e precisam ser documentados.
+- A proveniência de uma métrica deve ser transportada como dado (origem/tipo/unidade/estado), não inferida pelo frontend a partir de mensagens de erro.
+- Não adicionar cache global, mutex ou dependência de terceiros sem ADR, caso de uso demonstrável e testes que definam o contrato de concorrência.
+- Variáveis de ambiente de fixture são configuração de processo; devem ser definidas antes de iniciar threads e nunca alteradas concorrentemente com leituras.
+
+## Contratos de auditoria
+
+A biblioteca fornece observações do sistema operacional, não atestação de hardware. Os dados podem ser omitidos, virtualizados, limitados por namespace/contêiner ou influenciados pelo kernel e firmware. Consumidores que produzem relatórios de auditoria devem registrar timestamp, plataforma, versão da biblioteca, unidade, status e fonte conhecida de cada observação. Até a API térmica estruturada ser implementada, a fonte exata do sensor não é garantida pela API pública.

@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible defect in CPU Reader
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets or sensitive host identifiers. Optional telemetry may be unavailable on your hardware."
+  - type: input
+    id: version
+    attributes:
+      label: CPU Reader version or commit
+      placeholder: "commit SHA or release tag"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Distribution, kernel, architecture
+      placeholder: "e.g. Debian 13, Linux x.y, x86_64"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include the exact command and sanitized fixture if applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Validation performed
+      options:
+        - label: I reproduced this with the latest available commit.
+        - label: I removed sensitive machine identifiers from logs.
