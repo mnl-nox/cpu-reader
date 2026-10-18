@@ -6,7 +6,7 @@
 | Modelo | <code>/proc/cpuinfo</code> | texto | formato varia por arquitetura |
 | Núcleos físicos | campos de topologia disponíveis | contagem estimada | pode ser desconhecida |
 | Processadores lógicos | processadores visíveis no sistema | contagem | pode refletir limites do ambiente |
-| Temperatura | interfaces térmicas em <code>/sys</code> | °C | sensor/driver opcional |
+| Temperatura | <code>/sys/class/thermal/thermal_zone*/type,temp</code> | °C | sensor/driver opcional; hwmon ainda não é descoberto automaticamente |
 | Frequência | sysfs, com fallback documentado | MHz | política de frequência pode variar |
 | Processos em execução | <code>/proc/loadavg</code> | contagem em execução | snapshot momentâneo |
 
