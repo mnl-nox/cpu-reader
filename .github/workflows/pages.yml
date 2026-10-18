@@ -1,32 +1,96 @@
 name: Publish documentation site
+
 on:
   push:
     branches: [main]
     paths:
       - "site/**"
       - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
 concurrency:
-  group: github-pages
+  group: github-pages-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate static site
+      - name: Validate static site and local references
         run: |
           test -s site/index.html
           test -s site/styles.css
           test -s site/script.js
           test -s site/assets/dashboard-preview.svg
           grep -q 'lang="pt-BR"' site/index.html
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          import sys
+
+          root = Path("site")
+          page = root / "index.html"
+          source = page.read_text(encoding="utf-8")
+
+          class Audit(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.ids = set()
+                  self.refs = []
+                  self.images_without_alt = 0
+                  self.has_title = False
+
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if attrs.get("id"):
+                      self.ids.add(attrs["id"])
+                  if tag == "title":
+                      self.has_title = True
+                  if tag == "img" and "alt" not in attrs:
+                      self.images_without_alt += 1
+                  for attr in ("href", "src"):
+                      value = attrs.get(attr)
+                      if value:
+                          self.refs.append((tag, attr, value))
+
+          audit = Audit()
+          audit.feed(source)
+          errors = []
+          if not audit.has_title:
+              errors.append("missing <title>")
+          if audit.images_without_alt:
+              errors.append(f"{audit.images_without_alt} image(s) missing alt attribute")
+
+          for tag, attr, value in audit.refs:
+              parsed = urlsplit(value)
+              if parsed.scheme or value.startswith("//"):
+                  continue
+              if value.startswith("#"):
+                  if value[1:] and value[1:] not in audit.ids:
+                      errors.append(f"broken anchor: {value}")
+                  continue
+              target = (root / parsed.path).resolve()
+              if not target.is_relative_to(root.resolve()) or not target.is_file():
+                  errors.append(f"missing or unsafe local reference: {value} ({tag}[{attr}])")
+
+          if errors:
+              print("\n".join(f"ERROR: {item}" for item in errors))
+              sys.exit(1)
+          print(f"Site validation passed: {len(audit.refs)} references checked.")
+          PY
       - name: Configure Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
         with:
           enablement: true
@@ -34,11 +98,17 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
