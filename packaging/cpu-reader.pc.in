@@ -1,0 +1,10 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/@MULTIARCH@
+includedir=${prefix}/include/cpu-reader
+
+Name: cpu-reader
+Description: Linux CPU hardware telemetry and diagnostic report library
+Version: @VERSION@
+Libs: -L${libdir} -lcpu
+Cflags: -I${includedir}
