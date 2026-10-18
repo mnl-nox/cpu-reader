@@ -63,6 +63,7 @@ int cpu_get_diagnostic_report(cpu_diagnostic_report_t *report, cpu_error_info_t 
   value = cpu_get_temperature_ex(&operation_error);
   metric_capture(&report->temperature_c, value, value < 0.0f, &operation_error);
   cpu_get_temperature_source(report->temperature_c.source, sizeof(report->temperature_c.source));
+  cpu_get_temperature_type(report->temperature_c.sensor_type, sizeof(report->temperature_c.sensor_type));
   cpu_error_info_clear(&operation_error);
   value = cpu_get_clock_speed_ex(&operation_error);
   metric_capture(&report->frequency_mhz, value, value < 0.0f, &operation_error);
