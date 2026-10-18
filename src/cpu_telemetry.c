@@ -214,7 +214,6 @@ static float read_temperature_from_path(const char *path, int report_errors) {
 
   snprintf(last_temperature_source, sizeof(last_temperature_source), "%s", path);
   if (read_first_line(path, buffer, sizeof(buffer)) != 0) {
-    snprintf(last_frequency_source, sizeof(last_frequency_source), "%s; fallback %s", path, cpuinfo_path());
     if (report_errors) {
       if (errno == EOVERFLOW) {
         cpu_set_last_error(CPU_ERROR_PARSE,
@@ -333,6 +332,7 @@ float cpu_read_clock_speed(int report_errors) {
       return fallback_frequency;
     }
 
+    snprintf(last_frequency_source, sizeof(last_frequency_source), "%s; fallback %s", path, cpuinfo_path());
     if (report_errors) {
       if (errno == EOVERFLOW) {
         cpu_set_last_error(CPU_ERROR_PARSE,
