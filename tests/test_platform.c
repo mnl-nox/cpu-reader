@@ -443,6 +443,49 @@ static int test_error_state_is_thread_local(void) {
   return 0;
 }
 
+
+static int test_implausible_telemetry_is_rejected(void) {
+  char temperature_path[] = "/tmp/cpu-reader-temp-range-XXXXXX";
+  char frequency_path[] = "/tmp/cpu-reader-freq-range-XXXXXX";
+  int temperature_fd = mkstemp(temperature_path);
+  int frequency_fd = mkstemp(frequency_path);
+  int result = -1;
+  if (temperature_fd < 0 || frequency_fd < 0) {
+    if (temperature_fd >= 0) { close(temperature_fd); unlink(temperature_path); }
+    if (frequency_fd >= 0) { close(frequency_fd); unlink(frequency_path); }
+    return -1;
+  }
+  close(temperature_fd);
+  close(frequency_fd);
+  if (write_text(temperature_path, "999999\n") != 0 ||
+      write_text(frequency_path, "999999999\n") != 0) {
+    goto cleanup;
+  }
+  setenv("CPU_READER_CPU_TEMP_PATH", temperature_path, 1);
+  if (cpu_get_temperature() != -1.0f ||
+      cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    fprintf(stderr, "implausible temperature must be rejected\n");
+    unsetenv("CPU_READER_CPU_TEMP_PATH");
+    goto cleanup;
+  }
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  setenv("CPU_READER_CPU_FREQ_PATH", frequency_path, 1);
+  if (cpu_get_clock_speed() != -1.0f ||
+      cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    fprintf(stderr, "implausible frequency must be rejected\n");
+    unsetenv("CPU_READER_CPU_FREQ_PATH");
+    goto cleanup;
+  }
+  unsetenv("CPU_READER_CPU_FREQ_PATH");
+  result = 0;
+cleanup:
+  unsetenv("CPU_READER_CPU_TEMP_PATH");
+  unsetenv("CPU_READER_CPU_FREQ_PATH");
+  unlink(temperature_path);
+  unlink(frequency_path);
+  return result;
+}
+
 int main(void) {
   if (test_thermal_sensor_preference() != 0 ||
       test_non_cpu_sensor_is_not_reported_as_cpu_temperature() != 0 ||
@@ -452,7 +495,7 @@ int main(void) {
       test_topology_with_and_without_ids() != 0 ||
       test_topology_grows_beyond_online_count() != 0 ||
       test_error_snapshot_survives_later_success() != 0 ||
-      test_error_state_is_thread_local() != 0) {
+      test_error_state_is_thread_local() != 0 ||\n      test_implausible_telemetry_is_rejected() != 0) {
     return 1;
   }
   return 0;
