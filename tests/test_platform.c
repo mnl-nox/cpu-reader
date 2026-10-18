@@ -461,20 +461,29 @@ static int test_error_state_is_thread_local(void) {
 static int test_implausible_telemetry_is_rejected(void) {
   char temperature_path[] = "/tmp/cpu-reader-temp-range-XXXXXX";
   char frequency_path[] = "/tmp/cpu-reader-freq-range-XXXXXX";
+  char cpuinfo_path[] = "/tmp/cpu-reader-cpuinfo-range-XXXXXX";
   int temperature_fd = mkstemp(temperature_path);
   int frequency_fd = mkstemp(frequency_path);
+  int cpuinfo_fd = mkstemp(cpuinfo_path);
+  cpu_info_t *info;
   int result = -1;
-  if (temperature_fd < 0 || frequency_fd < 0) {
+
+  if (temperature_fd < 0 || frequency_fd < 0 || cpuinfo_fd < 0) {
     if (temperature_fd >= 0) { close(temperature_fd); unlink(temperature_path); }
     if (frequency_fd >= 0) { close(frequency_fd); unlink(frequency_path); }
+    if (cpuinfo_fd >= 0) { close(cpuinfo_fd); unlink(cpuinfo_path); }
     return -1;
   }
   close(temperature_fd);
   close(frequency_fd);
+  close(cpuinfo_fd);
   if (write_text(temperature_path, "999999\n") != 0 ||
-      write_text(frequency_path, "999999999\n") != 0) {
+      write_text(frequency_path, "999999999\n") != 0 ||
+      write_text(cpuinfo_path,
+                 "processor : 0\nProcessor : Test CPU\ncpu MHz : 99999\n") != 0) {
     goto cleanup;
   }
+
   setenv("CPU_READER_CPU_TEMP_PATH", temperature_path, 1);
   if (cpu_get_temperature() != -1.0f ||
       cpu_get_last_error_code() != CPU_ERROR_PARSE) {
@@ -483,6 +492,7 @@ static int test_implausible_telemetry_is_rejected(void) {
     goto cleanup;
   }
   unsetenv("CPU_READER_CPU_TEMP_PATH");
+
   setenv("CPU_READER_CPU_FREQ_PATH", frequency_path, 1);
   if (cpu_get_clock_speed() != -1.0f ||
       cpu_get_last_error_code() != CPU_ERROR_PARSE) {
@@ -491,12 +501,24 @@ static int test_implausible_telemetry_is_rejected(void) {
     goto cleanup;
   }
   unsetenv("CPU_READER_CPU_FREQ_PATH");
+
+  setenv("CPU_READER_CPUINFO_PATH", cpuinfo_path, 1);
+  info = cpu_get_info();
+  unsetenv("CPU_READER_CPUINFO_PATH");
+  if (info != NULL || cpu_get_last_error_code() != CPU_ERROR_PARSE) {
+    cpu_free_info(info);
+    fprintf(stderr, "implausible cpu MHz must be rejected in CPU snapshots\n");
+    goto cleanup;
+  }
+
   result = 0;
 cleanup:
   unsetenv("CPU_READER_CPU_TEMP_PATH");
   unsetenv("CPU_READER_CPU_FREQ_PATH");
+  unsetenv("CPU_READER_CPUINFO_PATH");
   unlink(temperature_path);
   unlink(frequency_path);
+  unlink(cpuinfo_path);
   return result;
 }
 
