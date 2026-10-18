@@ -5,30 +5,19 @@
 ### Added
 - Additive per-metric diagnostic report API in include/cpu_diagnostics.h without changing legacy public structure layouts.
 - Diagnostic statuses distinguish valid values, unavailable sensors, errors and CPU-usage baseline samples.
-- Reject implausible CPU telemetry (temperature above 250 °C and frequency above 20,000 MHz) instead of accepting corrupted readings.
+- Selected thermal source path and sensor type, deterministic package-sensor priority, and telemetry plausibility checks.
 - Concurrent sampling contract tests for independent usage contexts and thread-local legacy errors.
 - Installable static library, public headers and pkg-config metadata in the Debian package.
 - Hardware diagnostic trust/limitations guide and public diagnostic API reference.
 
 ### Changed
-- Standard make test now includes diagnostic report and concurrency tests.
+- Standard make test now includes diagnostic report, telemetry-boundary and concurrency tests.
 - Debian package validation compiles and runs an external consumer against the installed library.
-- GTK4 desktop monitor with periodic CPU metrics refresh and Debian package target.
-- Versioned project wiki with installation, tutorial, API, architecture, metrics, testing and troubleshooting guides.
-- Minimal responsive project website with installation tutorial and an illustrative dashboard preview.
-- GitHub Pages workflow for deployment of the static site.
+- Build, architecture, API, support-matrix and release documentation aligned with implemented contracts.
 
 ### Removed
-- Tracked generated library binary `libcpu.a`; the build recreates it locally.
+- Tracked generated library binary libcpu.a; the build recreates it locally.
 - Redundant legacy software requirements specification consolidated into functional and non-functional requirements.
-
-
-### Changed
-- Reorganized the repository documentation to match the current file structure
-- Added dedicated build and validation guides at the repository root
-- Simplified the main README and documentation index to reference only existing files
-- Added Docker Compose validation services for functionality, sanitizers,
-  hardening, static analysis and local telemetry
 
 ## [v1.0.0-beta.1] - 2026-10-04
 
