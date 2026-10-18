@@ -12,6 +12,7 @@
 
 #if defined(__GNUC__) || defined(__clang__)
 static __thread char last_temperature_source[4096];
+static __thread char last_temperature_type[128];
 static __thread char last_frequency_source[4096];
 #else
 #error "cpu-reader requires GCC or Clang thread-local storage support"
@@ -20,6 +21,12 @@ static __thread char last_frequency_source[4096];
 void cpu_get_temperature_source(char *destination, size_t size) {
   if (destination != NULL && size > 0) {
     snprintf(destination, size, "%s", last_temperature_source);
+  }
+}
+
+void cpu_get_temperature_type(char *destination, size_t size) {
+  if (destination != NULL && size > 0) {
+    snprintf(destination, size, "%s", last_temperature_type);
   }
 }
 
