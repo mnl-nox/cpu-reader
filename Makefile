@@ -73,10 +73,11 @@ $(MONITOR): examples/monitor.c $(LIBRARY)
 	@mkdir -p build
 	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu -lncurses $(LDFLAGS)
 
-test: build/test_cpu build/test_platform build/test_diagnostics
+test: build/test_cpu build/test_platform build/test_diagnostics build/test_concurrency
 	./build/test_cpu
 	./build/test_platform
 	./build/test_diagnostics
+	./build/test_concurrency
 
 test-diagnostics: build/test_diagnostics
 	./build/test_diagnostics
@@ -142,3 +143,7 @@ clean:
 build/test_diagnostics: tests/test_diagnostics.c $(LIBRARY)
 	@mkdir -p build
 	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu $(LDFLAGS)
+
+build/test_concurrency: tests/test_concurrency.c $(LIBRARY)
+	@mkdir -p build
+	$(CC) $(CFLAGS) -o $@ $< -L. -lcpu $(LDFLAGS) -pthread
