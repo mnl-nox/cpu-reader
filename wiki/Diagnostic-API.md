@@ -23,4 +23,4 @@ int main(void) {
 }
 ~~~
 
-cpu_get_diagnostic_report() devolve 0 quando consegue montar a fotografia, ainda que métricas estejam indisponíveis. Consulte cada status, error_code e message. CPU_DIAG_BASELINE em uso de CPU significa que uma única amostra não é suficiente para estimar percentual entre intervalos. A string source descreve a família de interfaces consultada; não é prova de origem física nem atestação.
+cpu_get_diagnostic_report() devolve 0 quando consegue montar a fotografia, ainda que métricas estejam indisponíveis. Consulte cada status, error_code e message. CPU_DIAG_BASELINE em uso de CPU significa que uma única amostra não é suficiente para estimar percentual entre intervalos. Falhas de leitura/parsing, inclusive caminhos ausentes que gerem erro de I/O, permanecem em CPU_DIAG_ERROR; indisponibilidade de sensor sem erro de leitura fica em CPU_DIAG_UNAVAILABLE. A string source descreve a família de interfaces consultada; não é prova de origem física nem atestação.
