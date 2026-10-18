@@ -8,7 +8,7 @@ Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um m
 
 - Lê modelo, topologia lógica/física e flags da CPU.
 - Calcula uso agregado da CPU a partir de <code>/proc/stat</code>.
-- Consulta temperatura e frequência quando o kernel expõe sensores compatíveis.
+- Consulta temperatura e frequência quando o kernel expõe sensores compatíveis; rejeita valores fora das faixas de plausibilidade documentadas.
 - Conta processos em execução por meio de <code>/proc/loadavg</code>.
 - Fornece snapshots de erro explícitos por meio das funções da família <code>*_ex</code>.
 - Oferece uma API aditiva de diagnóstico por métrica em <code>include/cpu_diagnostics.h</code>, com status, origem provável e erro independente.
