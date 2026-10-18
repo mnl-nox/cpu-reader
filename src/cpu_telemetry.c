@@ -151,7 +151,7 @@ static float parse_frequency_from_cpuinfo(void) {
       float frequency;
 
       fclose(file);
-      if (cpu_parse_float(separator, &frequency) == 0 && frequency > 0.0f) {
+      if (cpu_parse_float(separator, &frequency) == 0 && frequency > 0.0f && frequency <= 20000.0f) {
         return frequency;
       }
       return -1.0f;
@@ -207,7 +207,7 @@ static float read_temperature_from_path(const char *path, int report_errors) {
     return -1.0f;
   }
 
-  if (cpu_parse_long(buffer, &value) != 0 || value < 0) {
+  if (cpu_parse_long(buffer, &value) != 0 || value < 0 || value > 250000) {
     if (report_errors) {
       cpu_set_last_error(CPU_ERROR_PARSE,
                          "Nao foi possivel interpretar a temperatura em %s",
@@ -321,7 +321,7 @@ float cpu_read_clock_speed(int report_errors) {
     return -1.0f;
   }
 
-  if (cpu_parse_long(buffer, &value) != 0 || value <= 0) {
+  if (cpu_parse_long(buffer, &value) != 0 || value <= 0 || value > 20000000L) {
     if (report_errors) {
       cpu_set_last_error(CPU_ERROR_PARSE,
                          "Nao foi possivel interpretar a frequencia em %s",
