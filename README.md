@@ -19,7 +19,7 @@ Biblioteca C99 e monitor de CPU para Linux. O projeto oferece uma API em C, um m
 
 ## Instalação rápida — Debian/Ubuntu
 
-Para compilar localmente, instale os requisitos e gere o pacote:
+Para compilar localmente, instale os requisitos e gere o pacote. Para usar somente a biblioteca, GTK4 não é necessário; veja os alvos `make core` e `make test`:
 
 ~~~sh
 sudo apt update
@@ -31,7 +31,7 @@ sudo apt install ./build/cpu-reader_*.deb
 cpu-reader
 ~~~
 
-O pacote inclui o monitor desktop GTK4. O pacote de build é gerado para a arquitetura local; não é uma release oficial por si só.
+O pacote inclui o monitor GTK4, a biblioteca estática `libcpu.a`, os cabeçalhos públicos e metadados `pkg-config` para consumidores C. O pacote de build é gerado para a arquitetura local; não é uma release oficial por si só.
 
 ## Compilar e testar a biblioteca
 
@@ -44,7 +44,7 @@ make test-security
 
 Para compilar o monitor de terminal, instale também <code>libncurses-dev</code> e execute <code>make monitor</code>. Para compilar e validar a interface GTK4, consulte [BUILD.md](BUILD.md).
 
-## Exemplo de API
+## Exemplo de API de diagnóstico\n\nO cabeçalho `cpu_diagnostics.h` fornece status e erros independentes para cada métrica. A chamada pode retornar um relatório parcial quando sensores não existem; consulte [a referência da API de diagnóstico](wiki/Diagnostic-API.md) e [os limites de confiança](doc/diagnostico-hardware.md).\n\n## Exemplo de API
 
 ~~~c
 #include <stdio.h>
