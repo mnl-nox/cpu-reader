@@ -4,7 +4,8 @@
 
 ### Added
 - Additive per-metric diagnostic report API in include/cpu_diagnostics.h without changing legacy public structure layouts.
-- Diagnostic statuses distinguish valid values, unavailable sensors, errors and CPU-usage baseline samples.\n- Reject implausible CPU telemetry (temperature above 250 °C and frequency above 20,000 MHz) instead of accepting corrupted readings.
+- Diagnostic statuses distinguish valid values, unavailable sensors, errors and CPU-usage baseline samples.
+- Reject implausible CPU telemetry (temperature above 250 °C and frequency above 20,000 MHz) instead of accepting corrupted readings.
 - Concurrent sampling contract tests for independent usage contexts and thread-local legacy errors.
 - Installable static library, public headers and pkg-config metadata in the Debian package.
 - Hardware diagnostic trust/limitations guide and public diagnostic API reference.
