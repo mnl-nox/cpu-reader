@@ -49,7 +49,7 @@ Snapshots retornados por <code>cpu_get_info()</code> devem ser liberados com <co
 
 O contexto implícito de uso e o relatório legado de erro são locais à thread em compiladores GCC/Clang. Contextos explícitos não devem ser compartilhados simultaneamente por threads sem sincronização externa. Prefira as variantes <code>*_ex</code> para associar o diagnóstico à chamada.
 
-## Compilação
+## Diagnóstico estruturado\n\nPara um snapshot que mantenha status, código de erro, mensagem e família de fonte para cada métrica, consulte [API de diagnóstico](Diagnostic-API.md) e o cabeçalho público `include/cpu_diagnostics.h`. A API nova é aditiva e não altera o layout de `cpu_info_t`.\n\n## Compilação
 
 ~~~sh
 make core
