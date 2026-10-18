@@ -47,7 +47,16 @@ Snapshots retornados por <code>cpu_get_info()</code> devem ser liberados com <co
 
 ## Contextos e concorrência
 
-O contexto implícito de uso e o relatório legado de erro são locais à thread em compiladores GCC/Clang. Contextos explícitos não devem ser compartilhados simultaneamente por threads sem sincronização externa. Prefira as variantes <code>*_ex</code> para associar o diagnóstico à chamada.
+| Operação/estado | Contrato |
+|---|---|
+| Contexto de uso padrão | Estado local à thread em GCC/Clang; chamadas da mesma thread compartilham o baseline. |
+| Contexto explícito `cpu_usage_context_t` | Cada thread deve possuir seu próprio contexto ou sincronizar todo acesso compartilhado. A biblioteca não coloca locks no contexto do chamador. |
+| Erro legado `cpu_get_last_error*()` | Estado local à thread; consulte imediatamente após a chamada. |
+| Snapshot `cpu_error_info_t` via `*_ex` | Pertence ao chamador e permanece estável até ser limpo ou sobrescrito pelo próprio chamador. |
+| Variáveis `CPU_READER_*_PATH` | São variáveis de ambiente do processo. Configure-as antes de iniciar threads; não use `setenv()`/`unsetenv()` concorrentemente com leituras. |
+| Relatório `cpu_diagnostic_report_t` | Estrutura pertencente ao chamador; use uma instância por operação/thread ou sincronize acessos. |
+
+O núcleo evita locks globais e permite amostragem concorrente com contextos independentes. As funções de leitura podem ser chamadas simultaneamente, mas o contexto mutável e as estruturas de saída continuam sob responsabilidade do consumidor. As strings de origem/sensor do relatório são copiadas para a estrutura retornada, sem ponteiros para buffers internos. Prefira as variantes `*_ex` para associar o diagnóstico à chamada.
 
 ## Diagnóstico estruturado\n\nPara um snapshot que mantenha status, código de erro, mensagem e família de fonte para cada métrica, consulte [API de diagnóstico](Diagnostic-API.md) e o cabeçalho público `include/cpu_diagnostics.h`. A API nova é aditiva e não altera o layout de `cpu_info_t`.\n\n## Compilação
 
