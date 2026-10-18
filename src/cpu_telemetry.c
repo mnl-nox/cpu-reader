@@ -10,6 +10,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__GNUC__) || defined(__clang__)
+static __thread char last_temperature_source[4096];
+static __thread char last_frequency_source[4096];
+#else
+#error "cpu-reader requires GCC or Clang thread-local storage support"
+#endif
+
+void cpu_get_temperature_source(char *destination, size_t size) {
+  if (destination != NULL && size > 0) {
+    snprintf(destination, size, "%s", last_temperature_source);
+  }
+}
+
+void cpu_get_frequency_source(char *destination, size_t size) {
+  if (destination != NULL && size > 0) {
+    snprintf(destination, size, "%s", last_frequency_source);
+  }
+}
+
 static const char *cpuinfo_path(void) {
   const char *path = getenv("CPU_READER_CPUINFO_PATH");
 
@@ -193,7 +212,9 @@ static float read_temperature_from_path(const char *path, int report_errors) {
   char buffer[128];
   long value;
 
+  snprintf(last_temperature_source, sizeof(last_temperature_source), "%s", path);
   if (read_first_line(path, buffer, sizeof(buffer)) != 0) {
+    snprintf(last_frequency_source, sizeof(last_frequency_source), "%s; fallback %s", path, cpuinfo_path());
     if (report_errors) {
       if (errno == EOVERFLOW) {
         cpu_set_last_error(CPU_ERROR_PARSE,
@@ -286,6 +307,7 @@ float cpu_read_temperature(int report_errors) {
   const char *path = cpu_temp_path();
   float temperature;
 
+  last_temperature_source[0] = '\0';
   temperature = path != NULL ? read_temperature_from_path(path, report_errors)
                              : read_temperature_auto(report_errors);
   if (temperature >= 0.0f && report_errors) {
@@ -299,9 +321,12 @@ float cpu_read_clock_speed(int report_errors) {
   const char *path = cpu_freq_path();
   char buffer[128];
   long value;
+
+  last_frequency_source[0] = '\0';
   if (read_first_line(path, buffer, sizeof(buffer)) != 0) {
     float fallback_frequency = parse_frequency_from_cpuinfo();
     if (fallback_frequency > 0.0f) {
+      snprintf(last_frequency_source, sizeof(last_frequency_source), "%s (cpu MHz)", cpuinfo_path());
       if (report_errors) {
         cpu_clear_last_error();
       }
@@ -330,6 +355,7 @@ float cpu_read_clock_speed(int report_errors) {
     return -1.0f;
   }
 
+  snprintf(last_frequency_source, sizeof(last_frequency_source), "%s", path);
   if (report_errors) {
     cpu_clear_last_error();
   }
