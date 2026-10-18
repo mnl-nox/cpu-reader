@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "cpu.h"
+#include "cpu_diagnostics.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -46,6 +47,8 @@ static int test_thermal_sensor_preference(void) {
   char root[] = "/tmp/cpu-reader-thermal-XXXXXX";
   float temperature;
   int result = -1;
+  cpu_diagnostic_report_t report;
+  char expected_source[512];
 
   if (mkdtemp(root) == NULL) {
     perror("mkdtemp thermal root");
@@ -60,12 +63,22 @@ static int test_thermal_sensor_preference(void) {
 
   setenv("CPU_READER_THERMAL_PATH", root, 1);
   temperature = cpu_get_temperature();
-  unsetenv("CPU_READER_THERMAL_PATH");
   if (temperature != 55.0f) {
+    unsetenv("CPU_READER_THERMAL_PATH");
     fprintf(stderr, "expected CPU/package sensor 55 C, got %.2f C\n",
             temperature);
     goto cleanup;
   }
+  if (cpu_get_diagnostic_report(&report, NULL) != 0 ||
+      snprintf(expected_source, sizeof(expected_source),
+               "%s/thermal_zone1/temp", root) >= (int)sizeof(expected_source) ||
+      strcmp(report.temperature_c.source, expected_source) != 0 ||
+      strcmp(report.temperature_c.sensor_type, "Package id 0") != 0) {
+    unsetenv("CPU_READER_THERMAL_PATH");
+    fprintf(stderr, "diagnostic report lost thermal source path/type\n");
+    goto cleanup;
+  }
+  unsetenv("CPU_READER_THERMAL_PATH");
   result = 0;
 
 cleanup:
