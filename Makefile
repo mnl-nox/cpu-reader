@@ -139,7 +139,7 @@ build/cpu_usage.o: src/cpu_usage.c include/cpu.h src/cpu_internal.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-build/cpu_diagnostics.o: src/cpu_diagnostics.c include/cpu_diagnostics.h include/cpu.h
+build/cpu_diagnostics.o: src/cpu_diagnostics.c include/cpu_diagnostics.h include/cpu.h src/cpu_internal.h
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c -o $@ $<
 
