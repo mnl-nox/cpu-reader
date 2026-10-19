@@ -13,6 +13,7 @@ A documentação é organizada por tarefa: instalação, uso, arquitetura, requi
 ## Especificação técnica
 
 - [Arquitetura](arquitetura.md)
+- [Roadmap de telemetria de sistema](system-telemetry-roadmap.md)
 - [Requisitos funcionais](requerimentos.md)
 - [Requisitos não funcionais](requisitos-nao-funcionais.md)
 - [Registros de decisões arquiteturais (ADRs)](architecture-decision-records.md)
