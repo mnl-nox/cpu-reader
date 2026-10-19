@@ -1,67 +1,100 @@
 # Referência da API C
 
-A API pública está declarada em <code>include/cpu.h</code>. Use o cabeçalho público em vez de incluir arquivos internos de <code>src/</code>.
+A API pública está declarada em `include/cpu.h` e `include/cpu_diagnostics.h`. Inclua os cabeçalhos públicos; não inclua arquivos internos de `src/`. A API e a biblioteca estão em evolução beta.
 
-## Ciclo de vida básico
+## Exemplo mínimo
 
-~~~c
+```c
 #include <stdio.h>
 #include "cpu.h"
 
-int main(void) {
+int main(void)
+{
     cpu_info_t *info = cpu_get_info();
+
     if (info == NULL) {
-        fprintf(stderr, "Falha ao consultar CPU: %s\\n", cpu_get_last_error());
+        fprintf(stderr, "Falha ao consultar CPU: %s\n",
+                cpu_get_last_error());
         return 1;
     }
 
-    printf("%s\\n", info->model);
+    printf("Modelo: %s\n", info->model);
     cpu_free_info(info);
     return 0;
 }
-~~~
+```
 
-Snapshots retornados por <code>cpu_get_info()</code> devem ser liberados com <code>cpu_free_info()</code>.
+Compile a partir da raiz do repositório:
+
+```sh
+make core
+cc -std=c99 -Wall -Wextra -Wpedantic -Iinclude exemplo.c -L. -lcpu -o exemplo
+./exemplo
+```
 
 ## Funções principais
 
 | Função | Descrição |
 |---|---|
-| <code>cpu_init()</code> / <code>cpu_cleanup()</code> | Reinicializa o estado do contexto padrão |
-| <code>cpu_get_info()</code> | Retorna um snapshot de informações estáticas |
-| <code>cpu_get_usage()</code> | Calcula uso agregado entre amostras |
-| <code>cpu_usage_context_init()</code> | Inicializa contexto de uso independente |
-| <code>cpu_get_usage_context()</code> | Calcula uso para contexto explícito |
-| <code>cpu_get_temperature()</code> | Consulta temperatura em graus Celsius |
-| <code>cpu_get_clock_speed()</code> | Consulta frequência em MHz |
-| <code>cpu_get_active_processes()</code> | Retorna a contagem de processos em execução |
-| <code>cpu_get_info_ex()</code> e demais variantes <code>*_ex</code> | Capturam informações de erro em estrutura pertencente ao chamador |
+| `cpu_init()` / `cpu_cleanup()` | Inicializa ou reinicia o contexto padrão de amostragem por thread. |
+| `cpu_get_info()` | Retorna um snapshot alocado de informações de CPU ou `NULL`. |
+| `cpu_free_info()` | Libera o snapshot retornado por `cpu_get_info()`. Aceita `NULL`. |
+| `cpu_get_usage()` | Calcula o uso agregado entre amostras no contexto padrão. |
+| `cpu_usage_context_init()` | Inicializa um contexto explícito de amostragem independente. |
+| `cpu_get_usage_context()` | Calcula o uso agregado usando um contexto explícito. |
+| `cpu_usage_context_cleanup()` | Reinicia/limpa o contexto explícito. |
+| `cpu_get_temperature()` | Consulta temperatura em graus Celsius quando disponível. |
+| `cpu_get_clock_speed()` | Consulta frequência atual em MHz quando disponível. |
+| `cpu_get_active_processes()` | Retorna a contagem runnable informada por `/proc/loadavg`. |
+| Variantes `*_ex` | Associam um snapshot de erro à operação por meio de `cpu_error_info_t`. |
 
-## Valores de retorno
+Para o relatório estruturado por métrica, consulte [API de diagnóstico](Diagnostic-API.md).
 
-- <code>cpu_get_info()</code>: ponteiro para snapshot ou <code>NULL</code>.
-- <code>cpu_get_usage*()</code>: percentual de 0 a 100; primeira amostra estabelece baseline e retorna zero. Erro de leitura/parsing pode retornar <code>-1.0f</code>.
-- <code>cpu_get_temperature()</code> e <code>cpu_get_clock_speed()</code>: <code>-1.0f</code> quando indisponíveis.
-- <code>cpu_get_active_processes()</code>: <code>-1</code> em falha.
-- <code>physical_cores == 0</code>: topologia física desconhecida ou indisponível.
+## Retornos e valores sentinela
+
+- `cpu_get_info()`: ponteiro para snapshot ou `NULL` em falha.
+- `cpu_get_usage*()`: percentual calculado entre 0 e 100; `-1.0f` em falha. A primeira amostra de um contexto estabelece baseline e retorna `0.0f` na API legada.
+- `cpu_get_temperature()` e `cpu_get_clock_speed()`: `-1.0f` quando indisponíveis ou inválidas.
+- `cpu_get_active_processes()`: `-1` em falha.
+- `physical_cores == 0`: topologia física desconhecida ou indisponível, não ausência de núcleos.
+- `logical_processors`: quantidade de entradas de processador lógico identificadas na fonte lida.
+- `threads`: campo legado baseado em processadores online visíveis via `sysconf`; não é sinônimo obrigatório de `logical_processors`.
+
+Não apresente valores sentinela como medições. Para novas APIs, o projeto está migrando para estados explícitos por métrica.
+
+## Ownership e ciclo de vida
+
+- O consumidor é responsável por liberar cada snapshot `cpu_info_t *` com `cpu_free_info()`.
+- O snapshot retornado não deve ser usado depois de liberado.
+- Estruturas `cpu_error_info_t` fornecidas ao chamador são de propriedade do chamador.
+- Não mantenha ponteiros para buffers locais depois do retorno de uma função.
+- Sempre verifique o retorno antes de ler os campos de uma estrutura.
+
+## Erros
+
+As funções legadas `cpu_get_last_error_code()` e `cpu_get_last_error()` fornecem o diagnóstico da operação recente na thread atual. Consulte-as imediatamente após a chamada que falhou.
+
+As variantes `*_ex` recebem um `cpu_error_info_t *` pertencente ao chamador e tornam o erro associado à operação explícito. Use `cpu_error_info_clear()` quando desejar limpar a estrutura. Veja os tipos e contratos exatos nos cabeçalhos públicos.
 
 ## Contextos e concorrência
 
-| Operação/estado | Contrato |
+| Recurso | Contrato |
 |---|---|
-| Contexto de uso padrão | Estado local à thread em GCC/Clang; chamadas da mesma thread compartilham o baseline. |
-| Contexto explícito `cpu_usage_context_t` | Cada thread deve possuir seu próprio contexto ou sincronizar todo acesso compartilhado. A biblioteca não coloca locks no contexto do chamador. |
-| Erro legado `cpu_get_last_error*()` | Estado local à thread; consulte imediatamente após a chamada. |
-| Snapshot `cpu_error_info_t` via `*_ex` | Pertence ao chamador e permanece estável até ser limpo ou sobrescrito pelo próprio chamador. |
-| Variáveis `CPU_READER_*_PATH` | São variáveis de ambiente do processo. Configure-as antes de iniciar threads; não use `setenv()`/`unsetenv()` concorrentemente com leituras. |
-| Relatório `cpu_diagnostic_report_t` | Estrutura pertencente ao chamador; use uma instância por operação/thread ou sincronize acessos. |
+| Contexto padrão | O estado de amostragem é local à thread no toolchain suportado; chamadas na mesma thread compartilham o baseline padrão. |
+| `cpu_usage_context_t` | Use um contexto independente por thread. Se for compartilhado, o consumidor deve sincronizar todo acesso mutável. |
+| `cpu_error_info_t` | A estrutura pertence ao chamador; não compartilhe a mesma instância mutável sem sincronização. |
+| Variáveis `CPU_READER_*_PATH` | Configure antes de iniciar threads. Alterar o ambiente concorrentemente com leituras não é seguro. |
 
-O núcleo evita locks globais e permite amostragem concorrente com contextos independentes. As funções de leitura podem ser chamadas simultaneamente, mas o contexto mutável e as estruturas de saída continuam sob responsabilidade do consumidor. As strings de origem/sensor do relatório são copiadas para a estrutura retornada, sem ponteiros para buffers internos. Prefira as variantes `*_ex` para associar o diagnóstico à chamada.
+A existência de estado local à thread não torna um mesmo contexto explícito seguro para uso concorrente. A biblioteca não oferece um lock implícito para contextos pertencentes ao consumidor.
 
-## Diagnóstico estruturado\n\nPara um snapshot que mantenha status, código de erro, mensagem e família de fonte para cada métrica, consulte [API de diagnóstico](Diagnostic-API.md) e o cabeçalho público `include/cpu_diagnostics.h`. A API nova é aditiva e não altera o layout de `cpu_info_t`.\n\n## Compilação
+## Fontes de dados para testes
 
-~~~sh
-make core
-~~~
+A implementação suporta overrides de caminho para algumas fontes, incluindo `CPU_READER_CPUINFO_PATH`, `CPU_READER_PROC_STAT_PATH`, `CPU_READER_LOADAVG_PATH`, `CPU_READER_CPU_TEMP_PATH`, `CPU_READER_THERMAL_PATH` e `CPU_READER_CPU_FREQ_PATH`. Consulte [arquitetura](../doc/arquitetura.md) e os testes para os formatos exatos.
 
-Para vincular a biblioteca estática, inclua <code>include/</code> e aponte o linker para <code>libcpu.a</code>. Consulte os exemplos existentes e o Makefile para as flags utilizadas.
+Configure overrides antes de iniciar threads e use arquivos de fixture controlados. Não use esses overrides como mecanismo de configuração de segurança para processos não confiáveis.
+
+## Limites da API atual
+
+A API existente fornece informações de CPU e uso agregado, temperatura/frequência opcionais, contagem runnable e diagnóstico. A coleta pública de uso por CPU lógica, memória/swap/PSI, rede e I/O por dispositivo é planejada, não deve ser inferida da interface GTK. Acompanhe o [roadmap](../doc/system-telemetry-roadmap.md).
+
+A biblioteca observa dados expostos pelo sistema operacional. Não fornece atestação criptográfica de hardware, kernel ou firmware, nem garante calibração física de sensores.

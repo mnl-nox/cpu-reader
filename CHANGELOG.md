@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Documentation
+- Rewrote the root README as a professional project entry point with scope, quick start, API example, metric semantics, security notes and links to detailed documentation.
+- Expanded the FAQ into a comprehensive Q&A covering installation, metric interpretation, API ownership, concurrency, security and project roadmap.
+- Added a QA and reporting guide with validation layers, evidence rules, report template and release-blocking criteria.
+- Repaired the technical documentation index and aligned the wiki landing page and C API reference with the implemented beta scope.
+
 ### Added
 - Additive per-metric diagnostic report API in include/cpu_diagnostics.h without changing legacy public structure layouts.
 - Diagnostic statuses distinguish valid values, unavailable sensors, errors and CPU-usage baseline samples.
