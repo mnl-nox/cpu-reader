@@ -4,71 +4,72 @@
 
 # CPU Reader
 
-**Biblioteca C e ferramentas de diagnóstico de CPU para Linux.**
+**Biblioteca C99 e ferramentas de diagnóstico de CPU para Linux**
 
-Leitura de métricas locais com estados explícitos, tratamento de erros e limites de confiança documentados.
+Leituras locais de métricas, API de diagnóstico com estados explícitos e ferramentas para desenvolvimento e validação.
 
-[Documentação](doc/README.md) · [Tutorial](wiki/Tutorial.md) · [API](wiki/API.md) · [Segurança](SECURITY.md) · [Contribuir](CONTRIBUTING.md)
+[Documentação técnica](doc/README.md) · [Tutorial](wiki/Tutorial.md) · [API C](wiki/API.md) · [Perguntas frequentes](wiki/FAQ.md) · [Segurança](SECURITY.md)
 
 [![CI](https://github.com/mnl-nox/cpu-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/mnl-nox/cpu-reader/actions/workflows/ci.yml)
 [![Auditoria de distribuições](https://github.com/mnl-nox/cpu-reader/actions/workflows/distro-audit.yml/badge.svg)](https://github.com/mnl-nox/cpu-reader/actions/workflows/distro-audit.yml)
-[![Site](https://github.com/mnl-nox/cpu-reader/actions/workflows/pages.yml/badge.svg)](https://github.com/mnl-nox/cpu-reader/actions/workflows/pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform: Linux](https://img.shields.io/badge/platform-Linux-111827.svg)](doc/support-matrix.md)
+[![Plataforma: Linux](https://img.shields.io/badge/platform-Linux-111827.svg)](doc/support-matrix.md)
 
 </div>
 
-> **Estado do projeto: Beta.** APIs e empacotamento continuam em evolução. Não trate métricas ausentes como zero nem use o projeto como única fonte para decisões de segurança ou integridade de hardware.
+> **Estado:** beta em evolução. O núcleo implementado monitora principalmente CPU; a expansão para telemetria completa do sistema está planejada e será entregue por etapas. Não interprete métricas indisponíveis como zero nem use o projeto como única fonte para decisões críticas.
 
-## Visão geral
+## 1. Visão geral
 
-CPU Reader é um projeto C orientado a Linux que consulta interfaces do sistema operacional, principalmente `/proc` e `/sys`. O repositório contém uma biblioteca estática, um monitor de terminal, uma aplicação GTK4 opcional e ferramentas de validação.
+CPU Reader é uma biblioteca C99 para consultar informações expostas localmente pelo Linux, principalmente por `/proc` e `/sys`. O repositório inclui uma biblioteca estática, um monitor de terminal opcional, uma interface GTK4 opcional e ferramentas de validação.
 
-- **Informações da CPU:** modelo, flags e topologia identificável pelo sistema.
-- **Uso agregado:** cálculo por amostras sucessivas de `/proc/stat`.
-- **Temperatura e frequência:** leitura quando o kernel e os drivers expõem interfaces compatíveis.
-- **Diagnóstico estruturado:** estado, erro, mensagem e origem disponível por métrica em `include/cpu_diagnostics.h`.
-- **Validação:** testes funcionais, concorrência, sanitizers, hardening e smoke tests por distribuição/arquitetura.
+### Capacidades implementadas
 
-A disponibilidade e a semântica dos dados dependem do kernel, do driver, do firmware e do ambiente de execução. A API de diagnóstico pode retornar um relatório parcial; verifique o estado individual de cada métrica.
+- Informações de CPU, modelo, flags e topologia quando expostas pelo kernel.
+- Uso agregado da CPU calculado a partir de amostras sucessivas de `/proc/stat`.
+- Leitura opcional de temperatura e frequência, conforme interfaces de kernel e drivers disponíveis.
+- Relatório de diagnóstico por métrica, com status, código de erro, mensagem e fonte quando disponível.
+- Contextos de amostragem independentes e contratos documentados para concorrência.
+- Testes funcionais, testes de plataforma/concorrência, sanitizers, hardening e empacotamento Debian.
 
-## Começar rapidamente
+### Escopo que ainda está em evolução
 
-### Compilar a biblioteca e executar os testes
+A biblioteca **não deve ser considerada, nesta versão, uma solução completa de monitoramento de sistema**. Coleta pública de CPU por núcleo lógico, memória/swap, PSI, inventário detalhado de processos, taxas de rede e I/O de armazenamento estão no roadmap. O dashboard GTK não substitui uma API pública de coleta; novos coletores devem ser implementados no núcleo e consumidos pelos frontends.
 
-Requisitos básicos: compilador C99 (GCC ou Clang), GNU Make e libc Linux.
+Consulte o [roadmap de telemetria](doc/system-telemetry-roadmap.md) e as [issues do projeto](https://github.com/mnl-nox/cpu-reader/issues).
+
+## 2. Começar rapidamente
+
+### Requisitos do núcleo
+
+- Linux com interfaces `/proc` e `/sys` apropriadas.
+- GCC ou Clang com suporte a C99.
+- GNU Make e libc de desenvolvimento.
+
+### Compilar e testar
 
 ```sh
 git clone https://github.com/mnl-nox/cpu-reader.git
 cd cpu-reader
 
+make clean
 make core
 make test
 ```
 
-O artefato de desenvolvimento local é `libcpu.a`. Para sanitizers e flags de hardening:
+O alvo `make core` produz `libcpu.a`. Para verificações adicionais:
 
 ```sh
 make test-sanitize
 make test-security
+make test-portable
 ```
 
-Esses alvos limpam e recompilam artefatos. Não os execute simultaneamente no mesmo diretório de trabalho.
+Os alvos de sanitizers, hardening e portabilidade podem limpar e recompilar os artefatos. **Não os execute simultaneamente no mesmo diretório de trabalho.**
 
-### Debian / Ubuntu: aplicativo GTK4 e pacote local
+### Monitores opcionais
 
-```sh
-sudo apt update
-sudo apt install -y build-essential gcc make pkg-config libgtk-4-dev dpkg-dev
-
-make package-deb
-sudo apt install ./build/cpu-reader_*.deb
-cpu-reader
-```
-
-O pacote é gerado para a arquitetura local e inclui o aplicativo, a biblioteca estática, os cabeçalhos públicos e os metadados `pkg-config`. Um pacote gerado localmente ou um artefato de CI **não equivale a uma release oficial**.
-
-O monitor de terminal é opcional e requer `libncurses-dev`:
+Monitor de terminal, dependente de ncurses:
 
 ```sh
 sudo apt install -y libncurses-dev
@@ -76,112 +77,131 @@ make monitor
 ./build/cpu-monitor
 ```
 
-Consulte [BUILD.md](BUILD.md) para todos os componentes, dependências e alvos Make.
+Aplicação desktop, dependente de GTK4:
 
-## Exemplo: relatório de diagnóstico em C
+```sh
+sudo apt install -y pkg-config libgtk-4-dev
+make gtk-monitor
+./build/cpu-reader-gtk
+```
 
-O exemplo usa a API aditiva. O relatório pode ser montado mesmo quando uma métrica opcional está indisponível; consulte o status antes de interpretar o valor.
+Para gerar o pacote Debian local:
+
+```sh
+sudo apt install -y dpkg-dev
+make package-deb
+ls -lh build/cpu-reader_*.deb
+```
+
+Um pacote local ou artefato de CI não equivale a uma release oficial. Consulte [BUILD.md](BUILD.md) para dependências e alvos disponíveis.
+
+## 3. Exemplo mínimo em C
+
+Este exemplo consulta um snapshot de informações da CPU e libera a memória corretamente.
 
 ```c
 #include <stdio.h>
-#include "cpu_diagnostics.h"
+#include "cpu.h"
 
-int main(void) {
-    cpu_diagnostic_report_t report;
-    cpu_error_info_t error;
+int main(void)
+{
+    cpu_info_t *info = cpu_get_info();
 
-    if (cpu_get_diagnostic_report(&report, &error) != 0) {
-        fprintf(stderr, "Falha ao coletar diagnóstico: %s\n",
-                error.message);
+    if (info == NULL) {
+        fprintf(stderr, "Não foi possível consultar a CPU: %s\n",
+                cpu_get_last_error());
         return 1;
     }
 
-    if (report.info_available) {
-        printf("CPU: %s\n", report.model);
-        printf("Núcleos físicos: %d; lógicos: %d\n",
-               report.physical_cores, report.logical_processors);
-    }
+    printf("Modelo: %s\n", info->model);
+    printf("Processadores lógicos identificados: %d\n",
+           info->logical_processors);
 
-    if (report.temperature_c.status == CPU_DIAG_OK) {
-        printf("Temperatura: %.1f °C (origem: %s)\n",
-               report.temperature_c.value,
-               report.temperature_c.source);
+    if (info->physical_cores > 0) {
+        printf("Núcleos físicos identificados: %d\n",
+               info->physical_cores);
     } else {
-        printf("Temperatura indisponível/ inválida: %s\n",
-               report.temperature_c.message);
+        puts("Topologia física: desconhecida ou indisponível");
     }
 
+    cpu_free_info(info);
     return 0;
 }
 ```
 
-Para compilar a partir do repositório após `make core`:
+Compile a partir da raiz do clone:
 
 ```sh
-cc -std=c99 -Wall -Wextra -Iinclude exemplo.c -L. -lcpu -o exemplo
+make core
+cc -std=c99 -Wall -Wextra -Wpedantic -Iinclude exemplo.c -L. -lcpu -o exemplo
 ./exemplo
 ```
 
-Referências: [API de diagnóstico](wiki/Diagnostic-API.md) · [contratos da API e concorrência](wiki/API.md).
+Para aplicações que precisam associar erros à chamada correta, prefira as variantes `*_ex` e a [API de diagnóstico](wiki/Diagnostic-API.md).
 
-## Métricas, origem e limites
+## 4. Métricas e semântica
 
-| Métrica | Fonte principal | Interpretação importante |
+| Métrica | Fonte atual | Como interpretar |
 |---|---|---|
-| Uso da CPU | `/proc/stat` | A primeira amostra estabelece o baseline; é preciso uma amostra posterior para calcular a variação. |
-| Modelo e topologia | `/proc/cpuinfo` e informações do sistema | A topologia física pode ser desconhecida; zero não prova ausência de núcleos. |
-| Temperatura | zonas em `/sys/class/thermal` reconhecidas | Sensores podem não existir ou não representar a temperatura de todo o pacote. |
-| Frequência | interfaces cpufreq/sysfs; fallback documentado | Pode refletir uma interface específica e não necessariamente todos os núcleos. |
-| Processos executáveis | `/proc/loadavg` | É uma observação do kernel, não uma lista completa de processos. |
+| Modelo, flags e topologia | `/proc/cpuinfo` e interfaces do sistema | A topologia física pode não ser exposta; zero nesse campo significa desconhecido/indisponível. |
+| Uso agregado da CPU | `/proc/stat` | É calculado por deltas. A primeira amostra estabelece o baseline; amostras posteriores permitem estimar o uso no intervalo. |
+| Temperatura | Interfaces térmicas compatíveis em `/sys/class/thermal` ou override configurado | Sensor ausente, virtualização e drivers podem impedir a leitura. O valor não prova calibração física. |
+| Frequência atual | Interfaces cpufreq/sysfs com fallback documentado | Não equivale necessariamente à frequência base nem representa todos os núcleos. |
+| Processos executáveis | `/proc/loadavg` | É a contagem runnable informada pelo kernel, não um inventário completo de processos. |
 
-Os filtros de plausibilidade detectam alguns valores absurdos; não validam a calibração nem provam que a leitura corresponde a um sensor físico específico. O projeto não realiza atestação de firmware, kernel ou hardware.
+A API de diagnóstico distingue valor válido, baseline, indisponibilidade e erro. Consulte o status individual antes de interpretar o valor. Valores sentinela como `-1.0f` não devem ser apresentados como medições.
 
-## Documentação
+## 5. Documentação e relatórios
 
-- [Guia de compilação e instalação](BUILD.md)
-- [Tutorial passo a passo](wiki/Tutorial.md)
+- [Índice da documentação técnica](doc/README.md)
+- [Compilação, instalação e empacotamento](BUILD.md)
+- [Tutorial de uso](wiki/Tutorial.md)
 - [Referência da API C](wiki/API.md)
 - [API de diagnóstico](wiki/Diagnostic-API.md)
-- [Arquitetura e decisões técnicas](doc/arquitetura.md)
-- [Matriz de suporte por distribuição](doc/support-matrix.md)
-- [Validação e testes](VALIDATION.md)
+- [Perguntas frequentes (Q&A)](wiki/FAQ.md)
+- [Arquitetura atual](doc/arquitetura.md)
+- [Roadmap de telemetria de sistema](doc/system-telemetry-roadmap.md)
+- [Guia de QA, validação e relatórios](doc/qa-and-reporting.md)
+- [Matriz de suporte](doc/support-matrix.md)
+- [Requisitos funcionais](doc/requerimentos.md)
+- [Requisitos não funcionais](doc/requisitos-nao-funcionais.md)
 - [Modelo de confiança do diagnóstico](doc/diagnostico-hardware.md)
-- [Segurança e divulgação responsável](SECURITY.md)
-- [Perguntas frequentes](wiki/FAQ.md)
+- [Validação local e CI](VALIDATION.md)
 - [Histórico de alterações](CHANGELOG.md)
+- [Política de segurança](SECURITY.md)
+- [Como contribuir](CONTRIBUTING.md)
 
-## Segurança e privacidade
+## 6. Segurança, privacidade e confiança
 
-A biblioteca consulta interfaces locais do sistema e não precisa de privilégios de root para as operações normais. A disponibilidade depende das permissões e do isolamento imposto pelo host.
+O núcleo consulta interfaces locais do sistema e normalmente não precisa de privilégios de root. Não execute com privilégios elevados sem uma justificativa concreta. Um valor lido de `/proc` ou `/sys` é uma observação fornecida pelo kernel e pelo ambiente; não é uma prova criptográfica da integridade de hardware, firmware ou sistema operacional.
 
-Relatórios podem conter modelo de CPU, flags, topologia, caminhos de sensores e métricas do equipamento. **Revise e remova dados sensíveis antes de publicar logs, relatórios ou saídas de diagnóstico.** Não inclua informações pessoais, dumps completos de ambiente ou arquivos de sistema em issues públicas.
+Relatórios podem revelar modelo do processador, flags, topologia, versão do kernel, caminhos de sensores e métricas do equipamento. Antes de publicar logs ou anexos em issues, remova nomes de host, identificadores e dados desnecessários. Para vulnerabilidades, siga [SECURITY.md](SECURITY.md) em vez de publicar detalhes sensíveis em uma issue pública.
 
-A telemetria observada não é uma prova criptográfica de integridade. Consulte [SECURITY.md](SECURITY.md) antes de usar o projeto em auditorias ou ambientes críticos.
+## 7. Qualidade e contribuição
 
-## Contribuição
+Antes de abrir um pull request:
 
-Issues e pull requests são bem-vindos. Antes de abrir uma alteração:
+1. Leia [CONTRIBUTING.md](CONTRIBUTING.md) e procure uma issue existente.
+2. Mantenha a alteração focada e documente contratos, unidades, ownership e concorrência.
+3. Use fixtures determinísticas para casos de parsing e erro; evite dependência de hardware real.
+4. Execute `make test`; para mudanças sensíveis a memória ou parsing, execute também `make test-sanitize` e `make test-security`.
+5. Informe exatamente quais comandos foram executados e seus resultados. Não declare testes aprovados sem evidência.
 
-1. Leia [CONTRIBUTING.md](CONTRIBUTING.md) e verifique se já existe uma issue relacionada.
-2. Descreva o problema com passos reproduzíveis e o ambiente mínimo necessário.
-3. Execute `make test`; para mudanças de parsing ou memória, execute também sanitizers e hardening.
-4. Não anexe dados identificáveis do host. Prefira fixtures sintéticas e valores redigidos.
+A integração de novos recursos segue issues e PRs iterativos com critérios de aceite. O núcleo deve continuar independente de GTK4 e ncurses.
 
-Use o formulário de [issues](https://github.com/mnl-nox/cpu-reader/issues) para bugs e propostas. Relatos sensíveis devem seguir o procedimento de [segurança](SECURITY.md).
-
-## Estrutura do repositório
+## 8. Estrutura do repositório
 
 ```text
-include/             cabeçalhos públicos
-src/                 núcleo da biblioteca
-examples/            monitor terminal e GTK4
-tests/               testes funcionais, plataforma, diagnóstico e concorrência
+include/             cabeçalhos públicos da biblioteca
+src/                 implementação do núcleo
+examples/            monitores e exemplos de uso
+tests/               testes funcionais, diagnóstico e concorrência
 bench/               microbenchmark informativo
-packaging/           pacote Debian, launcher e metadados
-doc/                 arquitetura, requisitos e limites de confiança
+packaging/           metadados e empacotamento Debian
+doc/                 arquitetura, requisitos, roadmap e QA
 wiki/                tutoriais, API, FAQ e solução de problemas
 site/                documentação web estática
-.github/workflows/   CI, auditoria de distribuições e publicação do site
+.github/workflows/   automação de CI e auditorias
 ```
 
 ## Licença
